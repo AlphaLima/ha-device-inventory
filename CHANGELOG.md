@@ -2,6 +2,11 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.2.1 – 2026-11-09
+- Card and panel JavaScript are loaded with a version in the URL, so browsers no longer show an old cached version (fixes missing search field after an update)
+- Quick polling for the first minute after opening, loading indicator, tabs wait for the card
+- Concurrent list requests share one inventory rebuild
+
 ## 1.2.0 – 2026-11-09
 - Search field next to the page-format button: filters by name, model, room, IP, MAC, manufacturer, firmware, note and online/offline; counter shows hits/total; printing uses the filtered list
 

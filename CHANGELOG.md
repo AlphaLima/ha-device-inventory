@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.3.2 – 2026-11-09
+- Fix: removed a MutationObserver that rescanned the whole Home Assistant UI on every DOM change and made the frontend slow; icon fix now runs only four times after load
+
 ## 1.3.1 – 2026-11-09
 - Even more compact table: font 12 px, tighter rows and cell padding, smaller heading and toolbar spacing
 

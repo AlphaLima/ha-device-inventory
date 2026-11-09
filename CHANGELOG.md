@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.2.3 – 2026-11-09
+- Battery column heading is a battery symbol (tooltip: Batterien)
+
 ## 1.2.2 – 2026-11-09
 - Tab tooltips use the same names as the table headings (Alle Geräte, ZigBee, Batterien, Sonstige) in the Home Assistant language
 

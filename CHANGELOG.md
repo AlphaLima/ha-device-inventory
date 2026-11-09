@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.4.0 – 2026-11-09
+- Internet column (globe): shows the FRITZ!Box internet access switch of a device (allowed / blocked) and toggles it with one click (confirmation before blocking); the switch of FRITZ mirror devices is attached to the real device with the same MAC
+
 ## 1.3.3 – 2026-11-09
 - Fix: Home Assistant became unresponsive. Home Assistant 2026.11 deprecated device_registry.devices.values() and DeviceEntry.config_entries; every access inspects the call stack and with ~460 devices one inventory build blocked the event loop for several seconds. The inventory now uses the new accessors (with fallback for older versions) and reads each value once.
 - Inventory refresh every 2 minutes, requests reuse data younger than 15 s, warning in the log when a build takes longer than 0.5 s

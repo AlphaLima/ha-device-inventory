@@ -220,9 +220,9 @@ class DeviceInventoryCard extends HTMLElement {
     st.textContent = `ha-card{padding:4px 8px 6px}
       .wrap{overflow:auto;max-height:${cfg.max_height || "calc(100vh - 170px)"}}
       table{width:auto;border-collapse:collapse;font-size:12px}
-      th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:2px 5px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
+      th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:3px 4px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
       th:hover{color:var(--primary-color)}
-      td{padding:1px 5px;line-height:1.25;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 200}px;overflow:hidden;text-overflow:ellipsis}
+      td{padding:4px 4px;line-height:1.25;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 170}px;overflow:hidden;text-overflow:ellipsis}
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
       .bar{display:flex;gap:6px;align-items:center;margin:0 0 4px}.dim{opacity:.65;font-size:12px}`;
@@ -318,11 +318,11 @@ class DeviceInventoryCard extends HTMLElement {
       const m = el("span", "cursor:pointer", d.mac); m.title = this._t.copy; m.onclick = () => { try { navigator.clipboard.writeText(d.mac); m.textContent = "✓ " + d.mac; setTimeout(() => (m.textContent = d.mac), 1200); } catch (e) { /* ignore */ } };
       add("mac", m);
     } else add("mac", "–");
-    const copyable = (txt, short) => { const x = el("span", "cursor:pointer", short ? txt.slice(0, 10) + "…" : txt); x.title = txt; x.onclick = () => { try { navigator.clipboard.writeText(txt); } catch (e) { /* ignore */ } }; return x; };
+    const copyable = (txt, _short, full) => { const x = el("span", "cursor:pointer", txt); x.title = full || txt; x.onclick = () => { try { navigator.clipboard.writeText(full || txt); } catch (e) { /* ignore */ } }; return x; };
     add("bleaddr", b.address ? copyable(String(b.address).toUpperCase()) : "–");
-    add("scanner", b.scanner || "–");
+    add("scanner", b.scanner ? (() => { const sc = el("span", null, String(b.scanner).split(" (")[0]); sc.title = b.scanner; return sc; })() : "–");
     if (b.scanner_ip) { const a2 = el("a", "color:var(--primary-color)", b.scanner_ip); a2.href = `http://${b.scanner_ip}`; a2.target = "_blank"; a2.rel = "noopener"; add("scannerip", a2); } else add("scannerip", "–");
-    add("irk", b.irk ? copyable(String(b.irk), true) : "–");
+    add("irk", b.irk ? copyable(String(b.irk).slice(0, 8) + "…", false, String(b.irk)) : "–");
     add("maker", d.manufacturer || "–");
     add("fw", (d.sw_version || "–").split(" ")[0]);
     const sev = (v, good, warn, hi) => (hi ? (v >= good ? "var(--success-color)" : v >= warn ? "var(--warning-color)" : "var(--error-color)") : (v <= good ? "var(--success-color)" : v <= warn ? "var(--warning-color)" : "var(--error-color)"));

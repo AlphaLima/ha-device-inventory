@@ -2,6 +2,11 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.0.0 – 2026-11-09
+- First public release: stable after daily use on a 460-device system
+- Duplicate and placeholder devices (FRITZ!Box/Bluetooth mirrors, devices without entities) are hidden
+- Automatic GitHub release on version tags (workflow) and scripts/release.py for version bumps
+
 ## 0.2.1 – 2026-11-09
 - Compact table: smaller font and padding, long names/firmware cut with an ellipsis (full text as tooltip), column width follows content.
 - Table scrolls inside the card (sticky header, horizontal scrollbar always visible); options `max_height` and `max_cell` for the card.

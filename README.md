@@ -10,7 +10,7 @@ Made for installations with many devices where nobody remembers any more *which 
 - **IP address as a link** to the web page of the device, **MAC address** (click = copy).
 - **Several photos and a note per device** – where it is installed, which fuse, what is connected.
 - **Sub-channels in a tree** – multi-channel devices (e.g. Shelly 2.5, RGBW2) show their channels folded under the main device.
-- **Print / PDF** documentation with heading and page numbers on every page.
+- **Print / PDF documentation** of exactly what you see – including photos and notes – for fault finding and for the electrician or installer (see *Printing as documentation*).
 - `sensor.*_devices_offline` per class (and one for all) with the names of the offline devices – ready for notifications.
 
 Photos and notes are stored on the server (`.storage/device_inventory`, `config/device_inventory/photos/`): shared by all users and part of your backups.
@@ -81,7 +81,7 @@ Multi-channel devices appear in Home Assistant as a main device with sub-devices
 
 ## Search
 
-Type into the 🔍 field: the table filters while you type. Searched are name, model, room, IP, MAC, manufacturer, firmware, the note and the words *online* / *offline* (e.g. `.68`, `kitchen`, `offline`, `fuse 3`). **Esc** clears the field. The counter shows hits / total. Printing uses the filtered list, so you can print one room only.
+Type into the 🔍 field: the table filters while you type. Searched are name, model, room, IP, MAC, manufacturer, firmware, the note and the words *online* / *offline* (e.g. `.68`, `kitchen`, `offline`, `fuse 3`). **Esc** clears the field. The counter shows hits / total. **The search field is also the filter for the printout – on purpose:** whatever is listed is printed. Filter for a room (`kitchen`), a device class (open its tab), an address range (`192.168.188.6`) or `offline`, check the result on screen and print exactly that.
 
 ## Photos, notes, printing
 
@@ -94,9 +94,12 @@ Type into the 🔍 field: the table filters while you type. Searched are name, m
 - ✏️ = no note yet, 📝 = note exists (hover shows the text).
 - Click opens the editor: *Save* (or Ctrl+Enter), *Delete*, *Cancel* (or Esc). An empty text removes the note.
 
-**Printing / PDF**
+**Printing / PDF – the documentation**
 - Choose the page format with the page symbol, then click 🖨️. In the browser's print dialog choose *Save as PDF* for a PDF.
-- The printout has the heading (category) **on every page**, the page number as **1/3** at the bottom right (Chrome / Edge 131 or newer), date and device count, notes and up to eight small photo thumbnails per row. It uses the current sorting and filter and the expanded / collapsed state of the tree.
+- The printout is a **documentation of your installation**, not just a table: every row has the **photos** of the device (up to eight small thumbnails: where it is mounted, the wiring, the label) and its **note** (fuse, circuit, what is connected, remarks). That is what you hand to the **electrician or installer**, put in the folder in the technical room, or take along when you **search for a fault**: *which device, in which room, with which address, how does it look, what was noted*.
+- **What you see is what is printed:** current sorting, **the search filter**, the expanded / collapsed state of the tree and the visible columns. Open the tab of one device class, or filter for one room or address range, and print only that part – for example *"all Shelly devices in the basement"* for the electrician.
+- Every page repeats the **heading** (category) and the column titles; the page number is printed as **1/3** at the bottom right (Chrome / Edge 131 or newer). Date and device count are part of the heading.
+- Tip: add the notes first (position, fuse number, circuit) and take 1–2 photos per device – then the printout answers most questions without a visit to the cabinet.
 - On phones/tablets use the browser (Safari/Chrome); the Home Assistant app may not open the print dialog.
 
 **Import from the old template dashboard:** notes (`netzwerk_bemerkungen`) and photos (`netzfoto_*`) of the author's earlier template-based dashboard are taken over once, automatically, when an admin opens the panel (only empty notes are filled). Harmless if you never had it.
@@ -132,7 +135,7 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Was es ist:** Eine Übersicht über alle Geräte im Haus, nach Klassen sortiert (Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Bluetooth, Batterien …), mit Status-LED, IP-Adresse als Link zur Geräte-Webseite, MAC, Fotos, Bemerkungen und Papierdokumentation. Nach der Installation (HACS bzw. Marketplace als eigenes Repository, HA neu starten, Integration hinzufügen) erscheint „Device Inventory“ in der Seitenleiste. Mit `custom:device-inventory-card` lässt sich eine Tabelle auch in ein eigenes Dashboard setzen.
 
-**Werkzeugleiste:** 🔄 (zwei kreisende Pfeile) lädt neu · 🖨️ druckt (im Druckdialog „Als PDF speichern“) · das **Seitensymbol** zeigt das Druckformat (hochkant / quer) und schaltet beim Klick um · 🔍 filtert beim Tippen (Name, Modell, Raum, IP, MAC, Hersteller, Firmware, Bemerkung, online/offline; Esc leert) · das **Baumsymbol** klappt alle Unterkanäle auf bzw. zu · „Σ 5/105“ = Treffer/Gesamt.
+**Werkzeugleiste:** 🔄 (zwei kreisende Pfeile) lädt neu · 🖨️ druckt (im Druckdialog „Als PDF speichern“) · das **Seitensymbol** zeigt das Druckformat (hochkant / quer) und schaltet beim Klick um · 🔍 filtert beim Tippen (Name, Modell, Raum, IP, MAC, Hersteller, Firmware, Bemerkung, online/offline; Esc leert) – **der Filter gilt bewusst auch für den Ausdruck** · das **Baumsymbol** klappt alle Unterkanäle auf bzw. zu · „Σ 5/105“ = Treffer/Gesamt.
 
 **Spalten:** Status 🟢/🔴 · 🌐 Internet (FRITZ!Box-Zugang: ✅ erlaubt, 🚫 gesperrt; Klick schaltet, mit Rückfrage) · Pfeil-Spalte für Unterkanäle · Name · Modell · Raum · 📏 Entfernung und 🏠 Zuhause (Bluetooth-Präsenz) · IP (Link) · MAC (Klick kopiert) · BLE-MAC, Scanner, Scanner-IP, IRK · Hersteller · Firmware · 📶 WLAN-Signal · 🌡️ Temperatur · ᛒ Bluetooth-Schalter der Shellys (blau = an, Klick schaltet) · 🔋 Batterie · Zuletzt · 🖼️ Fotos · 📝 Bemerkung. Spalten ohne Werte werden automatisch ausgeblendet. Ein Klick auf die Überschrift sortiert.
 
@@ -140,7 +143,7 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Fotos:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto.
 **Bemerkungen:** ✏️ (noch keine) / 📝 (vorhanden) öffnet den Editor, Strg+Enter speichert.
-**Drucken:** Format wählen, 🖨️ klicken. Überschrift auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+), Bemerkungen und kleine Foto-Vorschauen; gedruckt wird die aktuelle Sortierung, der Filter und der Auf-/Zuklappzustand.
+**Drucken = Dokumentation:** Format wählen, 🖨️ klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.
 
 ## License
 

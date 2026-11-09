@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import ipaddress
+import re
 from typing import Any
+from urllib.parse import urlparse
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import (
@@ -14,6 +17,17 @@ from homeassistant.helpers import (
 from .const import CLASS_MAP, OTHER
 
 UNAVAILABLE = ("unavailable", "unknown")
+IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
+
+
+def _valid_ip(value: Any) -> str | None:
+    """Return the value if it is a plain IPv4/IPv6 address."""
+    if not isinstance(value, str):
+        return None
+    try:
+        return str(ipaddress.ip_address(value.strip()))
+    except ValueError:
+        return None
 
 
 def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
@@ -21,6 +35,10 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
     dev_reg = dr.async_get(hass)
     ent_reg = er.async_get(hass)
     area_reg = ar.async_get(hass)
+    devices_per_entry: dict[str, int] = {}
+    for dev in dev_reg.devices.values():
+        for entry_id in dev.config_entries:
+            devices_per_entry[entry_id] = devices_per_entry.get(entry_id, 0) + 1
     result: list[dict[str, Any]] = []
 
     for dev in dev_reg.devices.values():
@@ -34,6 +52,15 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 domains.add(entry.domain)
         classes = sorted({CLASS_MAP[d] for d in domains if d in CLASS_MAP}) or [OTHER]
 
+        ip = None
+        # entries that belong to exactly one device (Shelly, ESPHome, WLED, ...) know the host
+        for entry_id in dev.config_entries:
+            entry = hass.config_entries.async_get_entry(entry_id)
+            if entry and devices_per_entry.get(entry_id) == 1:
+                host = entry.data.get("host") or entry.data.get("ip_address")
+                if isinstance(host, str) and host:
+                    ip = host
+                    break
         alive = 0
         last_seen = None
         battery = None
@@ -43,6 +70,11 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
             if state is None:
                 continue
             primary_entity = primary_entity or ent.entity_id
+            if ip is None:
+                if IP_ENTITY.search(ent.entity_id.split(".", 1)[1]):
+                    ip = _valid_ip(state.state)
+                if ip is None:
+                    ip = _valid_ip(state.attributes.get("ip_address") or state.attributes.get("ip"))
             if state.state not in UNAVAILABLE:
                 alive += 1
             if last_seen is None or state.last_updated > last_seen:
@@ -54,6 +86,9 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 except ValueError:
                     pass
 
+        if ip is None and dev.configuration_url:
+            host = urlparse(str(dev.configuration_url)).hostname
+            ip = _valid_ip(host)
         mac = next((v for k, v in dev.connections if k == "mac"), None)
         area = area_reg.async_get_area(dev.area_id) if dev.area_id else None
         result.append(
@@ -64,7 +99,8 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "model": dev.model,
                 "sw_version": dev.sw_version,
                 "area": area.name if area else None,
-                "mac": mac,
+                "mac": mac.upper() if mac else None,
+                "ip": ip,
                 "classes": classes,
                 "integrations": sorted(domains),
                 "online": alive > 0,

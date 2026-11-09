@@ -1,19 +1,19 @@
 /* Device Inventory card - table of devices of one class with photos, notes, print. */
 const T = {
-  en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area",
+  en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
     maker: "Manufacturer", fw: "Firmware", seen: "Last seen", battery: "Battery", photos: "Photos", note: "Note",
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", adminOnly: "Admin required" },
-  de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum",
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", copy: "Copy", adminOnly: "Admin required" },
+  de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt aktualisiert", battery: "Batterie", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", copy: "Kopieren", adminOnly: "Admin-Rechte nötig" },
 };
-const COLS = ["#", "status", "name", "model", "area", "maker", "fw", "battery", "seen", "photos", "note"];
+const COLS = ["#", "status", "name", "model", "area", "ip", "mac", "maker", "fw", "battery", "seen", "photos", "note"];
 
 function el(tag, css, txt) {
   const x = document.createElement(tag);
@@ -74,6 +74,8 @@ class DeviceInventoryCard extends HTMLElement {
       case "name": return (d.name || "").toLowerCase();
       case "model": return (d.model || "").toLowerCase();
       case "area": return (d.area || "zzz").toLowerCase();
+      case "ip": return (d.ip || "").split(".").map((x) => x.padStart(3, "0")).join(".");
+      case "mac": return d.mac || "";
       case "maker": return (d.manufacturer || "").toLowerCase();
       case "fw": return d.sw_version || "";
       case "battery": return d.battery === null ? -1 : d.battery;
@@ -125,15 +127,17 @@ class DeviceInventoryCard extends HTMLElement {
     root.appendChild(card);
 
     const bar = el("div"); bar.className = "bar";
-    const pb = el("button", null, "🖨️ " + t.print); pb.onclick = () => this._print();
-    const sel = document.createElement("select");
-    [["portrait", t.port], ["landscape", t.land]].forEach(([v, l]) => {
-      const o = document.createElement("option"); o.value = v; o.textContent = l; sel.appendChild(o);
+    const pb = el("button", "font-size:16px;padding:4px 12px", "🖨️"); pb.title = t.print; pb.onclick = () => this._print();
+    const seg = el("span", "display:inline-flex");
+    [["portrait", "▯", t.port], ["landscape", "▭", t.land]].forEach(([v, sym, tip], i) => {
+      const b = el("button", `font-size:16px;padding:4px 10px;${i ? "border-radius:0 8px 8px 0;margin-left:-1px" : "border-radius:8px 0 0 8px"}`, sym);
+      b.title = tip;
+      if (this._ori === v) { b.style.background = "var(--primary-color)"; b.style.color = "#fff"; b.style.borderColor = "var(--primary-color)"; }
+      b.onclick = () => { this._ori = v; try { localStorage.setItem("diOri", v); } catch (e) { /* ignore */ } this._render(); };
+      seg.appendChild(b);
     });
-    sel.value = this._ori;
-    sel.onchange = () => { this._ori = sel.value; try { localStorage.setItem("diOri", sel.value); } catch (e) { /* ignore */ } };
-    const cnt = el("span", null, `${s.devices.length} ${t.count}`); cnt.className = "dim";
-    bar.append(pb, sel, cnt);
+    const cnt = el("span", null, `Σ ${s.devices.length}`); cnt.className = "dim"; cnt.title = t.count;
+    bar.append(pb, seg, cnt);
     card.appendChild(bar);
 
     const tbl = document.createElement("table");
@@ -163,6 +167,14 @@ class DeviceInventoryCard extends HTMLElement {
     add("name", nm);
     add("model", d.model || "–");
     add("area", d.area || "–");
+    if (d.ip) {
+      const a = el("a", "color:var(--primary-color)", d.ip); a.href = `http://${d.ip.includes(":") ? "[" + d.ip + "]" : d.ip}`; a.target = "_blank"; a.rel = "noopener";
+      add("ip", a);
+    } else add("ip", "–");
+    if (d.mac) {
+      const m = el("span", "cursor:pointer", d.mac); m.title = this._t.copy; m.onclick = () => { try { navigator.clipboard.writeText(d.mac); m.textContent = "✓ " + d.mac; setTimeout(() => (m.textContent = d.mac), 1200); } catch (e) { /* ignore */ } };
+      add("mac", m);
+    } else add("mac", "–");
     add("maker", d.manufacturer || "–");
     add("fw", (d.sw_version || "–").split(" ")[0]);
     const bt = d.battery === null || d.battery === undefined ? "–" : d.battery + " %";
@@ -334,7 +346,7 @@ class DeviceInventoryCard extends HTMLElement {
       <table><thead><tr>${cols.map((c) => `<th>${E(c === "#" ? "#" : t[c])}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
-        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, name: d.name, model: d.model || "–", area: d.area || "–",
+        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery == null ? "–" : d.battery + " %",
         seen: this._ago(d.last_seen), note: (s.notes[d.id] || {}).t || "",
       };

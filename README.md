@@ -8,7 +8,7 @@ Classified device tables for your whole smart home – one tab/card per device c
 (Shelly, ESPHome, ZigBee, MQTT, Matter, WLED, Homematic, Z-Wave, Bluetooth, …) with
 
 - 🟢/🔴 status LED (online = at least one live entity),
-- sortable columns (name, model, area, manufacturer, firmware, battery, last seen),
+- sortable columns (name, model, area, **IP address as link to the device's web page**, **MAC address** (click = copy), manufacturer, firmware, battery, last seen),
 - **several photos per device** (hover = thumbnail preview, click = gallery, upload/delete),
 - **notes per device** (hover = text, click = editor),
 - **print / PDF** (A4 portrait or landscape, with heading, photos and notes),
@@ -64,6 +64,8 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 ## Notes
 
+- All texts are English by default and follow the Home Assistant language (English and German included; add a language by copying one block of the `T` table at the top of `device-inventory-card.js`). The toolbar uses symbols (🖨️ print, ▯ portrait, ▭ landscape).
+- The IP address is taken from the config entry (host) of single-device integrations such as Shelly, ESPHome or WLED, otherwise from an `…_ip` sensor, an `ip_address` attribute or the device's configuration URL. It stays empty when none of these exist.
 - Photo and note changes need an **admin** user. Everyone who can open the dashboard can view them.
 - Photos are served without login (`/api/device_inventory/photo/<random 128 bit id>`) so `<img>` tags work; the id is unguessable but anyone who knows a URL can open it. Do not photograph passwords.
 - The device class comes from the integration of the device (see `const.py`, `CLASS_MAP`). A device bridged by two integrations appears in both tables. Add your own domains there (pull requests welcome).

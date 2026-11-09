@@ -131,14 +131,15 @@ class DeviceInventoryCard extends HTMLElement {
 
     const bar = el("div"); bar.className = "bar";
     const pb = el("button", "font-size:16px;padding:4px 12px", "🖨️"); pb.title = t.print; pb.onclick = () => this._print();
-    const seg = el("span", "display:inline-flex");
-    [["portrait", "▯", t.port], ["landscape", "▭", t.land]].forEach(([v, sym, tip], i) => {
-      const b = el("button", `font-size:16px;padding:4px 10px;${i ? "border-radius:0 8px 8px 0;margin-left:-1px" : "border-radius:8px 0 0 8px"}`, sym);
-      b.title = tip;
-      if (this._ori === v) { b.style.background = "var(--primary-color)"; b.style.color = "#fff"; b.style.borderColor = "var(--primary-color)"; }
-      b.onclick = () => { this._ori = v; try { localStorage.setItem("diOri", v); } catch (e) { /* ignore */ } this._render(); };
-      seg.appendChild(b);
-    });
+    const PAGE = {
+      portrait: '<path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5"/>',
+      landscape: '<path d="M3 7a2 2 0 0 1 2-2h11l5 5v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 5v5h5"/>',
+    };
+    const ob = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    ob.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${PAGE[this._ori]}</svg>`;
+    ob.title = this._ori === "portrait" ? t.port : t.land;
+    ob.onclick = () => { this._ori = this._ori === "portrait" ? "landscape" : "portrait"; try { localStorage.setItem("diOri", this._ori); } catch (e) { /* ignore */ } this._render(); };
+    const seg = ob;
     const cnt = el("span", null, `Σ ${s.devices.length}`); cnt.className = "dim"; cnt.title = t.count;
     bar.append(pb, seg, cnt);
     card.appendChild(bar);

@@ -1,17 +1,34 @@
 /* Device Inventory card - table of devices of one class with photos, notes, print. */
+/* sidebar icon: list + bluetooth, registered as custom icon set "deviceinventory" */
+window.customIcons = window.customIcons || {};
+window.customIcons.deviceinventory = {
+  getIcon: async (name) => (name === "logo" ? { path: "M2.1 5a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0zM8 3.8h5.8a1.2 1.2 0 0 1 1.2 1.2v0a1.2 1.2 0 0 1 -1.2 1.2h-5.8a1.2 1.2 0 0 1 -1.2 -1.2v-0a1.2 1.2 0 0 1 1.2 -1.2zM2.1 10a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0zM8 8.8h5.8a1.2 1.2 0 0 1 1.2 1.2v0a1.2 1.2 0 0 1 -1.2 1.2h-5.8a1.2 1.2 0 0 1 -1.2 -1.2v-0a1.2 1.2 0 0 1 1.2 -1.2zM2.1 15a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0zM8 13.8h1.8a1.2 1.2 0 0 1 1.2 1.2v0a1.2 1.2 0 0 1 -1.2 1.2h-1.8a1.2 1.2 0 0 1 -1.2 -1.2v-0a1.2 1.2 0 0 1 1.2 -1.2zM20.63 19.32L19.58 20.38V18.27M19.58 13.46L20.63 14.52L19.58 15.56M22.22 14.52L19.02 11.32H18.46V15.56L15.89 13.00L15.10 13.79L18.23 16.92L15.10 20.04L15.89 20.84L18.46 18.27V22.52H19.02L22.22 19.32L19.81 16.92L22.22 14.52Z", viewBox: "0 0 24 24" } : undefined),
+};
+(function fixIcons(root) {
+  if (!root.querySelectorAll) return;
+  root.querySelectorAll("ha-icon").forEach((el) => {
+    if (el.icon && el.icon.startsWith("deviceinventory:") && typeof el._loadIcon === "function") { el._legacy = false; el._loadIcon(); }
+  });
+  root.querySelectorAll("*").forEach((el) => { if (el.shadowRoot) fixIcons(el.shadowRoot); });
+  if (!window.__diIconObs && document.body) {
+    window.__diIconObs = new MutationObserver(() => fixIcons(document));
+    window.__diIconObs.observe(document.body, { childList: true, subtree: true });
+  }
+})(document);
+
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
     maker: "Manufacturer", fw: "Firmware", seen: "Last seen", battery: "Battery", photos: "Photos", note: "Note",
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", copy: "Copy", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt aktualisiert", battery: "Batterie", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", copy: "Kopieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
@@ -28,13 +45,14 @@ class DeviceInventoryCard extends HTMLElement {
   setConfig(config) {
     this._config = Object.assign({ class: "all", title: "", hide: [] }, config);
     this._state = { devices: [], notes: {}, photos: {}, sortCol: null, sortDir: 1, loaded: false };
+    const cached = this._raw;
     let ori = "portrait";
     try { if (localStorage.getItem("diOri") === "landscape") ori = "landscape"; } catch (e) { /* ignore */ }
     this._ori = ori;
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
     }
-    this._render();
+    if (cached) this._apply(cached); else this._render();
     if (this._hass) this._load();
   }
 
@@ -60,6 +78,7 @@ class DeviceInventoryCard extends HTMLElement {
   }
 
   _apply(r) {
+    this._raw = r;
     const cls = this._config.class;
     const s = this._state;
     s.devices = (r.devices || []).filter((d) => cls === "all" || (cls === "battery" ? this._hasBattery(d) : d.classes.includes(cls)));
@@ -149,8 +168,12 @@ class DeviceInventoryCard extends HTMLElement {
     ob.title = this._ori === "portrait" ? t.port : t.land;
     ob.onclick = () => { this._ori = this._ori === "portrait" ? "landscape" : "portrait"; try { localStorage.setItem("diOri", this._ori); } catch (e) { /* ignore */ } this._render(); };
     const seg = ob;
+    const rb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    rb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 18A6 6 0 0 1 6 12C6 11 6.25 10.03 6.7 9.2L5.24 7.74C4.46 8.97 4 10.43 4 12A8 8 0 0 0 12 20V23L16 19L12 15M12 4V1L8 5L12 9V6A6 6 0 0 1 18 12C18 13 17.75 13.97 17.3 14.8L18.76 16.26C19.54 15.03 20 13.57 20 12A8 8 0 0 0 12 4Z"/></svg>';
+    rb.title = t.refresh;
+    rb.onclick = async () => { rb.style.opacity = ".4"; await this._load(); rb.style.opacity = ""; };
     const cnt = el("span", null, `Σ ${s.devices.length}`); cnt.className = "dim"; cnt.title = t.count;
-    bar.append(pb, seg, cnt);
+    bar.append(rb, pb, seg, cnt);
     card.appendChild(bar);
 
     const tbl = document.createElement("table");

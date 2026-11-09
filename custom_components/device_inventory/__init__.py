@@ -91,7 +91,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             webcomponent_name="device-inventory-panel",
             frontend_url_path=PANEL_PATH,
             sidebar_title="Device Inventory",
-            sidebar_icon="mdi:devices",
+            sidebar_icon="deviceinventory:logo",
             module_url=PANEL_URL,
             embed_iframe=False,
             require_admin=False,

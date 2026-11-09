@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.7.4 – 2026-11-10
+- Expand/collapse switches use a directory-tree symbol (trunk with two branches, no boxes); blue while all channels are expanded
+
 ## 1.7.3 – 2026-11-10
 - Internet access switch asks for confirmation when allowing as well as when blocking
 

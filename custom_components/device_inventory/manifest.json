@@ -3,7 +3,7 @@
   "name": "Device Inventory",
   "codeowners": ["@AlphaLima"],
   "config_flow": true,
-  "dependencies": ["http", "websocket_api", "frontend"],
+  "dependencies": ["http", "websocket_api", "frontend", "panel_custom"],
   "documentation": "https://github.com/AlphaLima/ha-device-inventory",
   "integration_type": "service",
   "iot_class": "calculated",

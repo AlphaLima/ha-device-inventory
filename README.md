@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/icon.png" width="128" alt="Device Inventory icon"></p>
+
 # Device Inventory for Home Assistant
 
 Early Release, ungetestet !!!
@@ -40,7 +42,16 @@ The card JavaScript is loaded automatically.
 
 ## Use
 
-Add a manual card (or a panel view with one card):
+### Sidebar panel (ready to go)
+
+After setup a **Device Inventory** entry appears in the sidebar. It is a complete dashboard with one tab per device class that exists in your system
+(All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Z-Wave, …), brand icons on the tabs and a red badge with the number of offline devices.
+No Lovelace configuration is needed.
+
+### Single card (optional)
+
+
+Or put one table into any of your own dashboards (manual card, or a panel view with one card):
 
 ```yaml
 type: custom:device-inventory-card

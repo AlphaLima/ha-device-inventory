@@ -33,6 +33,7 @@ class DeviceInventoryCard extends HTMLElement {
       this._root = this.attachShadow({ mode: "open" });
     }
     this._render();
+    if (this._hass) this._load();
   }
 
   set hass(hass) {

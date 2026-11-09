@@ -11,7 +11,7 @@ from typing import Any
 from aiohttp import web
 import voluptuous as vol
 
-from homeassistant.components import frontend, websocket_api
+from homeassistant.components import frontend, panel_custom, websocket_api
 from homeassistant.components.http import HomeAssistantView, StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -22,6 +22,8 @@ from homeassistant.util import dt as dt_util
 from .const import (
     CARD_URL,
     DOMAIN,
+    PANEL_PATH,
+    PANEL_URL,
     MAX_UPLOAD_BYTES,
     SCAN_INTERVAL_SECONDS,
     STORAGE_VERSION,
@@ -83,6 +85,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         [StaticPathConfig(f"/{DOMAIN}_static", str(frontend_dir), False)]
     )
     frontend.add_extra_js_url(hass, CARD_URL)
+    try:
+        await panel_custom.async_register_panel(
+            hass,
+            webcomponent_name="device-inventory-panel",
+            frontend_url_path=PANEL_PATH,
+            sidebar_title="Device Inventory",
+            sidebar_icon="mdi:devices",
+            module_url=PANEL_URL,
+            embed_iframe=False,
+            require_admin=False,
+        )
+    except ValueError:
+        _LOGGER.debug("Panel %s already registered", PANEL_PATH)
 
     hass.http.register_view(PhotoUploadView)
     hass.http.register_view(PhotoServeView)
@@ -97,6 +112,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if ok:
+        frontend.async_remove_panel(hass, PANEL_PATH)
         manager: InventoryManager = hass.data.pop(DOMAIN)
         await manager.store.async_save(manager.data)
     return ok

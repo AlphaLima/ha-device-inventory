@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.2.0 – 2026-11-09
+- Search field next to the page-format button: filters by name, model, room, IP, MAC, manufacturer, firmware, note and online/offline; counter shows hits/total; printing uses the filtered list
+
 ## 1.1.7 – 2026-11-09
 - Icon layout: Bluetooth, Matter and ZigBee symbols on top, device list below (like tabs above a table)
 

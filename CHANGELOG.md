@@ -2,6 +2,10 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.7.0 – 2026-11-09
+- Multi-channel devices: sub-channels (devices that belong to another device of the same integration) are grouped under their parent; row arrow and a global expand/collapse button in the toolbar (choice is remembered)
+- Roomier row spacing
+
 ## 1.6.2 – 2026-11-09
 - Sonoff tab also lists devices that only show Sonoff in their entity ids (e.g. ESPHome Sonoff S26 with a generic model)
 

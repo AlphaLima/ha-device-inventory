@@ -4,17 +4,18 @@ window.customIcons = window.customIcons || {};
 window.customIcons.deviceinventory = {
   getIcon: async (name) => (name === "logo" ? { path: "M2.44 6.75L2.44 7.05L2.59 7.31L2.71 7.40L3.00 7.48L3.29 7.40L3.41 7.31L4.02 6.69L4.05 8.55L4.10 8.69L4.20 8.81L4.32 8.90L4.46 8.96L4.61 8.97L4.76 8.95L4.90 8.89L5.02 8.79L6.71 6.97L6.77 6.69L6.70 6.41L5.51 5.20L6.70 3.99L6.77 3.71L6.76 3.56L6.62 3.31L4.90 1.51L4.76 1.45L4.61 1.43L4.46 1.44L4.32 1.50L4.20 1.59L4.10 1.71L4.05 1.85L4.02 3.71L3.41 3.09L3.15 2.94L3.00 2.92L2.71 3.00L2.50 3.21L2.42 3.50L2.50 3.79L3.89 5.20L2.59 6.49ZM5.17 3.91L5.17 3.45L5.40 3.69ZM5.17 6.49L5.40 6.71L5.17 6.95ZM11.55 7.40L11.47 7.01L11.34 6.65L11.17 6.30L10.95 5.97L10.70 5.68L10.40 5.42L10.07 5.20L9.71 5.02L9.32 4.88L9.32 5.73L9.82 5.99L10.23 6.37L8.52 7.36L8.52 7.82L8.92 8.06L10.64 7.07L10.76 7.62L10.74 8.17L11.48 8.60L11.55 8.19L11.58 7.79ZM4.72 11.85L4.55 11.65L4.35 11.48L4.12 11.35L3.86 11.28L3.60 11.25L3.34 11.28L3.08 11.35L2.85 11.48L2.65 11.65L2.48 11.85L2.35 12.08L2.28 12.34L2.25 12.60L2.28 12.86L2.35 13.12L2.48 13.35L2.65 13.55L2.85 13.72L3.08 13.85L3.34 13.92L3.60 13.95L3.86 13.92L4.12 13.85L4.35 13.72L4.55 13.55L4.72 13.35L4.85 13.12L4.92 12.86L4.95 12.60L4.92 12.34L4.85 12.08ZM4.55 15.65L4.35 15.48L4.12 15.35L3.86 15.28L3.60 15.25L3.34 15.28L3.08 15.35L2.85 15.48L2.65 15.65L2.48 15.85L2.35 16.08L2.28 16.34L2.25 16.60L2.28 16.86L2.35 17.12L2.48 17.35L2.65 17.55L2.85 17.72L3.08 17.85L3.34 17.92L3.60 17.95L3.86 17.92L4.12 17.85L4.35 17.72L4.55 17.55L4.72 17.35L4.85 17.12L4.92 16.86L4.95 16.60L4.92 16.34L4.85 16.08L4.72 15.85ZM4.55 19.65L4.35 19.48L4.12 19.35L3.86 19.28L3.60 19.25L3.34 19.28L3.08 19.35L2.85 19.48L2.65 19.65L2.48 19.85L2.35 20.08L2.28 20.34L2.25 20.60L2.28 20.86L2.35 21.12L2.48 21.35L2.65 21.55L2.85 21.72L3.08 21.85L3.34 21.92L3.60 21.95L3.86 21.92L4.12 21.85L4.35 21.72L4.55 21.55L4.72 21.35L4.85 21.12L4.92 20.86L4.95 20.60L4.92 20.34L4.85 20.08L4.72 19.85ZM15.50 21.70L15.50 19.50L6.60 19.50L6.60 21.70ZM10.59 3.55L9.85 3.97L10.16 4.24L10.50 4.46L10.86 4.63L11.23 4.75L11.61 4.83L12.00 4.85L12.39 4.83L12.77 4.75L13.14 4.63L13.50 4.46L13.84 4.24L14.15 3.97L13.42 3.55L12.94 3.84L12.40 4.01L12.40 2.03L12.00 1.80L11.60 2.03L11.60 4.01L11.06 3.84ZM16.73 7.52L16.75 7.66L16.90 7.91L17.15 8.06L17.30 8.07L21.50 8.07L21.79 8.00L21.91 7.91L22.06 7.65L22.06 7.35L21.91 7.09L21.65 6.94L18.60 6.92L21.92 3.29L22.01 3.17L22.07 2.88L22.05 2.74L21.90 2.49L21.78 2.40L21.50 2.33L17.30 2.33L17.01 2.40L16.89 2.49L16.74 2.75L16.74 3.05L16.89 3.31L17.15 3.46L20.20 3.48L16.88 7.11L16.79 7.23ZM12.53 8.60L13.26 8.18L13.24 7.62L13.37 7.07L15.08 8.06L15.48 7.82L15.48 7.36L13.77 6.37L14.18 5.99L14.68 5.72L14.68 4.88L14.29 5.02L13.93 5.20L13.60 5.42L13.31 5.68L13.05 5.98L12.84 6.30L12.66 6.65L12.54 7.01L12.46 7.40L12.43 7.79L12.45 8.20ZM21.50 11.50L6.60 11.50L6.60 13.70L21.50 13.70ZM21.50 15.50L6.60 15.50L6.60 17.70L21.50 17.70Z", viewBox: "0 0 24 24" } : undefined),
 };
-(function fixIcons(root) {
-  if (!root.querySelectorAll) return;
-  root.querySelectorAll("ha-icon").forEach((el) => {
-    if (el.icon && el.icon.startsWith("deviceinventory:") && typeof el._loadIcon === "function") { el._legacy = false; el._loadIcon(); }
-  });
-  root.querySelectorAll("*").forEach((el) => { if (el.shadowRoot) fixIcons(el.shadowRoot); });
-  if (!window.__diIconObs && document.body) {
-    window.__diIconObs = new MutationObserver(() => fixIcons(document));
-    window.__diIconObs.observe(document.body, { childList: true, subtree: true });
-  }
-})(document);
+// ha-icon needs a nudge when a custom icon set is registered after the sidebar rendered.
+// Only a few one-shot passes (no MutationObserver, which would scan the whole UI on every change).
+(function () {
+  const fix = (root) => {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll("ha-icon").forEach((el) => {
+      if (el.icon && el.icon.startsWith("deviceinventory:") && typeof el._loadIcon === "function") { el._legacy = false; el._loadIcon(); }
+    });
+    root.querySelectorAll("*").forEach((el) => { if (el.shadowRoot) fix(el.shadowRoot); });
+  };
+  [500, 2000, 6000, 15000].forEach((ms) => setTimeout(() => fix(document), ms));
+})();
 
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",

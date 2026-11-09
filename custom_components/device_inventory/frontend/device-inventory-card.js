@@ -18,13 +18,13 @@ window.customIcons.deviceinventory = {
 
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
-    maker: "Manufacturer", fw: "Firmware", seen: "Last seen", battery: "Battery", photos: "Photos", note: "Note",
+    maker: "Manufacturer", fw: "Firmware", seen: "Seen", battery: "Batt.", photos: "Photos", note: "Note",
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
-    maker: "Hersteller", fw: "Firmware", seen: "Zuletzt aktualisiert", battery: "Batterie", photos: "Fotos", note: "Bemerkung",
+    maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
@@ -145,10 +145,10 @@ class DeviceInventoryCard extends HTMLElement {
     const st = document.createElement("style");
     st.textContent = `ha-card{padding:6px 10px 8px}
       .wrap{overflow:auto;max-height:${cfg.max_height || "calc(100vh - 170px)"}}
-      table{width:auto;min-width:100%;border-collapse:collapse;font-size:12.5px}
-      th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:4px 7px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
+      table{width:auto;border-collapse:collapse;font-size:12.5px}
+      th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:3px 6px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
       th:hover{color:var(--primary-color)}
-      td{padding:2px 7px;line-height:1.35;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 230}px;overflow:hidden;text-overflow:ellipsis}
+      td{padding:2px 6px;line-height:1.35;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 230}px;overflow:hidden;text-overflow:ellipsis}
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:4px;font-size:15px}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
       .bar{display:flex;gap:8px;align-items:center;margin:2px 0 6px}.dim{opacity:.65;font-size:12px}`;
@@ -180,7 +180,8 @@ class DeviceInventoryCard extends HTMLElement {
     const hr = document.createElement("tr");
     COLS.filter((c) => !hide.has(c)).forEach((c) => {
       const th = document.createElement("th");
-      th.textContent = (c === "#" ? "#" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? " ▲" : " ▼") : "");
+      th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
+      if (c === "photos" || c === "note") th.title = t[c];
       if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._render(); };
       hr.appendChild(th);
     });

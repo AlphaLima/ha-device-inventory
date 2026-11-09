@@ -202,8 +202,8 @@ class DeviceInventoryCard extends HTMLElement {
     const hr = document.createElement("tr");
     COLS.filter((c) => !hide.has(c)).forEach((c) => {
       const th = document.createElement("th");
-      th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
-      if (c === "photos" || c === "note") th.title = t[c];
+      th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
+      if (c === "photos" || c === "note" || c === "battery") th.title = c === "battery" ? t.batteries : t[c];
       if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._render(); };
       hr.appendChild(th);
     });

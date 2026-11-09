@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.2.2 – 2026-11-09
+- Tab tooltips use the same names as the table headings (Alle Geräte, ZigBee, Batterien, Sonstige) in the Home Assistant language
+
 ## 1.2.1 – 2026-11-09
 - Card and panel JavaScript are loaded with a version in the URL, so browsers no longer show an old cached version (fixes missing search field after an update)
 - Quick polling for the first minute after opening, loading indicator, tabs wait for the card

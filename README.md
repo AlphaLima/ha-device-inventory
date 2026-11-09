@@ -10,7 +10,7 @@ Made for installations with many devices where nobody remembers any more *which 
 - **IP address as a link** to the web page of the device, **MAC address** (click = copy).
 - **Several photos and a note per device** – where it is installed, which fuse, what is connected.
 - **Sub-channels in a tree** – multi-channel devices (e.g. Shelly 2.5, RGBW2) show their channels folded under the main device.
-- **Print / PDF documentation** of exactly what you see – including photos and notes – for fault finding and for the electrician or installer (see *Printing as documentation*).
+- **Print / PDF documentation** of exactly what you see – including photos and notes – for fault finding and for the electrician or installer (see *Printing / PDF – the documentation*).
 - `sensor.*_devices_offline` per class (and one for all) with the names of the offline devices – ready for notifications.
 
 Photos and notes are stored on the server (`.storage/device_inventory`, `config/device_inventory/photos/`): shared by all users and part of your backups.

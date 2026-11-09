@@ -1,5 +1,7 @@
 # Device Inventory for Home Assistant
 
+Early Release, ungetestet !!!
+
 Classified device tables for your whole smart home – one tab/card per device class
 (Shelly, ESPHome, ZigBee, MQTT, Matter, WLED, Homematic, Z-Wave, Bluetooth, …) with
 

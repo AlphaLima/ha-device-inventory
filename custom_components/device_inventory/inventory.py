@@ -30,24 +30,51 @@ def _valid_ip(value: Any) -> str | None:
         return None
 
 
+def _all_devices(dev_reg: dr.DeviceRegistry) -> list[dr.DeviceEntry]:
+    """All device entries without touching deprecated registry accessors.
+
+    Home Assistant 2026.11 deprecates ``dev_reg.devices.values()`` and iterating it yields the
+    entries directly; older versions yield the ids. Every deprecated access makes Home Assistant
+    inspect the call stack, which is very slow when done thousands of times.
+    """
+    devices = dev_reg.devices
+    first = next(iter(devices), None)
+    if first is None:
+        return []
+    if isinstance(first, str):  # older Home Assistant: mapping id -> entry
+        return list(devices.values())
+    return list(devices)
+
+
+def _entry_ids(dev: dr.DeviceEntry) -> tuple[str, ...]:
+    """Config entry ids of a device (``config_entry_id`` on 2026.11+, ``config_entries`` before)."""
+    single = getattr(dev, "config_entry_id", None)
+    if single:
+        return (single,)
+    return tuple(dev.config_entries)
+
+
 def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
     """Return one dict per physical device (service entries are skipped)."""
     dev_reg = dr.async_get(hass)
     ent_reg = er.async_get(hass)
     area_reg = ar.async_get(hass)
+    all_devices = _all_devices(dev_reg)
+    entry_ids = {dev.id: _entry_ids(dev) for dev in all_devices}
     devices_per_entry: dict[str, int] = {}
-    for dev in dev_reg.devices.values():
-        for entry_id in dev.config_entries:
+    for ids in entry_ids.values():
+        for entry_id in ids:
             devices_per_entry[entry_id] = devices_per_entry.get(entry_id, 0) + 1
+    entries = {eid: hass.config_entries.async_get_entry(eid) for eid in devices_per_entry}
     result: list[dict[str, Any]] = []
 
-    for dev in dev_reg.devices.values():
+    for dev in all_devices:
         if dev.entry_type is dr.DeviceEntryType.SERVICE or dev.disabled_by:
             continue
 
         domains: set[str] = set()
-        for entry_id in dev.config_entries:
-            entry = hass.config_entries.async_get_entry(entry_id)
+        for entry_id in entry_ids[dev.id]:
+            entry = entries.get(entry_id)
             if entry:
                 domains.add(entry.domain)
         class_set = {CLASS_MAP[d] for d in domains if d in CLASS_MAP}
@@ -58,8 +85,8 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
 
         ip = None
         # entries that belong to exactly one device (Shelly, ESPHome, WLED, ...) know the host
-        for entry_id in dev.config_entries:
-            entry = hass.config_entries.async_get_entry(entry_id)
+        for entry_id in entry_ids[dev.id]:
+            entry = entries.get(entry_id)
             if entry and devices_per_entry.get(entry_id) == 1:
                 host = entry.data.get("host") or entry.data.get("ip_address")
                 if isinstance(host, str) and host:

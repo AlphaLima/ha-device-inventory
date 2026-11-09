@@ -2,7 +2,7 @@
 
 DOMAIN = "device_inventory"
 STORAGE_VERSION = 1
-SCAN_INTERVAL_SECONDS = 60
+SCAN_INTERVAL_SECONDS = 120
 MAX_UPLOAD_BYTES = 12 * 1024 * 1024
 CARD_URL = f"/{DOMAIN}_static/device-inventory-card.js"
 PANEL_URL = f"/{DOMAIN}_static/device-inventory-panel.js"

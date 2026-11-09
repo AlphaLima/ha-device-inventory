@@ -56,10 +56,15 @@ class InventoryManager:
         )
 
     async def _async_update(self) -> list[dict[str, Any]]:
-        self.last_refresh = time.monotonic()
-        return build_inventory(self.hass)
+        start = time.monotonic()
+        self.last_refresh = start
+        result = build_inventory(self.hass)
+        took = time.monotonic() - start
+        if took > 0.5:
+            _LOGGER.warning("Building the inventory took %.1f s (%d devices)", took, len(result))
+        return result
 
-    async def async_refresh_if_old(self, max_age: float = 3.0) -> None:
+    async def async_refresh_if_old(self, max_age: float = 15.0) -> None:
         """Rebuild the inventory unless it was built a moment ago."""
         async with self._lock:
             if time.monotonic() - self.last_refresh > max_age:

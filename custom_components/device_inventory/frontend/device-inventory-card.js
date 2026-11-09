@@ -380,7 +380,7 @@ class DeviceInventoryCard extends HTMLElement {
     let html = `<!doctype html><html><head><meta charset="utf-8"><title>${E(title)}</title><style>@page{size:A4 ${this._ori};margin:8mm 8mm 12mm;@bottom-right{content:counter(page) "/" counter(pages);font:8pt Arial,sans-serif;color:#444}}
       body{font-family:Arial,sans-serif;font-size:${small ? 7.5 : 9}pt;color:#000;margin:0}th.ttl{background:#fff;border:none;border-bottom:.5pt solid #999;padding:0 0 2mm;font-size:13pt}th.ttl small{font-size:8pt;font-weight:normal;color:#444;margin-left:3mm}
       table{border-collapse:collapse;width:100%}th,td{border:.5pt solid #999;padding:1mm 1.4mm;text-align:left;vertical-align:top}th{background:#e8e8e8}
-      thead{display:table-header-group}tr{page-break-inside:avoid}img{width:${small ? 40 : 56}px;height:${small ? 40 : 56}px;object-fit:cover;margin:1px}</style></head><body>
+      thead{display:table-header-group}tr{page-break-inside:avoid}img{width:${small ? 48 : 64}px;height:${small ? 48 : 64}px;object-fit:cover;margin:1px}</style></head><body>
       <table><thead><tr><th class="ttl" colspan="${cols.length}">${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th>${E(c === "#" ? "#" : t[c])}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
@@ -389,7 +389,7 @@ class DeviceInventoryCard extends HTMLElement {
         seen: this._ago(d.last_seen), note: (s.notes[d.id] || {}).t || "",
       };
       html += "<tr>" + cols.map((c) => c === "photos"
-        ? `<td>${(s.photos[d.id] || []).slice(0, 4).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
+        ? `<td>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
         : `<td>${E(cells[c]).replace(/\n/g, "<br>")}</td>`).join("") + "</tr>";
     });
     html += "</tbody></table></body></html>";
@@ -402,7 +402,7 @@ class DeviceInventoryCard extends HTMLElement {
     const imgs = [...doc.images]; let left = imgs.length;
     if (!left) { go(); return; }
     imgs.forEach((im) => { const fin = () => { if (--left <= 0) go(); }; if (im.complete) fin(); else im.onload = im.onerror = fin; });
-    setTimeout(go, 4000);
+    setTimeout(go, 20000);
   }
 }
 

@@ -73,7 +73,7 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Printing / PDF**
 - ▯ / ▭ switches the page format (portrait / landscape); the choice is remembered in the browser.
-- 🖨️ prints the table as currently sorted: heading with the category, date, device count, notes and up to four photo thumbnails per row. In the browser's print dialog choose *Save as PDF* for a PDF.
+- 🖨️ prints the table as currently sorted: heading with the category, date, device count, notes and up to eight small photo thumbnails per row. In the browser's print dialog choose *Save as PDF* for a PDF.
 - On phones/tablets use the browser (Safari/Chrome); the Home Assistant app may not open the print dialog.
 
 **Other buttons:** ⟳ reloads the list (every tab switch reloads, too), click a column heading to sort, click a MAC to copy it, click an IP to open the device's web page.

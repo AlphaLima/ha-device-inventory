@@ -2,82 +2,145 @@
 
 # Device Inventory for Home Assistant
 
-Classified device tables for your whole smart home – one tab/card per device class
-(Shelly, ESPHome, ZigBee, MQTT, Matter, WLED, Homematic, Z-Wave, Bluetooth, …) with
+One overview of **all devices in your smart home**, sorted by device class – with IP and MAC address, status, photos, notes and a printable documentation.
+Made for installations with many devices where nobody remembers any more *which device sits where, under which address*, e.g. when an electrician has to take over or when you search for a fault.
 
-- 🟢/🔴 status LED (online = at least one live entity),
-- sortable columns (name, model, area, **IP address as link to the device's web page**, **MAC address** (click = copy), manufacturer, firmware, battery, last seen),
-- **several photos per device** (hover = thumbnail preview, click = gallery, upload/delete),
-- **notes per device** (hover = text, click = editor),
-- **print / PDF** (A4 portrait or landscape, with heading, photos and notes),
-- `sensor.*_devices_offline` per class (+ one for all) with the names of the offline devices as attribute – ready for notifications and automations.
+- **One tab per device class:** All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Z-Wave, Hue, Tuya, Bluetooth, Batteries, Other (only classes that exist in your system are shown, each with a red badge for offline devices).
+- **Status LED** 🟢/🔴 per device (online = at least one live entity).
+- **IP address as a link** to the web page of the device, **MAC address** (click = copy).
+- **Several photos and a note per device** – where it is installed, which fuse, what is connected.
+- **Sub-channels in a tree** – multi-channel devices (e.g. Shelly 2.5, RGBW2) show their channels folded under the main device.
+- **Print / PDF** documentation with heading and page numbers on every page.
+- `sensor.*_devices_offline` per class (and one for all) with the names of the offline devices – ready for notifications.
 
-Photos and notes are stored server-side (`.storage/device_inventory`, `config/device_inventory/photos/`), so they are shared by all users and part of your backups.
+Photos and notes are stored on the server (`.storage/device_inventory`, `config/device_inventory/photos/`): shared by all users and part of your backups.
 
-> Status: **v1.0** – in daily use on the author's system (460+ devices). Requires Home Assistant 2024.7 or newer. Bug reports and pull requests are welcome.
+> Status: **v1.x** – in daily use on the author's system (300+ devices). Requires Home Assistant 2024.7 or newer. Bug reports and pull requests are welcome.
 
 ## Install
 
-**HACS** → ⋮ → *Custom repositories* → add this repository as type *Integration* → install → restart Home Assistant.
+**HACS / Marketplace** → *Custom repositories* → add this repository as type *Integration* → install → restart Home Assistant.
 Manual: copy `custom_components/device_inventory` to your `config/custom_components/`.
 
 Then *Settings → Devices & services → Add integration → Device Inventory* (one click, nothing to configure).
-The card JavaScript is loaded automatically.
+Reload the browser page (Ctrl+F5) after an update – the card JavaScript is loaded automatically.
 
-## Use
+## The sidebar panel
 
-### Sidebar panel (ready to go)
+After setup a **Device Inventory** entry appears in the sidebar: a complete dashboard, no Lovelace configuration needed.
 
-After setup a **Device Inventory** entry appears in the sidebar. It is a complete dashboard with one tab per device class that exists in your system
-(All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Z-Wave, …), brand icons on the tabs and a red badge with the number of offline devices.
-No Lovelace configuration is needed.
+- The tabs along the top are the device classes. A **red badge** counts offline devices (on the *Batteries* tab: batteries at 20 % or below).
+- Tab symbols: a tile grid for *All*, the brand logos of Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff and Tasmota, the Bluetooth symbol for *Bluetooth* and a battery for *Batteries*. Hover a tab for its name and device count.
+- The first tab shows all devices, the others only devices of that class. A device reached by two integrations (e.g. a Sonoff over ESPHome) appears in both.
 
-### Single card (optional)
+### Toolbar (above every table)
 
+| Symbol | Meaning |
+|---|---|
+| 🔄 (two circling arrows) | reload the list now (every tab switch reloads as well) |
+| 🖨️ | print / save as PDF |
+| page symbol (▯ upright / ▭ lying page) | page format for printing; the symbol shows the current format, a click switches (remembered in the browser) |
+| 🔍 field | search (see below) |
+| tree symbol (shown only if sub-channels exist) | expand / collapse **all** sub-channels |
+| Σ 105 | number of devices (while searching: hits / total) |
 
-Or put one table into any of your own dashboards (manual card, or a panel view with one card):
+### Columns
+
+Click a column heading to sort. Columns without any value in the current tab are hidden automatically (so the ZigBee tab has no temperature column, the Shelly tab has).
+
+| Column | Content |
+|---|---|
+| `#` | running number |
+| Status | 🟢 online / 🔴 offline |
+| 🌐 Internet | FRITZ!Box internet access of the device: ✅ allowed, 🚫 blocked, ❔ unavailable, – none. **Click toggles** the switch, both directions ask for confirmation |
+| tree symbol column | arrow with the number of sub-channels (see *Tree structure*); heading = expand/collapse all |
+| Device | name (sub-channels are indented with └) |
+| Model, Area | from the device registry |
+| 📏 Distance, 🏠 Home | Bluetooth presence: estimated distance in m, home ✅ / away 🚫 |
+| IP | link to `http://<IP>` (opens the web page of the device) |
+| MAC | MAC address, click copies it |
+| BLE MAC, Scanner, Scanner IP, IRK | Bluetooth presence (Private BLE Device and Bermuda): address, the scanner that sees the device (e.g. a Shelly or ESP proxy), its IP as link, the IRK (shortened, click copies the whole key) |
+| Manufacturer, Firmware | from the device registry |
+| 📶 Signal | WiFi signal in dBm (green ≥ −60, orange ≥ −75, red below) |
+| 🌡️ Temp | device temperature (green up to 55 °C, orange up to 65 °C, red above) |
+| ᛒ | Shelly Bluetooth scanner switch: blue = on, grey = off, **click toggles** |
+| 🔋 | battery in % (red ≤ 20, orange ≤ 40) or *Low / OK* |
+| Seen | time of the last update of any entity of the device |
+| 🖼️ | photos (see below) |
+| 📝 | note (see below) |
+
+## Tree structure (sub-channels)
+
+Multi-channel devices appear in Home Assistant as a main device with sub-devices (for example a Shelly 2.5 or RGBW2 with one device per channel, all with the same IP). Instead of cluttering the list, the channels are **folded under the main device**:
+
+- A main device with channels shows an arrow and the number of channels in the narrow column in front of the name, e.g. **▸4**. All device names stay left-aligned, **only the channels are indented** and marked with └.
+- **Click the arrow** to expand / collapse this device. **Click the tree symbol** (toolbar or heading of that column) to expand / collapse **all**. The tree symbol shows the state: *expanded* = full tree with three boxes in blue, *collapsed* = the top box solid and the two sub-boxes dashed grey. The choice is remembered in the browser.
+- A device counts as a channel when Home Assistant lists it as *connected via* another device **of the same integration**; the main device must be in the list as well.
+- **Search keeps the tree:** only matching channels are shown. If only a channel matches, its main device is shown expanded as context.
+- Printing prints what is currently visible.
+
+## Search
+
+Type into the 🔍 field: the table filters while you type. Searched are name, model, room, IP, MAC, manufacturer, firmware, the note and the words *online* / *offline* (e.g. `.68`, `kitchen`, `offline`, `fuse 3`). **Esc** clears the field. The counter shows hits / total. Printing uses the filtered list, so you can print one room only.
+
+## Photos, notes, printing
+
+**Photos** (column 🖼️)
+- 📷 **add**: pick one or several images (JPG/PNG, resized to 1600 px in the browser).
+- 🖼️ appears once a device has photos (a number = how many). **Hover** = thumbnail preview, **click** = gallery: click a photo to open it full size, **✖** on a photo deletes it, *Add photo(s)* adds more.
+- Adding and deleting needs an admin user.
+
+**Notes** (column 📝)
+- ✏️ = no note yet, 📝 = note exists (hover shows the text).
+- Click opens the editor: *Save* (or Ctrl+Enter), *Delete*, *Cancel* (or Esc). An empty text removes the note.
+
+**Printing / PDF**
+- Choose the page format with the page symbol, then click 🖨️. In the browser's print dialog choose *Save as PDF* for a PDF.
+- The printout has the heading (category) **on every page**, the page number as **1/3** at the bottom right (Chrome / Edge 131 or newer), date and device count, notes and up to eight small photo thumbnails per row. It uses the current sorting and filter and the expanded / collapsed state of the tree.
+- On phones/tablets use the browser (Safari/Chrome); the Home Assistant app may not open the print dialog.
+
+**Import from the old template dashboard:** notes (`netzwerk_bemerkungen`) and photos (`netzfoto_*`) of the author's earlier template-based dashboard are taken over once, automatically, when an admin opens the panel (only empty notes are filled). Harmless if you never had it.
+
+## One table in your own dashboard (optional)
 
 ```yaml
 type: custom:device-inventory-card
-class: esphome        # all | shelly | esphome | mqtt | matter | wled | zigbee | zwave | homematic | tasmota | hue | tuya | bluetooth | other
-title: ESPHome devices   # optional
-hide: [battery, maker]   # optional: status, name, model, area, maker, fw, battery, seen, photos, note
+class: esphome        # all | shelly | esphome | mqtt | matter | wled | sonoff | tasmota | zigbee | zwave | homematic | hue | tuya | bluetooth | battery | other
+title: My ESPHome devices   # optional, default is the category name
+hide: [maker, fw]      # optional, columns to hide (keys below)
+max_height: 70vh       # optional, height of the scroll area (default: window height - 170 px)
+max_cell: 170          # optional, maximum cell width in px before text is cut with "…"
 ```
 
-Example automation: notify when `sensor.all_devices_offline` stays above 0 for 30 minutes.
+Column keys for `hide`: `status internet kids name model area distance home ip mac bleaddr scanner scannerip irk maker fw signal temp ble battery seen photos note`.
 
-## Quick guide: photos, notes, printing
-
-**Photos** (column *Fotos / Photos*)
-- 📷 **add**: pick one or several images (JPG/PNG, resized to 1600 px in the browser).
-- 🖼️ (shown once a device has photos; a number = how many) – **hover** = thumbnail preview, **click** = gallery. In the gallery click a photo to open it full size, **✖** on a photo deletes it, *Add photo(s)* adds more.
-- Adding and deleting needs an admin user.
-
-**Notes** (column *Bemerkung / Note*)
-- ✏️ = no note yet, 📝 = note exists (hover shows the text).
-- Click opens the editor: *Save* (or Ctrl+Enter), *Delete*, *Cancel* (or Esc). Empty text removes the note.
-
-**Printing / PDF**
-- ▯ / ▭ switches the page format (portrait / landscape); the choice is remembered in the browser.
-- 🖨️ prints the table as currently sorted: heading with the category, date, device count, notes and up to eight small photo thumbnails per row. In the browser's print dialog choose *Save as PDF* for a PDF.
-- On phones/tablets use the browser (Safari/Chrome); the Home Assistant app may not open the print dialog.
-
-**Other buttons:** ⟳ reloads the list (every tab switch reloads, too), click a column heading to sort, click a MAC to copy it, click an IP to open the device's web page.
+Example automation: notify when `sensor.all_devices_offline` stays above 0 for 30 minutes (the attribute `offline_devices` lists the names).
 
 ## Notes
 
-- All texts are English by default and follow the Home Assistant language (English and German included; add a language by copying one block of the `T` table at the top of `device-inventory-card.js`). The toolbar uses symbols (🖨️ print, ▯ portrait, ▭ landscape).
-- The IP address is taken from the config entry (host) of single-device integrations such as Shelly, ESPHome or WLED, otherwise from an `…_ip` sensor, an `ip_address` attribute or the device's configuration URL. It stays empty when none of these exist.
-- Photo and note changes need an **admin** user. Everyone who can open the dashboard can view them.
-- Photos are served without login (`/api/device_inventory/photo/<random 128 bit id>`) so `<img>` tags work; the id is unguessable but anyone who knows a URL can open it. Do not photograph passwords.
-- The device class comes from the integration of the device (see `const.py`, `CLASS_MAP`). A device bridged by two integrations appears in both tables. Add your own domains there (pull requests welcome).
+- All texts are English by default and follow the Home Assistant language (English and German included; add a language by copying one block of the `T` table at the top of `device-inventory-card.js`).
+- The **IP address** comes from the config entry (host) of single-device integrations such as Shelly, ESPHome or WLED, otherwise from an `…_ip` sensor, an `ip_address` attribute or the configuration URL of the device. It stays empty when none of these exist.
+- Mirror entries of **network scanners** (FRITZ!Box "tracked device", generic Bluetooth entries) are hidden when a real device with the same MAC exists; its internet access switch is handed over to the real device. Devices without any entity are not listed.
+- A device belongs to the **Sonoff** tab when manufacturer, model or an entity id contains "sonoff"/"itead", whatever integration it uses.
+- The device class comes from the integration of the device (see `const.py`, `CLASS_MAP`). Add your own domains there (pull requests welcome).
 - "Online" is a heuristic: a device is offline when *all* its entities are `unavailable`/`unknown`. Sleeping battery devices can look online for a long time.
+- Photo and note changes, the internet switch and the Bluetooth switch need an **admin** user for the write part; everyone who can open the dashboard can view photos and notes.
+- Photos are served without login (`/api/device_inventory/photo/<random 128 bit id>`) so `<img>` tags work; the id is unguessable but anyone who knows a URL can open it. Do not photograph passwords.
+- The inventory is rebuilt every 2 minutes and on request (at most every 15 s). A warning is logged if building it ever takes longer than 0.5 s.
 
 ## Deutsch (Kurzfassung)
 
-**Kurzanleitung:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto. ✏️/📝 öffnet die Bemerkung (Strg+Enter speichert). ▯/▭ wählt Hoch- oder Querformat, 🖨️ druckt (im Druckdialog „Als PDF speichern“). ⟳ lädt neu.
+**Was es ist:** Eine Übersicht über alle Geräte im Haus, nach Klassen sortiert (Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Bluetooth, Batterien …), mit Status-LED, IP-Adresse als Link zur Geräte-Webseite, MAC, Fotos, Bemerkungen und Papierdokumentation. Nach der Installation (HACS bzw. Marketplace als eigenes Repository, HA neu starten, Integration hinzufügen) erscheint „Device Inventory“ in der Seitenleiste. Mit `custom:device-inventory-card` lässt sich eine Tabelle auch in ein eigenes Dashboard setzen.
 
-Gerätetabellen je Klasse (Shelly, ESPHome, ZigBee, MQTT, Matter, WLED …) mit Status-LED, mehreren Fotos pro Gerät (Hover-Vorschau, Galerie), Bemerkungen, Druck/PDF (Hoch- oder Querformat) und Offline-Zählern als Sensoren. Installation über HACS (benutzerdefiniertes Repository) oder Ordner `custom_components/device_inventory` kopieren, neu starten, Integration hinzufügen, Karte `custom:device-inventory-card` mit `class: esphome` o. ä. einbinden.
+**Werkzeugleiste:** 🔄 (zwei kreisende Pfeile) lädt neu · 🖨️ druckt (im Druckdialog „Als PDF speichern“) · das **Seitensymbol** zeigt das Druckformat (hochkant / quer) und schaltet beim Klick um · 🔍 filtert beim Tippen (Name, Modell, Raum, IP, MAC, Hersteller, Firmware, Bemerkung, online/offline; Esc leert) · das **Baumsymbol** klappt alle Unterkanäle auf bzw. zu · „Σ 5/105“ = Treffer/Gesamt.
+
+**Spalten:** Status 🟢/🔴 · 🌐 Internet (FRITZ!Box-Zugang: ✅ erlaubt, 🚫 gesperrt; Klick schaltet, mit Rückfrage) · Pfeil-Spalte für Unterkanäle · Name · Modell · Raum · 📏 Entfernung und 🏠 Zuhause (Bluetooth-Präsenz) · IP (Link) · MAC (Klick kopiert) · BLE-MAC, Scanner, Scanner-IP, IRK · Hersteller · Firmware · 📶 WLAN-Signal · 🌡️ Temperatur · ᛒ Bluetooth-Schalter der Shellys (blau = an, Klick schaltet) · 🔋 Batterie · Zuletzt · 🖼️ Fotos · 📝 Bemerkung. Spalten ohne Werte werden automatisch ausgeblendet. Ein Klick auf die Überschrift sortiert.
+
+**Baumstruktur (Unterkanäle):** Mehrkanal-Geräte (z. B. Shelly 2.5, RGBW2) stehen mit ihren Kanälen **unter dem Hauptgerät**. Das Hauptgerät zeigt einen Pfeil mit der Zahl der Kanäle (**▸4**) in einer eigenen schmalen Spalte, deshalb stehen alle Gerätenamen linksbündig; nur die **Kanäle sind eingerückt** (└). Ein Klick auf den Pfeil klappt dieses Gerät auf/zu, das **Baumsymbol** (Werkzeugleiste oder Kopf der Pfeil-Spalte) klappt **alle** auf/zu. Das Symbol zeigt den Zustand: ausgeklappt = voller Baum mit drei Kästchen in Blau, eingeklappt = oberes Kästchen durchgezogen, die unteren zwei gestrichelt grau. Beim **Suchen** bleibt der Baum erhalten: nur passende Kanäle werden gezeigt; passt nur ein Kanal, wird sein Hauptgerät aufgeklappt mitgezeigt. Gedruckt wird, was gerade sichtbar ist.
+
+**Fotos:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto.
+**Bemerkungen:** ✏️ (noch keine) / 📝 (vorhanden) öffnet den Editor, Strg+Enter speichert.
+**Drucken:** Format wählen, 🖨️ klicken. Überschrift auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+), Bemerkungen und kleine Foto-Vorschauen; gedruckt wird die aktuelle Sortierung, der Filter und der Auf-/Zuklappzustand.
 
 ## License
 

@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.6.1 – 2026-11-09
+- Narrower columns (smaller horizontal padding, cells cut at 170 px), roomier row spacing; scanner name without the address suffix, IRK shortened to 8 characters (click copies the full value)
+
 ## 1.6.0 – 2026-11-09
 - Bluetooth tab: distance, home/away, BLE MAC, scanner, scanner IP and IRK (private BLE device and Bermuda trackers), room from Bermuda when the device has none; Bermuda devices are listed under Bluetooth
 

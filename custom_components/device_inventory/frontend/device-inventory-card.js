@@ -33,8 +33,8 @@ const T = {
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
-const COLS = ["#", "status", "internet", "name", "model", "area", "distance", "home", "ip", "mac", "bleaddr", "scanner", "scannerip", "irk", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
-const OPTIONAL = ["internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
+const COLS = ["#", "status", "internet", "kids", "name", "model", "area", "distance", "home", "ip", "mac", "bleaddr", "scanner", "scannerip", "irk", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
+const OPTIONAL = ["kids", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
 function el(tag, css, txt) {
   const x = document.createElement(tag);
@@ -126,6 +126,7 @@ class DeviceInventoryCard extends HTMLElement {
 
   _has(d, col) {
     switch (col) {
+      case "kids": return !!d.parent && !!this._presentIds && this._presentIds.has(d.parent);
       case "internet": return !!d.internet_switch;
       case "ip": return !!d.ip;
       case "mac": return !!d.mac;
@@ -235,6 +236,7 @@ class DeviceInventoryCard extends HTMLElement {
     const keep = act && act.classList && act.classList.contains("q") ? [act.selectionStart, act.selectionEnd] : null;
     const t = this._t, s = this._state, cfg = this._config;
     const hide = new Set(cfg.hide || []);
+    this._presentIds = new Set(s.devices.map((x) => x.id));
     OPTIONAL.forEach((c) => { if (!s.devices.some((d) => this._has(d, c))) hide.add(c); });
     const root = this._root;
     root.innerHTML = "";
@@ -298,6 +300,11 @@ class DeviceInventoryCard extends HTMLElement {
       const th = document.createElement("th");
       th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "distance" ? "📏" : c === "home" ? "🏠" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
       if (["photos", "note", "battery", "internet", "signal", "temp", "ble", "distance", "home"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
+      if (c === "kids") {
+        th.textContent = this._expAll ? "⊟" : "⊞"; th.title = this._expAll ? t.collapse : t.expand; th.style.textAlign = "center";
+        th.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+        hr.appendChild(th); return;
+      }
       if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._render(); };
       hr.appendChild(th);
     });
@@ -336,16 +343,17 @@ class DeviceInventoryCard extends HTMLElement {
     const nm = el("span", "cursor:pointer", d.name || ""); nm.title = d.name || "";
     nm.onclick = () => { if (d.entity) this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: d.entity }, bubbles: true, composed: true })); };
     const depth = (this._lvl || {})[d.id], kidCount = (this._kids || {})[d.id];
-    const nameBox = el("span", `display:inline-flex;align-items:center;gap:3px;${depth ? "padding-left:14px" : ""}`);
-    if (kidCount) {
+    const kcell = add("kids", null);
+    if (kcell && kidCount) {
       const open = this._expAll || this._exp.has(d.id);
-      const tg = el("span", "cursor:pointer;width:14px;opacity:.8", open ? "▾" : "▸");
+      const tg = el("span", "cursor:pointer;opacity:.85;white-space:nowrap", `${open ? "▾" : "▸"}${kidCount}`);
       tg.title = `${kidCount} ${t.channels}`;
-      tg.onclick = (ev) => { ev.stopPropagation(); this._exp.delete("__all__"); if (this._expAll) { this._expAll = false; (this._allKidParents || []).forEach((i) => this._exp.add(i)); } this._toggleKids(d.id); };
-      nameBox.appendChild(tg);
-    } else if (depth) nameBox.appendChild(el("span", "opacity:.5", "└"));
+      tg.onclick = (ev) => { ev.stopPropagation(); if (this._expAll) { this._expAll = false; (this._allKidParents || []).forEach((i) => this._exp.add(i)); } this._toggleKids(d.id); };
+      kcell.appendChild(tg);
+    }
+    const nameBox = el("span", depth ? "padding-left:16px" : "");
+    if (depth) nameBox.appendChild(el("span", "opacity:.5;margin-right:3px", "└"));
     nameBox.appendChild(nm);
-    if (kidCount) nameBox.appendChild(el("span", "font-size:10px;opacity:.6;margin-left:2px", `(${kidCount})`));
     add("name", nameBox);
     add("model", d.model || "–");
     add("area", d.area || "–");
@@ -546,6 +554,7 @@ class DeviceInventoryCard extends HTMLElement {
     const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const hide = new Set(this._config.hide || []);
     OPTIONAL.forEach((c) => { if (!s.devices.some((d) => this._has(d, c))) hide.add(c); });
+    hide.add("kids");
     const cols = COLS.filter((c) => !hide.has(c));
     const title = this._label();
     const small = this._ori === "portrait" || cols.length > 11;

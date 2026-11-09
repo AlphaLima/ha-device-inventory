@@ -24,6 +24,10 @@ The tables come from the author's dashboard that this integration grew out of (I
 
 ![Shelly tab with signal, temperature, firmware and BLE columns](docs/shelly-tab.png)
 
+Hovering the 🖼️ icon shows a thumbnail of the device's photo; a click opens the gallery.
+
+![Hover preview of a device photo](docs/hover-photo.png)
+
 ## Install
 
 **HACS** → ⋮ → *Custom repositories* → add this repository as type *Integration* → install → restart Home Assistant.

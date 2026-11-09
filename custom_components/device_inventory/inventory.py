@@ -18,6 +18,7 @@ from .const import CLASS_MAP, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
 
 UNAVAILABLE = ("unavailable", "unknown")
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
+INTERNET_SWITCH = re.compile(r"internet_?access|internetzugang")
 
 
 def _valid_ip(value: Any) -> str | None:
@@ -100,11 +101,14 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         battery = None
         battery_low = None
         primary_entity = None
+        internet_switch = None
         for ent in entities:
             state = hass.states.get(ent.entity_id)
             if state is None:
                 continue
             primary_entity = primary_entity or ent.entity_id
+            if internet_switch is None and ent.domain == "switch" and INTERNET_SWITCH.search(ent.entity_id):
+                internet_switch = ent.entity_id
             if ip is None:
                 if IP_ENTITY.search(ent.entity_id.split(".", 1)[1]):
                     ip = _valid_ip(state.state)
@@ -150,12 +154,19 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "battery_low": battery_low,
                 "last_seen": last_seen.isoformat() if last_seen else None,
                 "entity": primary_entity,
+                "internet_switch": internet_switch,
             }
         )
 
     # drop network/Bluetooth mirror devices when a real device has the same MAC
-    real_macs = {d["mac"] for d in result if d["mac"] and not d["_weak"]}
-    result = [d for d in result if not (d["_weak"] and d["mac"] in real_macs)]
+    real_by_mac = {d["mac"]: d for d in result if d["mac"] and not d["_weak"]}
+    for d in result:
+        # the FRITZ!Box "internet access" switch lives on the mirror device: hand it to the real device
+        if d["_weak"] and d["internet_switch"] and d["mac"] in real_by_mac:
+            real = real_by_mac[d["mac"]]
+            if not real["internet_switch"]:
+                real["internet_switch"] = d["internet_switch"]
+    result = [d for d in result if not (d["_weak"] and d["mac"] in real_by_mac)]
     for d in result:
         d.pop("_weak", None)
     return result

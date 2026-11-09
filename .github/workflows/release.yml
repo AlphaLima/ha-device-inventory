@@ -2,28 +2,39 @@ name: Release
 
 # Push a tag like v1.0.0 -> a GitHub release with that name is created automatically,
 # so HACS / the Home Assistant Marketplace show the version number instead of a commit id.
+# Can also be started by hand (Actions -> Release -> Run workflow) for an existing tag.
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release, e.g. v1.0.0"
+        required: true
 
 permissions:
   contents: write
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - name: Check that the tag matches manifest.json
         run: |
           v=$(python3 -c "import json;print(json.load(open('custom_components/device_inventory/manifest.json'))['version'])")
-          if [ "v$v" != "${GITHUB_REF_NAME}" ]; then
-            echo "Tag ${GITHUB_REF_NAME} does not match manifest version v$v"
+          if [ "v$v" != "$TAG" ]; then
+            echo "Tag $TAG does not match manifest version v$v"
             exit 1
           fi
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --generate-notes --latest
+          gh release create "$TAG" --title "$TAG" --generate-notes --latest

@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.1.7 – 2026-11-09
+- Icon layout: Bluetooth, Matter and ZigBee symbols on top, device list below (like tabs above a table)
+
 ## 1.1.6 – 2026-11-09
 - Integration icon now shows the Bluetooth, Matter and ZigBee symbols
 

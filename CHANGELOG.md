@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.3.1 – 2026-11-09
+- Even more compact table: font 12 px, tighter rows and cell padding, smaller heading and toolbar spacing
+
 ## 1.3.0 – 2026-11-09
 - New Sonoff tab (Sonoff/ITEAD devices from any integration, e.g. ESPHome, Matter, ZigBee) with the Sonoff logo (square S with three waves)
 - Tasmota tab uses the Tasmota logo

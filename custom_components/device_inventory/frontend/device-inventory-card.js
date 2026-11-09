@@ -5,14 +5,16 @@ const T = {
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", copy: "Copy", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", copy: "Copy", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt aktualisiert", battery: "Batterie", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", copy: "Kopieren", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", copy: "Kopieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
+const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
+  wled: "WLED", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
 const COLS = ["#", "status", "name", "model", "area", "ip", "mac", "maker", "fw", "battery", "seen", "photos", "note"];
 
 function el(tag, css, txt) {
@@ -60,12 +62,19 @@ class DeviceInventoryCard extends HTMLElement {
   _apply(r) {
     const cls = this._config.class;
     const s = this._state;
-    s.devices = (r.devices || []).filter((d) => cls === "all" || d.classes.includes(cls));
+    s.devices = (r.devices || []).filter((d) => cls === "all" || (cls === "battery" ? this._hasBattery(d) : d.classes.includes(cls)));
     s.notes = r.notes || {};
     s.photos = r.photos || {};
     s.loaded = true;
     this._render();
   }
+
+  _label() {
+    const c = this._config.class;
+    return this._config.title || (c === "all" ? this._t.all : c === "other" ? this._t.other : c === "battery" ? this._t.batteries : NAMES[c] || c);
+  }
+
+  _hasBattery(d) { return d.battery !== null && d.battery !== undefined || d.battery_low !== null && d.battery_low !== undefined; }
 
   _val(d, col) {
     const s = this._state;
@@ -78,7 +87,7 @@ class DeviceInventoryCard extends HTMLElement {
       case "mac": return d.mac || "";
       case "maker": return (d.manufacturer || "").toLowerCase();
       case "fw": return d.sw_version || "";
-      case "battery": return d.battery === null ? -1 : d.battery;
+      case "battery": return d.battery !== null && d.battery !== undefined ? d.battery : d.battery_low === true ? 0 : d.battery_low === false ? 100 : -1;
       case "seen": return d.last_seen || "";
       case "photos": return (s.photos[d.id] || []).length;
       case "note": return ((s.notes[d.id] || {}).t || "").toLowerCase();
@@ -89,7 +98,7 @@ class DeviceInventoryCard extends HTMLElement {
   _sorted() {
     const s = this._state;
     const rows = s.devices.slice();
-    const col = s.sortCol || "area";
+    const col = s.sortCol || (this._config.class === "battery" ? "battery" : "area");
     rows.sort((a, b) => {
       const x = this._val(a, col), y = this._val(b, col);
       const c = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
@@ -126,7 +135,7 @@ class DeviceInventoryCard extends HTMLElement {
       .bar{display:flex;gap:8px;align-items:center;margin:2px 0 6px}.dim{opacity:.65;font-size:12px}`;
     root.appendChild(st);
     const card = document.createElement("ha-card");
-    if (cfg.title) card.header = cfg.title;
+    card.appendChild(el("div", "font-size:18px;font-weight:600;margin:4px 2px 8px", this._label()));
     root.appendChild(card);
 
     const bar = el("div"); bar.className = "bar";
@@ -182,8 +191,11 @@ class DeviceInventoryCard extends HTMLElement {
     } else add("mac", "–");
     add("maker", d.manufacturer || "–");
     add("fw", (d.sw_version || "–").split(" ")[0]);
-    const bt = d.battery === null || d.battery === undefined ? "–" : d.battery + " %";
-    const btn = el("span", d.battery !== null && d.battery !== undefined ? `font-weight:600;color:${d.battery <= 20 ? "var(--error-color)" : d.battery <= 40 ? "var(--warning-color)" : "var(--success-color)"}` : "", bt);
+    const num = d.battery !== null && d.battery !== undefined;
+    const lowFlag = !num && d.battery_low !== null && d.battery_low !== undefined;
+    const bt = num ? d.battery + " %" : lowFlag ? (d.battery_low ? t.low : t.ok) : "–";
+    const lvl = num ? d.battery : lowFlag ? (d.battery_low ? 0 : 100) : null;
+    const btn = el("span", lvl !== null ? `font-weight:600;color:${lvl <= 20 ? "var(--error-color)" : lvl <= 40 ? "var(--warning-color)" : "var(--success-color)"}` : "", bt);
     add("battery", btn);
     add("seen", this._ago(d.last_seen));
 
@@ -340,8 +352,7 @@ class DeviceInventoryCard extends HTMLElement {
     const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const hide = new Set(this._config.hide || []);
     const cols = COLS.filter((c) => !hide.has(c));
-    const label = this._config.class === "all" ? t.all : (t[this._config.class] || this._config.class);
-    const title = this._config.title || label;
+    const title = this._label();
     const small = this._ori === "portrait" || cols.length > 11;
     let html = `<!doctype html><html><head><meta charset="utf-8"><title>${E(title)}</title><style>@page{size:A4 ${this._ori};margin:8mm}
       body{font-family:Arial,sans-serif;font-size:${small ? 7.5 : 9}pt;color:#000;margin:0}h1{font-size:13pt;margin:0 0 1.5mm}p{margin:0 0 3mm;color:#444}
@@ -352,7 +363,7 @@ class DeviceInventoryCard extends HTMLElement {
     this._sorted().forEach((d, i) => {
       const cells = {
         "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
-        maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery == null ? "–" : d.battery + " %",
+        maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
         seen: this._ago(d.last_seen), note: (s.notes[d.id] || {}).t || "",
       };
       html += "<tr>" + cols.map((c) => c === "photos"

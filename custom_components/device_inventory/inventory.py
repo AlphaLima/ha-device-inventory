@@ -67,6 +67,7 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         alive = 0
         last_seen = None
         battery = None
+        battery_low = None
         primary_entity = None
         for ent in entities:
             state = hass.states.get(ent.entity_id)
@@ -83,11 +84,15 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
             if last_seen is None or state.last_updated > last_seen:
                 last_seen = state.last_updated
             device_class = ent.device_class or ent.original_device_class
-            if battery is None and device_class == "battery":
-                try:
-                    battery = round(float(state.state))
-                except ValueError:
-                    pass
+            if device_class == "battery":
+                if ent.domain == "binary_sensor":
+                    if state.state in ("on", "off") and battery_low is None:
+                        battery_low = state.state == "on"
+                elif battery is None:
+                    try:
+                        battery = round(float(state.state))
+                    except ValueError:
+                        pass
 
         if ip is None and dev.configuration_url:
             host = urlparse(str(dev.configuration_url)).hostname
@@ -111,6 +116,7 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "_weak": bool(domains) and domains <= WEAK_INTEGRATIONS,
                 "online": alive > 0,
                 "battery": battery,
+                "battery_low": battery_low,
                 "last_seen": last_seen.isoformat() if last_seen else None,
                 "entity": primary_entity,
             }

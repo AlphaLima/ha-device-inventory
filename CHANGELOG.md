@@ -2,6 +2,10 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.5.0 – 2026-11-09
+- New columns: signal (RSSI), temperature and Bluetooth (BLE scanner switch of Shelly devices, click toggles); columns without any value are hidden
+- One-off import of notes and photos from the old template-based network dashboard (runs automatically when an admin opens the panel; only fills empty notes)
+
 ## 1.4.0 – 2026-11-09
 - Internet column (globe): shows the FRITZ!Box internet access switch of a device (allowed / blocked) and toggles it with one click (confirmation before blocking); the switch of FRITZ mirror devices is attached to the real device with the same MAC
 

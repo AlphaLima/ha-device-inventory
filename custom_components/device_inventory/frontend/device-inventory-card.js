@@ -62,6 +62,9 @@ class DeviceInventoryCard extends HTMLElement {
     if (first) {
       this._load();
       this._timer = setInterval(() => (this.isConnected ? this._load() : clearInterval(this._timer)), 30000);
+      // quick polls right after opening / after a Home Assistant start, while entities are still coming up
+      let n = 0;
+      this._warm = setInterval(() => { if (!this.isConnected || ++n > 12) clearInterval(this._warm); else this._load(); }, 5000);
     }
   }
 
@@ -181,7 +184,7 @@ class DeviceInventoryCard extends HTMLElement {
     rb.title = t.refresh;
     rb.onclick = async () => { rb.style.opacity = ".4"; await this._load(); rb.style.opacity = ""; };
     const cnt = el("span", null, ""); cnt.className = "dim"; cnt.title = t.count;
-    const upd = () => { cnt.textContent = this._q ? `Σ ${this._sorted().length}/${s.devices.length}` : `Σ ${s.devices.length}`; };
+    const upd = () => { cnt.textContent = !s.loaded ? "⏳" : this._q ? `Σ ${this._sorted().length}/${s.devices.length}` : `Σ ${s.devices.length}`; };
     upd();
     const qi = document.createElement("input");
     qi.className = "q"; qi.type = "search"; qi.placeholder = "🔍"; qi.title = t.search; qi.value = this._q || "";

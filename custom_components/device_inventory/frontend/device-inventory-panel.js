@@ -1,5 +1,4 @@
 /* Device Inventory sidebar panel: one tab per device class, each showing the table card. */
-import "/device_inventory_static/device-inventory-card.js";
 
 const PREFERRED = ["all", "shelly", "esphome", "zigbee", "homematic", "mqtt", "matter", "wled", "zwave", "tasmota", "hue", "tuya", "bluetooth", "battery", "other"];
 const MDI = {
@@ -24,8 +23,13 @@ class DeviceInventoryPanel extends HTMLElement {
     this._hass = hass;
     if (!this._built) {
       this._built = true;
-      this._build();
-      this._loadTabs();
+      // the card is loaded globally (extra JS url); wait until it is defined
+      customElements.whenDefined("device-inventory-card").then(() => {
+        this._build();
+        this._loadTabs();
+        [5000, 12000, 25000].forEach((ms) => setTimeout(() => this._loadTabs(), ms)); // warm-up after start
+        if (this._card) this._card.hass = this._hass;
+      });
       this._timer = setInterval(() => (this.isConnected ? this._loadTabs() : clearInterval(this._timer)), 60000);
     }
     if (this._menu) this._menu.hass = hass;
@@ -73,6 +77,7 @@ class DeviceInventoryPanel extends HTMLElement {
   }
 
   async _loadTabs() {
+    if (!this._tabs) return;
     let r;
     try { r = await this._hass.callWS({ type: "device_inventory/list" }); } catch (e) { return; }
     const stats = { all: { n: 0, off: 0 } };

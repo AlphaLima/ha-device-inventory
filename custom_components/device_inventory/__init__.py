@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+import asyncio
 import logging
 from pathlib import Path
 import secrets
@@ -17,6 +18,7 @@ from homeassistant.components.http import HomeAssistantView, StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.storage import Store
+from homeassistant.loader import async_get_integration
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
@@ -43,6 +45,7 @@ class InventoryManager:
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
         self.data: dict[str, Any] = {"notes": {}, "photos": {}}
         self.last_refresh = 0.0
+        self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
         self.coordinator = DataUpdateCoordinator(
             hass,
@@ -58,8 +61,9 @@ class InventoryManager:
 
     async def async_refresh_if_old(self, max_age: float = 3.0) -> None:
         """Rebuild the inventory unless it was built a moment ago."""
-        if time.monotonic() - self.last_refresh > max_age:
-            await self.coordinator.async_refresh()
+        async with self._lock:
+            if time.monotonic() - self.last_refresh > max_age:
+                await self.coordinator.async_refresh()
 
     async def async_load(self) -> None:
         stored = await self.store.async_load()
@@ -92,7 +96,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.http.async_register_static_paths(
         [StaticPathConfig(f"/{DOMAIN}_static", str(frontend_dir), False)]
     )
-    frontend.add_extra_js_url(hass, CARD_URL)
+    version = (await async_get_integration(hass, DOMAIN)).version
+    frontend.add_extra_js_url(hass, f"{CARD_URL}?v={version}")
     try:
         await panel_custom.async_register_panel(
             hass,
@@ -100,7 +105,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             frontend_url_path=PANEL_PATH,
             sidebar_title="Device Inventory",
             sidebar_icon="deviceinventory:logo",
-            module_url=PANEL_URL,
+            module_url=f"{PANEL_URL}?v={version}",
             embed_iframe=False,
             require_admin=False,
         )

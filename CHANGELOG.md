@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.0.2 – 2026-11-09
+- Single orientation button: the page symbol switches between portrait and landscape
+
 ## 1.0.1 – 2026-11-09
 - Release workflow can also be started manually for an existing tag
 

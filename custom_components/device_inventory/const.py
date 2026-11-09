@@ -27,6 +27,7 @@ CLASS_MAP: dict[str, str] = {
     "hue": "hue",
     "tuya": "tuya",
     "private_ble_device": "bluetooth",
+    "bermuda": "bluetooth",
     "bluetooth": "bluetooth",
 }
 OTHER = "other"

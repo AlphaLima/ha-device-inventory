@@ -32,6 +32,22 @@ def _valid_ip(value: Any) -> str | None:
         return None
 
 
+BLE_TRACKER_PLATFORMS = ("private_ble_device", "bermuda")
+
+
+def _scanner_name(hass: HomeAssistant, source: Any) -> str | None:
+    """Name of the Bluetooth scanner (e.g. a Shelly or ESPHome proxy) behind a source address."""
+    if not isinstance(source, str) or not source:
+        return None
+    try:
+        from homeassistant.components import bluetooth as ha_bluetooth  # noqa: PLC0415
+
+        scanner = ha_bluetooth.async_scanner_by_source(hass, source)
+        return scanner.name if scanner else None
+    except Exception:  # noqa: BLE001 - optional detail, never break the inventory
+        return None
+
+
 def _all_devices(dev_reg: dr.DeviceRegistry) -> list[dr.DeviceEntry]:
     """All device entries without touching deprecated registry accessors.
 
@@ -107,6 +123,8 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         temp = None
         temp_prio = -1
         rssi = None
+        distance = None
+        tracker = None
         for ent in entities:
             state = hass.states.get(ent.entity_id)
             if state is None:
@@ -114,6 +132,8 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
             primary_entity = primary_entity or ent.entity_id
             if internet_switch is None and ent.domain == "switch" and INTERNET_SWITCH.search(ent.entity_id):
                 internet_switch = ent.entity_id
+            if tracker is None and ent.domain == "device_tracker" and ent.platform in BLE_TRACKER_PLATFORMS:
+                tracker = ent
             if ble_switch is None and ent.domain == "switch" and BLE_SWITCH.search(ent.entity_id):
                 ble_switch = ent.entity_id
             if ent.domain == "sensor" and state.state not in UNAVAILABLE:
@@ -126,6 +146,11 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                             temp_prio = prio
                         except ValueError:
                             pass
+                elif dclass == "distance" and distance is None:
+                    try:
+                        distance = round(float(state.state), 1)
+                    except ValueError:
+                        pass
                 elif dclass == "signal_strength" and rssi is None:
                     try:
                         rssi = round(float(state.state))
@@ -157,6 +182,33 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         mac = next((v for k, v in dev.connections if k == "mac"), None) or next(
             (v for k, v in dev.connections if k == "bluetooth"), None
         )
+        ble = None
+        ble_area = None
+        if tracker is not None:
+            tstate = hass.states.get(tracker.entity_id)
+            attrs = tstate.attributes if tstate else {}
+            if rssi is None:
+                try:
+                    rssi = round(float(attrs.get("rssi"))) if attrs.get("rssi") is not None else None
+                except (TypeError, ValueError):
+                    pass
+            if distance is None:
+                for key in ("distance", "area_distance"):
+                    try:
+                        if attrs.get(key) is not None:
+                            distance = round(float(attrs[key]), 1)
+                            break
+                    except (TypeError, ValueError):
+                        pass
+            ble_area = attrs.get("area")
+            entry = entries.get(tracker.config_entry_id) if tracker.config_entry_id else None
+            ble = {
+                "home": (tstate.state == "home") if tstate and tstate.state in ("home", "not_home") else None,
+                "distance": distance,
+                "address": attrs.get("current_address") or attrs.get("address") or (mac if mac else None),
+                "scanner": attrs.get("scanner") or _scanner_name(hass, attrs.get("source")),
+                "irk": entry.data.get("irk") if entry is not None else None,
+            }
         area = area_reg.async_get_area(dev.area_id) if dev.area_id else None
         result.append(
             {
@@ -165,7 +217,7 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "manufacturer": dev.manufacturer,
                 "model": dev.model,
                 "sw_version": dev.sw_version,
-                "area": area.name if area else None,
+                "area": area.name if area else (ble_area if isinstance(ble_area, str) else None),
                 "mac": mac.upper() if mac else None,
                 "ip": ip,
                 "classes": classes,
@@ -180,6 +232,7 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "ble_switch": ble_switch,
                 "temp": temp,
                 "rssi": rssi,
+                "ble": ble,
             }
         )
 
@@ -192,6 +245,11 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
             if not real["internet_switch"]:
                 real["internet_switch"] = d["internet_switch"]
     result = [d for d in result if not (d["_weak"] and d["mac"] in real_by_mac)]
+    by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)
+        scanner = d["ble"]["scanner"] if d.get("ble") else None
+        if scanner:
+            match = by_name.get(scanner.split(" (")[0].strip().lower())
+            d["ble"]["scanner_ip"] = match["ip"] if match else None
     return result

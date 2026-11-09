@@ -34,6 +34,7 @@ const T = {
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
 const COLS = ["#", "status", "internet", "kids", "name", "model", "area", "distance", "home", "ip", "mac", "bleaddr", "scanner", "scannerip", "irk", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
+const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="${on ? "color:var(--primary-color)" : ""}"><path d="M6 4v10a4 4 0 0 0 4 4h9"/><path d="M6 11h13"/></svg>`;
 const OPTIONAL = ["kids", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
 function el(tag, css, txt) {
@@ -290,7 +291,8 @@ class DeviceInventoryCard extends HTMLElement {
     this._allKidParents = [...new Set(s.devices.filter((d) => d.parent).map((d) => d.parent))];
     bar.append(rb, pb, seg);
     if (withKids) {
-      const xb = el("button", "font-size:16px;padding:4px 10px", this._expAll ? "⊟" : "⊞");
+      const xb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+      xb.innerHTML = TREE_SVG(this._expAll);
       xb.title = this._expAll ? t.collapse : t.expand;
       xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
       bar.append(xb);
@@ -305,7 +307,7 @@ class DeviceInventoryCard extends HTMLElement {
       th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "distance" ? "📏" : c === "home" ? "🏠" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
       if (["photos", "note", "battery", "internet", "signal", "temp", "ble", "distance", "home"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
       if (c === "kids") {
-        th.textContent = this._expAll ? "⊟" : "⊞"; th.title = this._expAll ? t.collapse : t.expand; th.style.textAlign = "center";
+        th.innerHTML = TREE_SVG(this._expAll); th.title = this._expAll ? t.collapse : t.expand; th.style.textAlign = "center";
         th.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
         hr.appendChild(th); return;
       }

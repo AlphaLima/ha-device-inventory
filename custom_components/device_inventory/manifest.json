@@ -1,0 +1,13 @@
+{
+  "domain": "device_inventory",
+  "name": "Device Inventory",
+  "codeowners": ["@AlphaLima"],
+  "config_flow": true,
+  "dependencies": ["http", "websocket_api", "frontend"],
+  "documentation": "https://github.com/AlphaLima/ha-device-inventory",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/AlphaLima/ha-device-inventory/issues",
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

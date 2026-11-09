@@ -1,0 +1,6 @@
+{
+  "config": {
+    "step": { "user": { "title": "Device Inventory", "description": "Adds classified device tables (Shelly, ESPHome, ZigBee, ...) with photos, notes and print support. Nothing to configure." } },
+    "abort": { "single_instance_allowed": "Already configured." }
+  }
+}

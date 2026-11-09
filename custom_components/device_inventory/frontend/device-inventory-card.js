@@ -22,13 +22,13 @@ const T = {
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
@@ -114,9 +114,15 @@ class DeviceInventoryCard extends HTMLElement {
     }
   }
 
+  _hay(d) {
+    return [d.name, d.model, d.area, d.ip, d.mac, d.manufacturer, d.sw_version, (this._state.notes[d.id] || {}).t, d.online ? "online" : "offline"]
+      .filter(Boolean).join(" ").toLowerCase();
+  }
+
   _sorted() {
     const s = this._state;
-    const rows = s.devices.slice();
+    const q = (this._q || "").trim().toLowerCase();
+    const rows = s.devices.filter((d) => !q || this._hay(d).includes(q));
     const col = s.sortCol || (this._config.class === "battery" ? "battery" : "area");
     rows.sort((a, b) => {
       const x = this._val(a, col), y = this._val(b, col);
@@ -138,6 +144,8 @@ class DeviceInventoryCard extends HTMLElement {
 
   _render() {
     if (!this._root || !this._state) return;
+    const act = this._root.activeElement;
+    const keep = act && act.classList && act.classList.contains("q") ? [act.selectionStart, act.selectionEnd] : null;
     const t = this._t, s = this._state, cfg = this._config;
     const hide = new Set(cfg.hide || []);
     const root = this._root;
@@ -172,8 +180,19 @@ class DeviceInventoryCard extends HTMLElement {
     rb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 18A6 6 0 0 1 6 12C6 11 6.25 10.03 6.7 9.2L5.24 7.74C4.46 8.97 4 10.43 4 12A8 8 0 0 0 12 20V23L16 19L12 15M12 4V1L8 5L12 9V6A6 6 0 0 1 18 12C18 13 17.75 13.97 17.3 14.8L18.76 16.26C19.54 15.03 20 13.57 20 12A8 8 0 0 0 12 4Z"/></svg>';
     rb.title = t.refresh;
     rb.onclick = async () => { rb.style.opacity = ".4"; await this._load(); rb.style.opacity = ""; };
-    const cnt = el("span", null, `Σ ${s.devices.length}`); cnt.className = "dim"; cnt.title = t.count;
-    bar.append(rb, pb, seg, cnt);
+    const cnt = el("span", null, ""); cnt.className = "dim"; cnt.title = t.count;
+    const upd = () => { cnt.textContent = this._q ? `Σ ${this._sorted().length}/${s.devices.length}` : `Σ ${s.devices.length}`; };
+    upd();
+    const qi = document.createElement("input");
+    qi.className = "q"; qi.type = "search"; qi.placeholder = "🔍"; qi.title = t.search; qi.value = this._q || "";
+    qi.style.cssText = "padding:4px 8px;width:150px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px";
+    qi.oninput = () => {
+      this._q = qi.value; upd();
+      const body = this._tbody; body.innerHTML = "";
+      this._sorted().forEach((d, i) => body.appendChild(this._row(d, i + 1, hide)));
+    };
+    qi.onkeydown = (ev) => { ev.stopPropagation(); if (ev.key === "Escape" && qi.value) { qi.value = ""; qi.oninput(); } };
+    bar.append(rb, pb, seg, qi, cnt);
     card.appendChild(bar);
 
     const tbl = document.createElement("table");
@@ -187,10 +206,12 @@ class DeviceInventoryCard extends HTMLElement {
     });
     const thead = document.createElement("thead"); thead.appendChild(hr); tbl.appendChild(thead);
     const tb = document.createElement("tbody");
+    this._tbody = tb;
     this._sorted().forEach((d, i) => tb.appendChild(this._row(d, i + 1, hide)));
     tbl.appendChild(tb);
     const wrap = el("div"); wrap.className = "wrap"; wrap.appendChild(tbl);
     card.appendChild(wrap);
+    if (keep) { qi.focus(); try { qi.setSelectionRange(keep[0], keep[1]); } catch (e) { /* ignore */ } }
   }
 
   _row(d, n, hide) {

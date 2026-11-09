@@ -60,6 +60,24 @@ hide: [battery, maker]   # optional: status, name, model, area, maker, fw, batte
 
 Example automation: notify when `sensor.all_devices_offline` stays above 0 for 30 minutes.
 
+## Quick guide: photos, notes, printing
+
+**Photos** (column *Fotos / Photos*)
+- 📷 **add**: pick one or several images (JPG/PNG, resized to 1600 px in the browser).
+- 🖼️ (shown once a device has photos; a number = how many) – **hover** = thumbnail preview, **click** = gallery. In the gallery click a photo to open it full size, **✖** on a photo deletes it, *Add photo(s)* adds more.
+- Adding and deleting needs an admin user.
+
+**Notes** (column *Bemerkung / Note*)
+- ✏️ = no note yet, 📝 = note exists (hover shows the text).
+- Click opens the editor: *Save* (or Ctrl+Enter), *Delete*, *Cancel* (or Esc). Empty text removes the note.
+
+**Printing / PDF**
+- ▯ / ▭ switches the page format (portrait / landscape); the choice is remembered in the browser.
+- 🖨️ prints the table as currently sorted: heading with the category, date, device count, notes and up to four photo thumbnails per row. In the browser's print dialog choose *Save as PDF* for a PDF.
+- On phones/tablets use the browser (Safari/Chrome); the Home Assistant app may not open the print dialog.
+
+**Other buttons:** ⟳ reloads the list (every tab switch reloads, too), click a column heading to sort, click a MAC to copy it, click an IP to open the device's web page.
+
 ## Notes
 
 - All texts are English by default and follow the Home Assistant language (English and German included; add a language by copying one block of the `T` table at the top of `device-inventory-card.js`). The toolbar uses symbols (🖨️ print, ▯ portrait, ▭ landscape).
@@ -70,6 +88,8 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 - "Online" is a heuristic: a device is offline when *all* its entities are `unavailable`/`unknown`. Sleeping battery devices can look online for a long time.
 
 ## Deutsch (Kurzfassung)
+
+**Kurzanleitung:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto. ✏️/📝 öffnet die Bemerkung (Strg+Enter speichert). ▯/▭ wählt Hoch- oder Querformat, 🖨️ druckt (im Druckdialog „Als PDF speichern“). ⟳ lädt neu.
 
 Gerätetabellen je Klasse (Shelly, ESPHome, ZigBee, MQTT, Matter, WLED …) mit Status-LED, mehreren Fotos pro Gerät (Hover-Vorschau, Galerie), Bemerkungen, Druck/PDF (Hoch- oder Querformat) und Offline-Zählern als Sensoren. Installation über HACS (benutzerdefiniertes Repository) oder Ordner `custom_components/device_inventory` kopieren, neu starten, Integration hinzufügen, Karte `custom:device-inventory-card` mit `class: esphome` o. ä. einbinden.
 

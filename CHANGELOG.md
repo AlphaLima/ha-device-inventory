@@ -2,6 +2,11 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.1.1 – 2026-11-09
+- Refresh button (two circling arrows) left of the print button
+- Switching tabs keeps the last data instead of showing an empty list
+- Sidebar entry uses the integration icon (list with Bluetooth symbol)
+
 ## 1.1.0 – 2026-11-09
 - Heading above every table with the category name
 - Battery tab: all devices with a battery (percent or low/ok), lowest first, badge shows batteries at 20 % or below

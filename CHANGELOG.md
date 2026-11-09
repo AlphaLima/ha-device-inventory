@@ -2,6 +2,10 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.1.0 – 2026-11-09
+- Heading above every table with the category name
+- Battery tab: all devices with a battery (percent or low/ok), lowest first, badge shows batteries at 20 % or below
+
 ## 1.0.2 – 2026-11-09
 - Single orientation button: the page symbol switches between portrait and landscape
 

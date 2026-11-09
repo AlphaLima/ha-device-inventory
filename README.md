@@ -16,20 +16,6 @@ Photos and notes are stored server-side (`.storage/device_inventory`, `config/de
 
 > Status: **v1.0** – in daily use on the author's system (460+ devices). Requires Home Assistant 2024.7 or newer. Bug reports and pull requests are welcome.
 
-## Screenshots
-
-The tables come from the author's dashboard that this integration grew out of (IP/MAC columns blacked out). The card in this repo renders the same kind of table.
-
-![Internet tab with status LEDs, photo and note icons, print button](docs/internet-tab.png)
-
-![Shelly tab with signal, temperature, firmware and BLE columns](docs/shelly-tab.png)
-
-![ESPHome tab with status LED, model, area and firmware](docs/esphome-tab.png)
-
-Hovering the 🖼️ icon shows a thumbnail of the device's photo; a click opens the gallery.
-
-![Hover preview of a device photo](docs/hover-photo.png)
-
 ## Install
 
 **HACS** → ⋮ → *Custom repositories* → add this repository as type *Integration* → install → restart Home Assistant.

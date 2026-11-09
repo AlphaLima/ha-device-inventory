@@ -2,8 +2,6 @@
 
 # Device Inventory for Home Assistant
 
-Early Release, ungetestet !!!
-
 Classified device tables for your whole smart home – one tab/card per device class
 (Shelly, ESPHome, ZigBee, MQTT, Matter, WLED, Homematic, Z-Wave, Bluetooth, …) with
 
@@ -16,7 +14,7 @@ Classified device tables for your whole smart home – one tab/card per device c
 
 Photos and notes are stored server-side (`.storage/device_inventory`, `config/device_inventory/photos/`), so they are shared by all users and part of your backups.
 
-> Status: **v0.1.0, early release.** Written against Home Assistant 2024.7+.
+> Status: **v1.0** – in daily use on the author's system (460+ devices). Requires Home Assistant 2024.7 or newer. Bug reports and pull requests are welcome.
 
 ## Screenshots
 
@@ -78,3 +76,8 @@ Gerätetabellen je Klasse (Shelly, ESPHome, ZigBee, MQTT, Matter, WLED …) mit 
 ## License
 
 MIT
+
+## Releasing (maintainers)
+
+`python scripts/release.py patch|minor|major "change 1" "change 2"` bumps the version in `manifest.json`, adds the changelog entry, commits and tags.
+`git push origin main --follow-tags` then triggers the GitHub workflow, which creates the release automatically – HACS and the Marketplace show that version number.

@@ -28,3 +28,7 @@ CLASS_MAP: dict[str, str] = {
     "bluetooth": "bluetooth",
 }
 OTHER = "other"
+
+# Integrations that only mirror devices seen on the network or via Bluetooth.
+# Such an entry is hidden when the same MAC also belongs to a "real" device.
+WEAK_INTEGRATIONS = {"fritz", "bluetooth", "ping", "nmap_tracker", "unifi", "upnp", "dhcp"}

@@ -14,7 +14,7 @@ from homeassistant.helpers import (
     entity_registry as er,
 )
 
-from .const import CLASS_MAP, OTHER
+from .const import CLASS_MAP, OTHER, WEAK_INTEGRATIONS
 
 UNAVAILABLE = ("unavailable", "unknown")
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
@@ -61,11 +61,14 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 if isinstance(host, str) and host:
                     ip = host
                     break
+        entities = er.async_entries_for_device(ent_reg, dev.id)
+        if not entities:
+            continue  # registry shell without any entity (e.g. Bluetooth scanner placeholder)
         alive = 0
         last_seen = None
         battery = None
         primary_entity = None
-        for ent in er.async_entries_for_device(ent_reg, dev.id):
+        for ent in entities:
             state = hass.states.get(ent.entity_id)
             if state is None:
                 continue
@@ -89,7 +92,9 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         if ip is None and dev.configuration_url:
             host = urlparse(str(dev.configuration_url)).hostname
             ip = _valid_ip(host)
-        mac = next((v for k, v in dev.connections if k == "mac"), None)
+        mac = next((v for k, v in dev.connections if k == "mac"), None) or next(
+            (v for k, v in dev.connections if k == "bluetooth"), None
+        )
         area = area_reg.async_get_area(dev.area_id) if dev.area_id else None
         result.append(
             {
@@ -103,10 +108,17 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "ip": ip,
                 "classes": classes,
                 "integrations": sorted(domains),
+                "_weak": bool(domains) and domains <= WEAK_INTEGRATIONS,
                 "online": alive > 0,
                 "battery": battery,
                 "last_seen": last_seen.isoformat() if last_seen else None,
                 "entity": primary_entity,
             }
         )
+
+    # drop network/Bluetooth mirror devices when a real device has the same MAC
+    real_macs = {d["mac"] for d in result if d["mac"] and not d["_weak"]}
+    result = [d for d in result if not (d["_weak"] and d["mac"] in real_macs)]
+    for d in result:
+        d.pop("_weak", None)
     return result

@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.6.0 – 2026-11-09
+- Bluetooth tab: distance, home/away, BLE MAC, scanner, scanner IP and IRK (private BLE device and Bermuda trackers), room from Bermuda when the device has none; Bermuda devices are listed under Bluetooth
+
 ## 1.5.0 – 2026-11-09
 - New columns: signal (RSSI), temperature and Bluetooth (BLE scanner switch of Shelly devices, click toggles); columns without any value are hidden
 - One-off import of notes and photos from the old template-based network dashboard (runs automatically when an admin opens the panel; only fills empty notes)

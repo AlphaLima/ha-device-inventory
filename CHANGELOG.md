@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.0.1 – 2026-11-09
+- Release workflow can also be started manually for an existing tag
+
 ## 1.0.0 – 2026-11-09
 - First public release: stable after daily use on a 460-device system
 - Duplicate and placeholder devices (FRITZ!Box/Bluetooth mirrors, devices without entities) are hidden

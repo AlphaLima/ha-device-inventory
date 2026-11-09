@@ -2,6 +2,11 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.3.0 – 2026-11-09
+- New Sonoff tab (Sonoff/ITEAD devices from any integration, e.g. ESPHome, Matter, ZigBee) with the Sonoff logo (square S with three waves)
+- Tasmota tab uses the Tasmota logo
+- Sidebar symbol now matches the integration logo: Bluetooth, Matter and ZigBee symbols above the device list
+
 ## 1.2.3 – 2026-11-09
 - Battery column heading is a battery symbol (tooltip: Batterien)
 

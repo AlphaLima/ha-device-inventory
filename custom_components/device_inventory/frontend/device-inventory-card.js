@@ -194,27 +194,31 @@ class DeviceInventoryCard extends HTMLElement {
   _sorted() {
     const s = this._state;
     const q = (this._q || "").trim().toLowerCase();
-    const rows = s.devices.filter((d) => !q || this._hay(d).includes(q));
+    const all = s.devices.slice();
+    const match = new Set(all.filter((d) => !q || this._hay(d).includes(q)).map((d) => d.id));
+    this._matchCount = match.size;
     const col = s.sortCol || (this._config.class === "battery" ? "battery" : "area");
-    rows.sort((a, b) => {
+    all.sort((a, b) => {
       const x = this._val(a, col), y = this._val(b, col);
       const c = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
       return (c || String(a.name).localeCompare(String(b.name))) * (s.sortCol ? s.sortDir : 1);
     });
-    // group sub-channels under their parent device (not while searching)
+    // group sub-channels under their parent; a parent stays visible when one of its channels matches
     this._lvl = {}; this._kids = {};
-    if (q) return rows;
-    const present = new Set(rows.map((d) => d.id));
+    const present = new Set(all.map((d) => d.id));
     const kids = {};
-    rows.forEach((d) => { if (d.parent && present.has(d.parent)) (kids[d.parent] = kids[d.parent] || []).push(d); });
+    all.forEach((d) => { if (d.parent && present.has(d.parent)) (kids[d.parent] = kids[d.parent] || []).push(d); });
     const out = [];
-    rows.forEach((d) => {
+    all.forEach((d) => {
       if (d.parent && present.has(d.parent)) return;
+      const k = kids[d.id] || [];
+      const shownKids = q ? k.filter((c) => match.has(c.id)) : k;
+      if (q && !match.has(d.id) && !shownKids.length) return;
       out.push(d);
-      const k = kids[d.id];
-      if (k) {
-        this._kids[d.id] = k.length;
-        if (this._expAll || this._exp.has(d.id)) k.forEach((c) => { this._lvl[c.id] = 1; out.push(c); });
+      if (k.length) {
+        this._kids[d.id] = shownKids.length;
+        const auto = q && !match.has(d.id) && shownKids.length > 0;
+        if (shownKids.length && (this._expAll || this._exp.has(d.id) || auto)) shownKids.forEach((c) => { this._lvl[c.id] = 1; out.push(c); });
       }
     });
     return out;
@@ -271,7 +275,7 @@ class DeviceInventoryCard extends HTMLElement {
     rb.title = t.refresh;
     rb.onclick = async () => { rb.style.opacity = ".4"; await this._load(); rb.style.opacity = ""; };
     const cnt = el("span", null, ""); cnt.className = "dim"; cnt.title = t.count;
-    const upd = () => { cnt.textContent = !s.loaded ? "⏳" : this._q ? `Σ ${this._sorted().length}/${s.devices.length}` : `Σ ${s.devices.length}`; };
+    const upd = () => { cnt.textContent = !s.loaded ? "⏳" : this._q ? (() => { this._sorted(); return `Σ ${this._matchCount}/${s.devices.length}`; })() : `Σ ${s.devices.length}`; };
     upd();
     const qi = document.createElement("input");
     qi.className = "q"; qi.type = "search"; qi.placeholder = "🔍"; qi.title = t.search; qi.value = this._q || "";

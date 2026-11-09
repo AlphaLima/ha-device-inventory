@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.1.6 – 2026-11-09
+- Integration icon now shows the Bluetooth, Matter and ZigBee symbols
+
 ## 1.1.5 – 2026-11-09
 - Compact columns: widths follow the content, shorter headings (Batt., Zuletzt/Seen), icon headings for photos and notes
 

@@ -125,11 +125,14 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         rssi = None
         distance = None
         tracker = None
+        sonoff_hint = False
         for ent in entities:
             state = hass.states.get(ent.entity_id)
             if state is None:
                 continue
             primary_entity = primary_entity or ent.entity_id
+            if not sonoff_hint and "sonoff" in ent.entity_id:
+                sonoff_hint = True
             if internet_switch is None and ent.domain == "switch" and INTERNET_SWITCH.search(ent.entity_id):
                 internet_switch = ent.entity_id
             if tracker is None and ent.domain == "device_tracker" and ent.platform in BLE_TRACKER_PLATFORMS:
@@ -182,6 +185,8 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         mac = next((v for k, v in dev.connections if k == "mac"), None) or next(
             (v for k, v in dev.connections if k == "bluetooth"), None
         )
+        if sonoff_hint and "sonoff" not in classes:
+            classes = [c for c in classes if c != OTHER] + ["sonoff"]
         ble = None
         ble_area = None
         if tracker is not None:

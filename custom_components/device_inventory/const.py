@@ -22,6 +22,8 @@ CLASS_MAP: dict[str, str] = {
     "homematicip_cloud": "homematic",
     "homematic": "homematic",
     "tasmota": "tasmota",
+    "sonoff": "sonoff",
+    "ewelink": "sonoff",
     "hue": "hue",
     "tuya": "tuya",
     "private_ble_device": "bluetooth",
@@ -32,3 +34,6 @@ OTHER = "other"
 # Integrations that only mirror devices seen on the network or via Bluetooth.
 # Such an entry is hidden when the same MAC also belongs to a "real" device.
 WEAK_INTEGRATIONS = {"fritz", "bluetooth", "ping", "nmap_tracker", "unifi", "upnp", "dhcp"}
+
+# devices of these makers/models also appear in the Sonoff tab, whatever integration they use
+SONOFF_HINTS = ("sonoff", "itead")

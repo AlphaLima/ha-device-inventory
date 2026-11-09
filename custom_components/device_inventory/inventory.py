@@ -14,7 +14,7 @@ from homeassistant.helpers import (
     entity_registry as er,
 )
 
-from .const import CLASS_MAP, OTHER, WEAK_INTEGRATIONS
+from .const import CLASS_MAP, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
 
 UNAVAILABLE = ("unavailable", "unknown")
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
@@ -50,7 +50,11 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
             entry = hass.config_entries.async_get_entry(entry_id)
             if entry:
                 domains.add(entry.domain)
-        classes = sorted({CLASS_MAP[d] for d in domains if d in CLASS_MAP}) or [OTHER]
+        class_set = {CLASS_MAP[d] for d in domains if d in CLASS_MAP}
+        maker_model = f"{dev.manufacturer or ''} {dev.model or ''}".lower()
+        if any(h in maker_model for h in SONOFF_HINTS):
+            class_set.add("sonoff")
+        classes = sorted(class_set) or [OTHER]
 
         ip = None
         # entries that belong to exactly one device (Shelly, ESPHome, WLED, ...) know the host

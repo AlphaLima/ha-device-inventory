@@ -11,11 +11,18 @@ Made for installations with many devices where nobody remembers any more *which 
 - **Several photos and a note per device** – where it is installed, which fuse, what is connected.
 - **Sub-channels in a tree** – multi-channel devices (e.g. Shelly 2.5, RGBW2) show their channels folded under the main device.
 - **Print / PDF documentation** of exactly what you see – including photos and notes – for fault finding and for the electrician or installer (see *Printing / PDF – the documentation*).
+- **Weak batteries are easy to find:** the *Batteries* tab lists the lowest batteries first; the photo (where is the sensor?) and the note (battery type, how to open it) show you the device and what to do, and the printed list can be taken along on the round.
 - `sensor.*_devices_offline` per class (and one for all) with the names of the offline devices – ready for notifications.
 
 Photos and notes are stored on the server (`.storage/device_inventory`, `config/device_inventory/photos/`): shared by all users and part of your backups.
 
 > Status: **v1.x** – in daily use on the author's system (300+ devices). Requires Home Assistant 2024.7 or newer. Bug reports and pull requests are welcome.
+
+## Example printout
+
+[`docs/example-printout.pdf`](docs/example-printout.pdf) is a real printout (Shelly devices, A4 portrait, IP and MAC addresses blacked out): heading and page number on every page, status, signal, temperature, **photos** and **notes** per device, sub-channels (BadLED, AussenBeetEinfahrt …) listed below their main device.
+
+<p align="center"><a href="docs/example-printout.pdf"><img src="docs/example-printout-page1.png" width="560" alt="Example printout, page 1"></a></p>
 
 ## Install
 
@@ -99,6 +106,7 @@ Type into the 🔍 field: the table filters while you type. Searched are name, m
 - The printout is a **documentation of your installation**, not just a table: every row has the **photos** of the device (up to eight small thumbnails: where it is mounted, the wiring, the label) and its **note** (fuse, circuit, what is connected, remarks). That is what you hand to the **electrician or installer**, put in the folder in the technical room, or take along when you **search for a fault**: *which device, in which room, with which address, how does it look, what was noted*.
 - **What you see is what is printed:** current sorting, **the search filter**, the expanded / collapsed state of the tree and the visible columns. Open the tab of one device class, or filter for one room or address range, and print only that part – for example *"all Shelly devices in the basement"* for the electrician.
 - Every page repeats the **heading** (category) and the column titles; the page number is printed as **1/3** at the bottom right (Chrome / Edge 131 or newer). Date and device count are part of the heading.
+- **Finding weak batteries:** open the *Batteries* tab (lowest first) and print it. Every row tells you which device it is, in which room, how it looks (photo) and what to do (note, e.g. *"CR2032, cover clips off at the bottom"*) – so the round with the battery tin is quick, also for someone who does not know the house.
 - Tip: add the notes first (position, fuse number, circuit) and take 1–2 photos per device – then the printout answers most questions without a visit to the cabinet.
 - On phones/tablets use the browser (Safari/Chrome); the Home Assistant app may not open the print dialog.
 
@@ -143,7 +151,7 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Fotos:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto.
 **Bemerkungen:** ✏️ (noch keine) / 📝 (vorhanden) öffnet den Editor, Strg+Enter speichert.
-**Drucken = Dokumentation:** Format wählen, 🖨️ klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.
+**Drucken = Dokumentation:** Format wählen, 🖨️ klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). **Schwache Batterien finden:** Tab „Batterien“ öffnen (niedrigste zuerst) und drucken – Foto (wo sitzt der Sensor?) und Bemerkung (Batterietyp, wie man ihn öffnet) machen den Austausch einfach, auch für Personen, die das Haus nicht kennen. Ein echter Beispielausdruck liegt in `docs/example-printout.pdf` (IP und MAC geschwärzt). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.
 
 ## License
 

@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.6.2 – 2026-11-09
+- Sonoff tab also lists devices that only show Sonoff in their entity ids (e.g. ESPHome Sonoff S26 with a generic model)
+
 ## 1.6.1 – 2026-11-09
 - Narrower columns (smaller horizontal padding, cells cut at 170 px), roomier row spacing; scanner name without the address suffix, IRK shortened to 8 characters (click copies the full value)
 

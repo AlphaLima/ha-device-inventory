@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.1.5 – 2026-11-09
+- Compact columns: widths follow the content, shorter headings (Batt., Zuletzt/Seen), icon headings for photos and notes
+
 ## 1.1.4 – 2026-11-09
 - Printing includes up to 8 small photo thumbnails per device and waits up to 20 s for the images
 

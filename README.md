@@ -16,6 +16,14 @@ Photos and notes are stored server-side (`.storage/device_inventory`, `config/de
 
 > Status: **v0.1.0, early release.** Written against Home Assistant 2024.7+.
 
+## Screenshots
+
+The tables come from the author's dashboard that this integration grew out of (IP/MAC columns blacked out). The card in this repo renders the same kind of table.
+
+![Internet tab with status LEDs, photo and note icons, print button](docs/internet-tab.png)
+
+![Shelly tab with signal, temperature, firmware and BLE columns](docs/shelly-tab.png)
+
 ## Install
 
 **HACS** → ⋮ → *Custom repositories* → add this repository as type *Integration* → install → restart Home Assistant.

@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.7.2 – 2026-11-10
+- Search keeps the channel grouping: matching sub-channels stay under their parent, a parent that only matches through a channel is shown and expanded, expand/collapse works while filtering
+
 ## 1.7.1 – 2026-11-09
 - Expand/collapse arrow moved into its own narrow column so all device names stay left-aligned; only sub-channels are indented
 - Global expand/collapse toggle also in the header of that column (besides the toolbar button)

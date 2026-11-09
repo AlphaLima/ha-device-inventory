@@ -218,6 +218,7 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         result.append(
             {
                 "id": dev.id,
+                "parent": dev.via_device_id,
                 "name": dev.name_by_user or dev.name or dev.id,
                 "manufacturer": dev.manufacturer,
                 "model": dev.model,
@@ -250,6 +251,12 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
             if not real["internet_switch"]:
                 real["internet_switch"] = d["internet_switch"]
     result = [d for d in result if not (d["_weak"] and d["mac"] in real_by_mac)]
+    # sub-channels: a device whose via_device is another listed device of the same config entry
+    ids = {d["id"] for d in result}
+    for d in result:
+        pid = d.get("parent")
+        if not pid or pid == d["id"] or pid not in ids or not (set(entry_ids.get(d["id"], ())) & set(entry_ids.get(pid, ()))):
+            d["parent"] = None
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

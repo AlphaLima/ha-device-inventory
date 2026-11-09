@@ -23,13 +23,13 @@ const T = {
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
@@ -48,6 +48,7 @@ class DeviceInventoryCard extends HTMLElement {
     this._config = Object.assign({ class: "all", title: "", hide: [] }, config);
     this._state = { devices: [], notes: {}, photos: {}, sortCol: null, sortDir: 1, loaded: false };
     const cached = this._raw;
+    if (this._exp === undefined) { this._exp = new Set(); try { this._expAll = localStorage.getItem("diExpand") === "1"; } catch (e) { this._expAll = false; } }
     let ori = "portrait";
     try { if (localStorage.getItem("diOri") === "landscape") ori = "landscape"; } catch (e) { /* ignore */ }
     this._ori = ori;
@@ -179,6 +180,11 @@ class DeviceInventoryCard extends HTMLElement {
     }
   }
 
+  _toggleKids(id) {
+    if (this._exp.has(id)) this._exp.delete(id); else this._exp.add(id);
+    this._render();
+  }
+
   _hay(d) {
     return [d.name, d.model, d.area, d.ip, d.mac, d.manufacturer, d.sw_version, (this._state.notes[d.id] || {}).t, d.online ? "online" : "offline"]
       .filter(Boolean).join(" ").toLowerCase();
@@ -194,7 +200,23 @@ class DeviceInventoryCard extends HTMLElement {
       const c = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
       return (c || String(a.name).localeCompare(String(b.name))) * (s.sortCol ? s.sortDir : 1);
     });
-    return rows;
+    // group sub-channels under their parent device (not while searching)
+    this._lvl = {}; this._kids = {};
+    if (q) return rows;
+    const present = new Set(rows.map((d) => d.id));
+    const kids = {};
+    rows.forEach((d) => { if (d.parent && present.has(d.parent)) (kids[d.parent] = kids[d.parent] || []).push(d); });
+    const out = [];
+    rows.forEach((d) => {
+      if (d.parent && present.has(d.parent)) return;
+      out.push(d);
+      const k = kids[d.id];
+      if (k) {
+        this._kids[d.id] = k.length;
+        if (this._expAll || this._exp.has(d.id)) k.forEach((c) => { this._lvl[c.id] = 1; out.push(c); });
+      }
+    });
+    return out;
   }
 
   _ago(iso) {
@@ -222,7 +244,7 @@ class DeviceInventoryCard extends HTMLElement {
       table{width:auto;border-collapse:collapse;font-size:12px}
       th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:3px 4px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
       th:hover{color:var(--primary-color)}
-      td{padding:4px 4px;line-height:1.25;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 170}px;overflow:hidden;text-overflow:ellipsis}
+      td{padding:7px 4px;line-height:1.3;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 170}px;overflow:hidden;text-overflow:ellipsis}
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
       .bar{display:flex;gap:6px;align-items:center;margin:0 0 4px}.dim{opacity:.65;font-size:12px}`;
@@ -258,7 +280,16 @@ class DeviceInventoryCard extends HTMLElement {
       this._sorted().forEach((d, i) => body.appendChild(this._row(d, i + 1, hide)));
     };
     qi.onkeydown = (ev) => { ev.stopPropagation(); if (ev.key === "Escape" && qi.value) { qi.value = ""; qi.oninput(); } };
-    bar.append(rb, pb, seg, qi, cnt);
+    const withKids = s.devices.some((d) => d.parent && s.devices.some((p) => p.id === d.parent));
+    this._allKidParents = [...new Set(s.devices.filter((d) => d.parent).map((d) => d.parent))];
+    bar.append(rb, pb, seg);
+    if (withKids) {
+      const xb = el("button", "font-size:16px;padding:4px 10px", this._expAll ? "⊟" : "⊞");
+      xb.title = this._expAll ? t.collapse : t.expand;
+      xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+      bar.append(xb);
+    }
+    bar.append(qi, cnt);
     card.appendChild(bar);
 
     const tbl = document.createElement("table");
@@ -304,7 +335,18 @@ class DeviceInventoryCard extends HTMLElement {
     }
     const nm = el("span", "cursor:pointer", d.name || ""); nm.title = d.name || "";
     nm.onclick = () => { if (d.entity) this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: d.entity }, bubbles: true, composed: true })); };
-    add("name", nm);
+    const depth = (this._lvl || {})[d.id], kidCount = (this._kids || {})[d.id];
+    const nameBox = el("span", `display:inline-flex;align-items:center;gap:3px;${depth ? "padding-left:14px" : ""}`);
+    if (kidCount) {
+      const open = this._expAll || this._exp.has(d.id);
+      const tg = el("span", "cursor:pointer;width:14px;opacity:.8", open ? "▾" : "▸");
+      tg.title = `${kidCount} ${t.channels}`;
+      tg.onclick = (ev) => { ev.stopPropagation(); this._exp.delete("__all__"); if (this._expAll) { this._expAll = false; (this._allKidParents || []).forEach((i) => this._exp.add(i)); } this._toggleKids(d.id); };
+      nameBox.appendChild(tg);
+    } else if (depth) nameBox.appendChild(el("span", "opacity:.5", "└"));
+    nameBox.appendChild(nm);
+    if (kidCount) nameBox.appendChild(el("span", "font-size:10px;opacity:.6;margin-left:2px", `(${kidCount})`));
+    add("name", nameBox);
     add("model", d.model || "–");
     add("area", d.area || "–");
     const b = d.ble || {};

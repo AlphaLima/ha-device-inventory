@@ -23,17 +23,18 @@ const T = {
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
-const COLS = ["#", "status", "internet", "name", "model", "area", "ip", "mac", "maker", "fw", "battery", "seen", "photos", "note"];
+const COLS = ["#", "status", "internet", "name", "model", "area", "ip", "mac", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
+const OPTIONAL = ["internet", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
 function el(tag, css, txt) {
   const x = document.createElement(tag);
@@ -61,7 +62,7 @@ class DeviceInventoryCard extends HTMLElement {
     const first = !this._hass;
     this._hass = hass;
     if (first) {
-      this._load();
+      this._load().then(() => this._migrate());
       this._timer = setInterval(() => (this.isConnected ? this._load() : clearInterval(this._timer)), 30000);
       // quick polls right after opening / after a Home Assistant start, while entities are still coming up
       let n = 0;
@@ -73,6 +74,25 @@ class DeviceInventoryCard extends HTMLElement {
   static getStubConfig() { return { class: "esphome" }; }
 
   get _t() { return T[(this._hass && this._hass.language || "en").slice(0, 2)] || T.en; }
+
+  async _migrate() {
+    // one-off: take over notes and photos of the old template-based network dashboard
+    try {
+      const h = this._hass;
+      if (!h || !h.user || !h.user.is_admin) return;
+      try { if (localStorage.getItem("diLegacy") === "1") return; } catch (e) { /* ignore */ }
+      let notes = {}, images = [];
+      try { const r = await h.callWS({ type: "frontend/get_system_data", key: "netzwerk_bemerkungen" }); notes = (r && r.value && typeof r.value === "object") ? r.value : {}; } catch (e) { /* none */ }
+      try { images = (await h.callWS({ type: "image/list" })).filter((i) => (i.name || "").indexOf("netzfoto_") === 0).map((i) => ({ id: i.id, name: i.name })); } catch (e) { /* none */ }
+      if (Object.keys(notes).length || images.length) {
+        const res = await h.callWS({ type: "device_inventory/import_legacy", notes, images });
+        const t = this._t;
+        if (res.notes || res.photos) alert(`${t.importDone}: ${res.notes} ${t.importNotes}, ${res.photos} ${t.importPhotos}`);
+        await this._load();
+      }
+      try { localStorage.setItem("diLegacy", "1"); } catch (e) { /* ignore */ }
+    } catch (e) { console.warn("device_inventory import", e); }
+  }
 
   async _load() {
     try {
@@ -97,6 +117,25 @@ class DeviceInventoryCard extends HTMLElement {
     return this._config.title || (c === "all" ? this._t.all : c === "other" ? this._t.other : c === "battery" ? this._t.batteries : NAMES[c] || c);
   }
 
+  _sw(entity) {
+    if (!entity || !this._hass) return null;
+    const st = this._hass.states[entity];
+    return st ? st.state : "unavailable";
+  }
+
+  _has(d, col) {
+    switch (col) {
+      case "internet": return !!d.internet_switch;
+      case "ip": return !!d.ip;
+      case "mac": return !!d.mac;
+      case "signal": return d.rssi != null;
+      case "temp": return d.temp != null;
+      case "ble": return !!d.ble_switch;
+      case "battery": return this._hasBattery(d);
+      default: return true;
+    }
+  }
+
   _inet(d) {
     if (!d.internet_switch || !this._hass) return null;
     const st = this._hass.states[d.internet_switch];
@@ -115,6 +154,9 @@ class DeviceInventoryCard extends HTMLElement {
       case "area": return (d.area || "zzz").toLowerCase();
       case "ip": return (d.ip || "").split(".").map((x) => x.padStart(3, "0")).join(".");
       case "mac": return d.mac || "";
+      case "signal": return d.rssi == null ? -999 : d.rssi;
+      case "temp": return d.temp == null ? -999 : d.temp;
+      case "ble": { const x = this._sw(d.ble_switch); return x === "on" ? 2 : x === "off" ? 1 : 0; }
       case "maker": return (d.manufacturer || "").toLowerCase();
       case "fw": return d.sw_version || "";
       case "battery": return d.battery !== null && d.battery !== undefined ? d.battery : d.battery_low === true ? 0 : d.battery_low === false ? 100 : -1;
@@ -159,6 +201,7 @@ class DeviceInventoryCard extends HTMLElement {
     const keep = act && act.classList && act.classList.contains("q") ? [act.selectionStart, act.selectionEnd] : null;
     const t = this._t, s = this._state, cfg = this._config;
     const hide = new Set(cfg.hide || []);
+    OPTIONAL.forEach((c) => { if (!s.devices.some((d) => this._has(d, c))) hide.add(c); });
     const root = this._root;
     root.innerHTML = "";
     const st = document.createElement("style");
@@ -210,8 +253,8 @@ class DeviceInventoryCard extends HTMLElement {
     const hr = document.createElement("tr");
     COLS.filter((c) => !hide.has(c)).forEach((c) => {
       const th = document.createElement("th");
-      th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
-      if (c === "photos" || c === "note" || c === "battery" || c === "internet") th.title = c === "battery" ? t.batteries : t[c];
+      th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
+      if (["photos", "note", "battery", "internet", "signal", "temp", "ble"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
       if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._render(); };
       hr.appendChild(th);
     });
@@ -262,6 +305,24 @@ class DeviceInventoryCard extends HTMLElement {
     } else add("mac", "–");
     add("maker", d.manufacturer || "–");
     add("fw", (d.sw_version || "–").split(" ")[0]);
+    const sev = (v, good, warn, hi) => (hi ? (v >= good ? "var(--success-color)" : v >= warn ? "var(--warning-color)" : "var(--error-color)") : (v <= good ? "var(--success-color)" : v <= warn ? "var(--warning-color)" : "var(--error-color)"));
+    add("signal", d.rssi == null ? "–" : el("span", `color:${sev(d.rssi, -60, -75, true)}`, d.rssi + " dBm"));
+    add("temp", d.temp == null ? "–" : el("span", `color:${sev(d.temp, 55, 65, false)}`, d.temp.toFixed(1) + "°C"));
+    const bleState = this._sw(d.ble_switch);
+    if (bleState === null) add("ble", "–");
+    else {
+      const bon = bleState === "on";
+      const bs = el("span", "cursor:pointer;display:inline-flex");
+      bs.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" style="fill:${bon ? "#2196f3" : "#9e9e9e"}"><path d="M14.88 16.29L13 18.17V14.41M13 5.83L14.88 7.71L13 9.58M17.71 7.71L12 2H11V9.58L6.41 5L5 6.41L10.59 12L5 17.58L6.41 19L11 14.41V22H12L17.71 16.29L13.41 12L17.71 7.71Z"/></svg>`;
+      bs.title = `${t.ble}: ${bon ? "on" : bleState === "off" ? "off" : bleState}`;
+      bs.onclick = async () => {
+        if (bleState !== "on" && bleState !== "off") return;
+        bs.style.opacity = ".4";
+        try { await this._hass.callService("switch", bon ? "turn_off" : "turn_on", { entity_id: d.ble_switch }); } catch (e) { alert(`${t.saveFail}: ${e.message || e}`); }
+        setTimeout(() => this._render(), 1200);
+      };
+      add("ble", bs);
+    }
     const num = d.battery !== null && d.battery !== undefined;
     const lowFlag = !num && d.battery_low !== null && d.battery_low !== undefined;
     const bt = num ? d.battery + " %" : lowFlag ? (d.battery_low ? t.low : t.ok) : "–";
@@ -422,6 +483,7 @@ class DeviceInventoryCard extends HTMLElement {
   _print() {
     const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const hide = new Set(this._config.hide || []);
+    OPTIONAL.forEach((c) => { if (!s.devices.some((d) => this._has(d, c))) hide.add(c); });
     const cols = COLS.filter((c) => !hide.has(c));
     const title = this._label();
     const small = this._ori === "portrait" || cols.length > 11;
@@ -434,7 +496,7 @@ class DeviceInventoryCard extends HTMLElement {
       const cells = {
         "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? t.allowed : x === "off" ? t.blocked : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
-        seen: this._ago(d.last_seen), note: (s.notes[d.id] || {}).t || "",
+        seen: this._ago(d.last_seen), signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };
       html += "<tr>" + cols.map((c) => c === "photos"
         ? `<td>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`

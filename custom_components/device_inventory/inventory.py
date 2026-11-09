@@ -18,6 +18,7 @@ from .const import CLASS_MAP, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
 
 UNAVAILABLE = ("unavailable", "unknown")
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
+BLE_SWITCH = re.compile(r"aioshelly_ble_integration")
 INTERNET_SWITCH = re.compile(r"internet_?access|internetzugang")
 
 
@@ -102,6 +103,10 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         battery_low = None
         primary_entity = None
         internet_switch = None
+        ble_switch = None
+        temp = None
+        temp_prio = -1
+        rssi = None
         for ent in entities:
             state = hass.states.get(ent.entity_id)
             if state is None:
@@ -109,6 +114,23 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
             primary_entity = primary_entity or ent.entity_id
             if internet_switch is None and ent.domain == "switch" and INTERNET_SWITCH.search(ent.entity_id):
                 internet_switch = ent.entity_id
+            if ble_switch is None and ent.domain == "switch" and BLE_SWITCH.search(ent.entity_id):
+                ble_switch = ent.entity_id
+            if ent.domain == "sensor" and state.state not in UNAVAILABLE:
+                dclass = ent.device_class or ent.original_device_class
+                if dclass == "temperature":
+                    prio = 2 if ("device_temp" in ent.entity_id or "internal_temp" in ent.entity_id) else (1 if ent.entity_category else 0)
+                    if prio > temp_prio:
+                        try:
+                            temp = round(float(state.state), 1)
+                            temp_prio = prio
+                        except ValueError:
+                            pass
+                elif dclass == "signal_strength" and rssi is None:
+                    try:
+                        rssi = round(float(state.state))
+                    except ValueError:
+                        pass
             if ip is None:
                 if IP_ENTITY.search(ent.entity_id.split(".", 1)[1]):
                     ip = _valid_ip(state.state)
@@ -155,6 +177,9 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
                 "last_seen": last_seen.isoformat() if last_seen else None,
                 "entity": primary_entity,
                 "internet_switch": internet_switch,
+                "ble_switch": ble_switch,
+                "temp": temp,
+                "rssi": rssi,
             }
         )
 

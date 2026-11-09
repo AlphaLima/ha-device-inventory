@@ -17,6 +17,8 @@ from homeassistant.components import frontend, panel_custom, websocket_api
 from homeassistant.components.http import HomeAssistantView, StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.storage import Store
 from homeassistant.loader import async_get_integration
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -122,6 +124,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     websocket_api.async_register_command(hass, ws_list)
     websocket_api.async_register_command(hass, ws_set_note)
     websocket_api.async_register_command(hass, ws_delete_photo)
+    websocket_api.async_register_command(hass, ws_import_legacy)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
@@ -193,6 +196,85 @@ async def ws_delete_photo(hass: HomeAssistant, connection, msg: dict[str, Any]) 
             manager.data["photos"].pop(msg["device_id"], None)
         manager.save()
     connection.send_result(msg["id"], manager.payload())
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/import_legacy",
+        vol.Optional("notes", default={}): dict,
+        vol.Optional("images", default=[]): list,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_import_legacy(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Import notes and photos of the old template-based network dashboard (one-off, idempotent)."""
+    manager: InventoryManager = hass.data[DOMAIN]
+    await manager.async_refresh_if_old(0)
+    devices = manager.coordinator.data or []
+    ids = {d["id"] for d in devices}
+    by_mac = {d["mac"]: d["id"] for d in devices if d.get("mac")}
+    dev_reg = dr.async_get(hass)
+    ent_reg = er.async_get(hass)
+
+    def resolve(key: str) -> str | None:
+        if key in ids:
+            return key
+        device_id = key
+        if "." in key:  # an entity id (older dashboard tabs used the switch/tracker entity)
+            entry = ent_reg.async_get(key)
+            device_id = entry.device_id if entry else None
+            if device_id in ids:
+                return device_id
+        dev = dev_reg.async_get(device_id) if device_id else None
+        if dev is not None:
+            mac = next((v for k, v in dev.connections if k in ("mac", "bluetooth")), None)
+            if mac and mac.upper() in by_mac:
+                return by_mac[mac.upper()]
+        return None
+
+    out = {"notes": 0, "photos": 0, "unresolved": 0, "kept": 0}
+    for key, item in (msg["notes"] or {}).items():
+        text = ((item or {}).get("t") or "").strip()
+        target = resolve(key)
+        if not text:
+            continue
+        if target is None:
+            out["unresolved"] += 1
+        elif manager.data["notes"].get(target, {}).get("t"):
+            out["kept"] += 1
+        else:
+            manager.data["notes"][target] = {"t": text, "ts": (item or {}).get("ts") or dt_util.utcnow().isoformat()}
+            out["notes"] += 1
+
+    known = {p.get("legacy") for lst in manager.data["photos"].values() for p in lst if p.get("legacy")}
+
+    def copy_image(src: Path, dst: Path) -> bool:
+        if not src.is_file():
+            return False
+        dst.write_bytes(src.read_bytes())
+        return True
+
+    for img in msg["images"] or []:
+        name = str(img.get("name") or "")
+        image_id = str(img.get("id") or "")
+        if not name.startswith("netzfoto_") or not image_id or image_id in known or not image_id.isalnum():
+            continue
+        target = resolve(name[len("netzfoto_") :].rsplit(".", 1)[0])
+        if target is None:
+            out["unresolved"] += 1
+            continue
+        photo_id = secrets.token_urlsafe(16)
+        ok = await hass.async_add_executor_job(
+            copy_image, Path(hass.config.path("image", image_id, "original")), manager.photo_dir / f"{photo_id}.jpg"
+        )
+        if ok:
+            manager.data["photos"].setdefault(target, []).append(
+                {"id": photo_id, "ts": dt_util.utcnow().isoformat(), "legacy": image_id}
+            )
+            out["photos"] += 1
+    manager.save()
+    connection.send_result(msg["id"], out)
 
 
 # --------------------------------------------------------------------- HTTP

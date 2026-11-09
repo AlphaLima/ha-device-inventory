@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.7.5 – 2026-11-10
+- Expand/collapse symbol is a directory tree with boxes: collapsed = top box with dashed grey sub-boxes, expanded = full tree in blue
+
 ## 1.7.4 – 2026-11-10
 - Expand/collapse switches use a directory-tree symbol (trunk with two branches, no boxes); blue while all channels are expanded
 

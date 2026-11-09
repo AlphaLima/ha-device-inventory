@@ -115,12 +115,15 @@ class DeviceInventoryCard extends HTMLElement {
     const root = this._root;
     root.innerHTML = "";
     const st = document.createElement("style");
-    st.textContent = `ha-card{padding:8px 12px 12px;overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
-      th{text-align:left;padding:6px 8px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
-      th:hover{color:var(--primary-color)}td{padding:5px 8px;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap}
-      tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:6px;font-size:16px}
-      button,select{cursor:pointer;padding:5px 12px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
-      .bar{display:flex;gap:8px;align-items:center;margin:4px 0 8px}.dim{opacity:.65;font-size:12px}`;
+    st.textContent = `ha-card{padding:6px 10px 8px}
+      .wrap{overflow:auto;max-height:${cfg.max_height || "calc(100vh - 170px)"}}
+      table{width:auto;min-width:100%;border-collapse:collapse;font-size:12.5px}
+      th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:4px 7px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
+      th:hover{color:var(--primary-color)}
+      td{padding:2px 7px;line-height:1.35;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 230}px;overflow:hidden;text-overflow:ellipsis}
+      tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:4px;font-size:15px}
+      button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
+      .bar{display:flex;gap:8px;align-items:center;margin:2px 0 6px}.dim{opacity:.65;font-size:12px}`;
     root.appendChild(st);
     const card = document.createElement("ha-card");
     if (cfg.title) card.header = cfg.title;
@@ -152,17 +155,18 @@ class DeviceInventoryCard extends HTMLElement {
     const tb = document.createElement("tbody");
     this._sorted().forEach((d, i) => tb.appendChild(this._row(d, i + 1, hide)));
     tbl.appendChild(tb);
-    card.appendChild(tbl);
+    const wrap = el("div"); wrap.className = "wrap"; wrap.appendChild(tbl);
+    card.appendChild(wrap);
   }
 
   _row(d, n, hide) {
     const t = this._t, s = this._state;
     const tr = document.createElement("tr");
-    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); if (typeof node === "string") td.textContent = node; else if (node) td.appendChild(node); tr.appendChild(td); return td; };
+    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); tr.appendChild(td); return td; };
     add("#", String(n));
     const led = el("span", null, d.online ? "🟢" : "🔴"); led.title = d.online ? t.online : t.offline;
     add("status", led);
-    const nm = el("span", "cursor:pointer", d.name || "");
+    const nm = el("span", "cursor:pointer", d.name || ""); nm.title = d.name || "";
     nm.onclick = () => { if (d.entity) this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: d.entity }, bubbles: true, composed: true })); };
     add("name", nm);
     add("model", d.model || "–");

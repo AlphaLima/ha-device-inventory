@@ -6,6 +6,7 @@ from datetime import timedelta
 import logging
 from pathlib import Path
 import secrets
+import time
 from typing import Any
 
 from aiohttp import web
@@ -41,6 +42,7 @@ class InventoryManager:
         self.hass = hass
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
         self.data: dict[str, Any] = {"notes": {}, "photos": {}}
+        self.last_refresh = 0.0
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
         self.coordinator = DataUpdateCoordinator(
             hass,
@@ -51,7 +53,13 @@ class InventoryManager:
         )
 
     async def _async_update(self) -> list[dict[str, Any]]:
+        self.last_refresh = time.monotonic()
         return build_inventory(self.hass)
+
+    async def async_refresh_if_old(self, max_age: float = 3.0) -> None:
+        """Rebuild the inventory unless it was built a moment ago."""
+        if time.monotonic() - self.last_refresh > max_age:
+            await self.coordinator.async_refresh()
 
     async def async_load(self) -> None:
         stored = await self.store.async_load()
@@ -122,10 +130,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/list"})
-@callback
-def ws_list(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    """Return devices, notes and photo ids."""
+@websocket_api.async_response
+async def ws_list(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Return devices (freshly built), notes and photo ids."""
     manager: InventoryManager = hass.data[DOMAIN]
+    await manager.async_refresh_if_old()
     connection.send_result(msg["id"], manager.payload())
 
 

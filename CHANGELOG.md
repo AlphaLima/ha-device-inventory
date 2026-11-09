@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.1.3 – 2026-11-09
+- Printing: heading repeated on every page and page numbers as 1/3 (page numbers need Chrome/Edge 131 or newer)
+
 ## 1.1.2 – 2026-11-09
 - Every tab switch and refresh builds the device list fresh (no more up-to-60-second-old data)
 

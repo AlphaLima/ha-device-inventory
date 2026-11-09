@@ -154,18 +154,18 @@ class DeviceInventoryCard extends HTMLElement {
     const root = this._root;
     root.innerHTML = "";
     const st = document.createElement("style");
-    st.textContent = `ha-card{padding:6px 10px 8px}
+    st.textContent = `ha-card{padding:4px 8px 6px}
       .wrap{overflow:auto;max-height:${cfg.max_height || "calc(100vh - 170px)"}}
-      table{width:auto;border-collapse:collapse;font-size:12.5px}
-      th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:3px 6px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
+      table{width:auto;border-collapse:collapse;font-size:12px}
+      th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:2px 5px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
       th:hover{color:var(--primary-color)}
-      td{padding:2px 6px;line-height:1.35;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 230}px;overflow:hidden;text-overflow:ellipsis}
-      tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:4px;font-size:15px}
+      td{padding:1px 5px;line-height:1.25;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 200}px;overflow:hidden;text-overflow:ellipsis}
+      tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
-      .bar{display:flex;gap:8px;align-items:center;margin:2px 0 6px}.dim{opacity:.65;font-size:12px}`;
+      .bar{display:flex;gap:6px;align-items:center;margin:0 0 4px}.dim{opacity:.65;font-size:12px}`;
     root.appendChild(st);
     const card = document.createElement("ha-card");
-    card.appendChild(el("div", "font-size:18px;font-weight:600;margin:4px 2px 8px", this._label()));
+    card.appendChild(el("div", "font-size:16px;font-weight:600;margin:2px 2px 4px", this._label()));
     root.appendChild(card);
 
     const bar = el("div"); bar.className = "bar";

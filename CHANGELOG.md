@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.14.0 – 2026-11-10
+- Column layout can be copied (📋, JSON to the clipboard) and imported (📥) in edit mode; built-in DEFAULT_LAYOUT for display and printout
+
 ## 1.13.3 – 2026-11-10
 - Logo: ZigBee symbol removed, Bluetooth and Matter symbols larger and further apart, all three list rows equally wide; sidebar symbol follows
 

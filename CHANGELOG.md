@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.8.0 – 2026-11-10
+- Round switch at the right end of the tab bar shows / hides the red counters (offline devices) on the tabs; default off, remembered in the browser
+
 ## 1.7.5 – 2026-11-10
 - Expand/collapse symbol is a directory tree with boxes: collapsed = top box with dashed grey sub-boxes, expanded = full tree in blue
 

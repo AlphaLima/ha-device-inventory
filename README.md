@@ -103,7 +103,7 @@ No settings dialog – you edit the columns **directly in the table**:
 4. **📋** copies the whole layout (display and printout) as JSON to the clipboard, **📥** imports such a JSON – to take your layout to another browser or to share it. (Maintainers can store a layout as the built-in default in `DEFAULT_LAYOUT` at the top of `device-inventory-card.js`.)
 5. **↺** resets the selected side to its defaults (after a **confirmation**, because all its settings – columns, order, widths, names – are lost), **✓** (or the columns symbol again) finishes the edit mode. Everything is saved immediately in the browser.
 
-Defaults: *Display* shows everything that has data; *Printout* leaves out *Status* (online) and *Last seen*. Columns without any value in the current tab stay hidden automatically, in both modes. In edit mode sorting by click on the heading is switched off.
+Defaults: *Display* shows everything that has data with automatic widths; *Printout* leaves out *Status* (online) and *Last seen* and uses a tuned set of column widths in mm (number 6, internet 12, name 22, model 19, room 16, IP 24, MAC 29, manufacturer 16, firmware 19, signal 14, temperature 10, battery 14, photos 18, note 63 – together about 280 mm, i.e. made for **landscape**; for portrait shrink or switch off columns). Columns without any value in the current tab stay hidden automatically, in both modes. In edit mode sorting by click on the heading is switched off.
 
 ## CSV export
 

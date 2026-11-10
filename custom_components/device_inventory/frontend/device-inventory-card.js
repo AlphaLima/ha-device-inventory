@@ -38,7 +38,7 @@ const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="
 // Default column layouts (used until a user saves his own): order = [] keeps the built-in order, w = widths (display: px, printout: mm), n = column names
 const DEFAULT_LAYOUT = {
   view: { order: [], off: [], w: {}, n: {} },
-  print: { order: [], off: ["seen", "status"], w: {}, n: {} }, // printout: no "Zuletzt" and "Online" by default
+  print: { order: [], off: ["seen", "status"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
 };
 const OPTIONAL = ["kids", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 

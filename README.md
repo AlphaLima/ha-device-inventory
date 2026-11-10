@@ -46,7 +46,7 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 |---|---|
 | 🔄 (two circling arrows) | reload the list now (every tab switch reloads as well) |
 | 🖨️ | print / save as PDF |
-| columns symbol (three bars) | **columns for the printout**: choose which columns are printed, their order and width (see *Printing*) |
+| columns symbol (three bars) | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
 | page symbol (▯ upright / ▭ lying page) | page format for printing; the symbol shows the current format, a click switches (remembered in the browser) |
 | 🔍 field | search (see below) |
 | tree symbol (shown only if sub-channels exist) | expand / collapse **all** sub-channels |
@@ -87,6 +87,20 @@ Multi-channel devices appear in Home Assistant as a main device with sub-devices
 - **Search keeps the tree:** only matching channels are shown. If only a channel matches, its main device is shown expanded as context.
 - Printing prints what is currently visible.
 
+## Columns: show, order, width
+
+No settings dialog – you edit the columns **directly in the table**:
+
+1. Click the **columns symbol** (three bars) in the toolbar. The table switches to *edit mode*: every column heading gets a small tool strip.
+2. Choose **what you edit** with the switch next to it: **🖥️ Display** (what you see on screen) or **🖨️ Printout** (what is printed). Both have their own settings.
+3. In the heading of each column:
+   - **checkbox** – show (display) / print (printout) this column. Switched-off columns stay visible but dimmed while you edit;
+   - **◀ ▶** – move the column left or right;
+   - **drag the grey edge** at the right of the heading – set the width (double-click the edge = automatic again). On the *Printout* side the table shows the widths as they will be printed.
+4. **↺** resets the selected side to its defaults, **✓** (or the columns symbol again) finishes the edit mode. Everything is saved immediately in the browser.
+
+Defaults: *Display* shows everything that has data; *Printout* leaves out *Status* (online) and *Last seen*. Columns without any value in the current tab stay hidden automatically, in both modes. In edit mode sorting by click on the heading is switched off.
+
 ## Search
 
 Type into the 🔍 field: the table filters while you type. Searched are name, model, room, IP, MAC, manufacturer, firmware, the note and the words *online* / *offline* (e.g. `.68`, `kitchen`, `offline`, `fuse 3`). **Esc** clears the field. The counter shows hits / total. **The search field is also the filter for the printout – on purpose:** whatever is listed is printed. Filter for a room (`kitchen`), a device class (open its tab), an address range (`192.168.188.6`) or `offline`, check the result on screen and print exactly that.
@@ -105,7 +119,7 @@ Type into the 🔍 field: the table filters while you type. Searched are name, m
 **Printing / PDF – the documentation**
 - Choose the page format with the page symbol, then click 🖨️. In the browser's print dialog choose *Save as PDF* for a PDF.
 - The printout is a **documentation of your installation**, not just a table: every row has the **photos** of the device (up to eight small thumbnails: where it is mounted, the wiring, the label) and its **note** (fuse, circuit, what is connected, remarks). That is what you hand to the **electrician or installer**, put in the folder in the technical room, or take along when you **search for a fault**: *which device, in which room, with which address, how does it look, what was noted*.
-- **Choose the printed columns:** the columns symbol next to 🖨️ opens a dialog: tick the columns to print, change their **order** with ▲ ▼ and set an optional **width in mm** (empty = automatic; usable width: portrait ≈ 194 mm, landscape ≈ 281 mm). By default the columns *Status* (online) and *Last seen* are **not** printed, everything else is. The setting is remembered in the browser, is the same for all tabs, and *Reset* restores the defaults. Columns that are hidden on screen because they are empty stay out of the printout as well.
+- **Choose the printed columns:** with the columns symbol next to 🖨️ (see *Columns: show, order, width*) – switch to **🖨️ Printout** and set which columns are printed, in which order and how wide. By default *Status* (online) and *Last seen* are **not** printed. Columns that are hidden on screen because they are empty stay out of the printout as well.
 - **What you see is what is printed:** current sorting, **the search filter**, the expanded / collapsed state of the tree and the visible columns. Open the tab of one device class, or filter for one room or address range, and print only that part – for example *"all Shelly devices in the basement"* for the electrician.
 - Every page repeats the **heading** (category) and the column titles; the page number is printed as **1/3** at the bottom right (Chrome / Edge 131 or newer). Date and device count are part of the heading.
 - **Finding weak batteries:** open the *Batteries* tab (lowest first) and print it. Every row tells you which device it is, in which room, how it looks (photo) and what to do (note, e.g. *"CR2032, cover clips off at the bottom"*) – so the round with the battery tin is quick, also for someone who does not know the house.
@@ -154,7 +168,7 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Fotos:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto.
 **Bemerkungen:** ✏️ (noch keine) / 📝 (vorhanden) öffnet den Editor, Strg+Enter speichert.
-**Druckspalten einstellen:** Das Spalten-Symbol (drei Balken) neben 🖨️ öffnet einen Dialog: Spalten zum Drucken anhaken, **Reihenfolge** mit ▲ ▼ ändern, optional die **Breite in mm** setzen (leer = automatisch). Standardmäßig werden *Status* (Online) und *Zuletzt* **nicht** gedruckt. Die Einstellung gilt für alle Tabs, bleibt im Browser gespeichert und lässt sich zurücksetzen. **Drucken = Dokumentation:** Format wählen, 🖨️ klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). **Schwache Batterien finden:** Tab „Batterien“ öffnen (niedrigste zuerst) und drucken – Foto (wo sitzt der Sensor?) und Bemerkung (Batterietyp, wie man ihn öffnet) machen den Austausch einfach, auch für Personen, die das Haus nicht kennen. Ein echter Beispielausdruck liegt in `docs/example-printout.pdf` (IP und MAC geschwärzt). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.
+**Spalten direkt in der Tabelle einstellen (Anzeige und Druck):** Das Spalten-Symbol (drei Balken) schaltet die Tabelle in den Bearbeitungsmodus. Mit dem Umschalter **🖥️ Anzeige / 🖨️ Druck** wählst du, was du bearbeitest (beides hat eigene Einstellungen). In jeder Spaltenüberschrift: **Häkchen** = Spalte anzeigen bzw. drucken (abgeschaltete bleiben beim Bearbeiten grau sichtbar), **◀ ▶** = verschieben, **grauen Rand rechts ziehen** = Breite (Doppelklick = automatisch). **↺** setzt die gewählte Seite zurück, **✓** beendet den Modus. Alles wird sofort im Browser gespeichert. Standard: Anzeige zeigt alles mit Daten, im Druck fehlen *Status* (Online) und *Zuletzt*. **Drucken = Dokumentation:** Format wählen, 🖨️ klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). **Schwache Batterien finden:** Tab „Batterien“ öffnen (niedrigste zuerst) und drucken – Foto (wo sitzt der Sensor?) und Bemerkung (Batterietyp, wie man ihn öffnet) machen den Austausch einfach, auch für Personen, die das Haus nicht kennen. Ein echter Beispielausdruck liegt in `docs/example-printout.pdf` (IP und MAC geschwärzt). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.
 
 ## License
 

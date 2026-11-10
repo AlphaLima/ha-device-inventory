@@ -23,13 +23,13 @@ const T = {
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Columns to print", printColsHint: "Tick the columns to print, change the order with the arrows, optional width in mm (empty = automatic). Usable page width: portrait about 194 mm, landscape about 281 mm.", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten für den Druck", printColsHint: "Spalten zum Drucken anhaken, Reihenfolge mit den Pfeilen ändern, Breite optional in mm (leer = automatisch). Nutzbare Seitenbreite: Hochformat etwa 194 mm, Querformat etwa 281 mm.", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
@@ -49,6 +49,7 @@ class DeviceInventoryCard extends HTMLElement {
     this._config = Object.assign({ class: "all", title: "", hide: [] }, config);
     this._state = { devices: [], notes: {}, photos: {}, sortCol: null, sortDir: 1, loaded: false };
     const cached = this._raw;
+    if (this._tgt === undefined) { try { this._tgt = localStorage.getItem("diTgt") === "print" ? "print" : "view"; } catch (e) { this._tgt = "view"; } }
     if (this._exp === undefined) { this._exp = new Set(); try { this._expAll = localStorage.getItem("diExpand") === "1"; } catch (e) { this._expAll = false; } }
     let ori = "portrait";
     try { if (localStorage.getItem("diOri") === "landscape") ori = "landscape"; } catch (e) { /* ignore */ }
@@ -238,12 +239,24 @@ class DeviceInventoryCard extends HTMLElement {
 
   _render() {
     if (!this._root || !this._state) return;
-    const act = this._root.activeElement;
-    const keep = act && act.classList && act.classList.contains("q") ? [act.selectionStart, act.selectionEnd] : null;
+    const activeEl = this._root.activeElement;
+    const keep = activeEl && activeEl.classList && activeEl.classList.contains("q") ? [activeEl.selectionStart, activeEl.selectionEnd] : null;
     const t = this._t, s = this._state, cfg = this._config;
     const hide = new Set(cfg.hide || []);
     this._presentIds = new Set(s.devices.map((x) => x.id));
     OPTIONAL.forEach((c) => { if (!s.devices.some((d) => this._has(d, c))) hide.add(c); });
+    // column layout: display configuration, or - in edit mode - the configuration of the selected target (display / printout)
+    const edit = !!this._edit, tgt = this._tgt || "view";
+    const vcfg = this._viewCfg(), act = tgt === "print" ? this._printCfg() : vcfg;
+    if (!edit) vcfg.off.forEach((c) => hide.add(c));
+    const shown = (edit ? act : vcfg).order.filter((c) => !hide.has(c));
+    if (!hide.has("kids")) shown.splice(Math.max(0, shown.indexOf("name")), 0, "kids");
+    this._colOrder = shown;
+    this._dimCols = edit ? act.off : new Set();
+    const mm = 3.7795;
+    this._widths = {};
+    const wsrc = (edit ? act : vcfg).w;
+    Object.keys(wsrc).forEach((c) => { if (wsrc[c] > 0) this._widths[c] = (edit && tgt === "print") ? wsrc[c] * mm : wsrc[c]; });
     const root = this._root;
     root.innerHTML = "";
     const st = document.createElement("style");
@@ -255,6 +268,7 @@ class DeviceInventoryCard extends HTMLElement {
       td{padding:7px 4px;line-height:1.3;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 170}px;overflow:hidden;text-overflow:ellipsis}
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
+      th .cfgc{display:flex;gap:2px;align-items:center;margin-bottom:2px}th .cfgc button{padding:0 4px;font-size:11px;line-height:16px;border-radius:4px}th .cfgc input{margin:0}
       .bar{display:flex;gap:6px;align-items:center;margin:0 0 4px}.dim{opacity:.65;font-size:12px}`;
     root.appendChild(st);
     const card = document.createElement("ha-card");
@@ -292,8 +306,16 @@ class DeviceInventoryCard extends HTMLElement {
     this._allKidParents = [...new Set(s.devices.filter((d) => d.parent).map((d) => d.parent))];
     const pcb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
     pcb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>';
-    pcb.title = t.printCols; pcb.onclick = () => this._printSettings();
+    pcb.title = t.printCols;
+    if (edit) { pcb.style.background = "var(--primary-color)"; pcb.style.color = "#fff"; pcb.style.borderColor = "transparent"; }
+    pcb.onclick = () => { this._edit = !this._edit; this._render(); };
     bar.append(rb, pb, pcb, seg);
+    if (edit) {
+      const mk = (id, lbl, ttl) => { const b = el("button", "padding:4px 9px", lbl); b.title = ttl; if (tgt === id) { b.style.background = "var(--primary-color)"; b.style.color = "#fff"; b.style.borderColor = "transparent"; } b.onclick = () => { this._tgt = id; try { localStorage.setItem("diTgt", id); } catch (e) { /* ignore */ } this._render(); }; return b; };
+      const rs = el("button", null, "↺"); rs.title = t.reset; rs.onclick = () => { try { localStorage.removeItem(tgt === "print" ? "diPrint" : "diView"); } catch (e) { /* ignore */ } this._render(); };
+      const dn = el("button", null, "✓"); dn.title = t.done; dn.onclick = () => { this._edit = false; this._render(); };
+      bar.append(mk("view", "🖥️", t.tgtView), mk("print", "🖨️", t.tgtPrint), rs, dn);
+    }
     if (withKids) {
       const xb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
       xb.innerHTML = TREE_SVG(this._expAll);
@@ -306,13 +328,41 @@ class DeviceInventoryCard extends HTMLElement {
 
     const tbl = document.createElement("table");
     const hr = document.createElement("tr");
-    COLS.filter((c) => !hide.has(c)).forEach((c) => {
+    this._colOrder.forEach((c) => {
       const th = document.createElement("th");
-      th.textContent = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "distance" ? "📏" : c === "home" ? "🏠" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
+      th.dataset.col = c;
+      const label = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "distance" ? "📏" : c === "home" ? "🏠" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
+      th.textContent = label;
       if (["photos", "note", "battery", "internet", "signal", "temp", "ble", "distance", "home"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
+      if (this._widths[c]) th.style.cssText += `;width:${this._widths[c]}px;max-width:${this._widths[c]}px;min-width:${this._widths[c]}px`;
       if (c === "kids") {
         th.innerHTML = TREE_SVG(this._expAll); th.title = this._expAll ? t.collapse : t.expand; th.style.textAlign = "center";
         th.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+        hr.appendChild(th); return;
+      }
+      if (edit) {
+        // controls directly in the table heading: show/print checkbox, move left / right, drag the right edge to resize
+        th.style.cursor = "default";
+        const ctl = el("div"); ctl.className = "cfgc";
+        const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !act.off.has(c);
+        cb.onchange = () => { if (cb.checked) act.off.delete(c); else act.off.add(c); this._saveCfg(tgt, act); this._render(); };
+        const move = (dir) => () => { const i = act.order.indexOf(c); let j = i + dir; while (j >= 0 && j < act.order.length && !shown.includes(act.order[j])) j += dir; if (j < 0 || j >= act.order.length) return; [act.order[i], act.order[j]] = [act.order[j], act.order[i]]; this._saveCfg(tgt, act); this._render(); };
+        const l = el("button", null, "◀"), r = el("button", null, "▶"); l.onclick = move(-1); r.onclick = move(1);
+        ctl.append(cb, l, r);
+        const title = el("div", null, label);
+        th.textContent = ""; th.append(ctl, title);
+        const grip = el("span", "position:absolute;right:0;top:0;bottom:0;width:7px;cursor:col-resize;background:rgba(127,127,127,.25)");
+        grip.title = "↔";
+        grip.ondblclick = () => { delete act.w[c]; this._saveCfg(tgt, act); this._render(); };
+        grip.onmousedown = (ev) => {
+          ev.preventDefault(); ev.stopPropagation();
+          const x0 = ev.clientX, w0 = th.getBoundingClientRect().width; let cur = w0;
+          const mv = (e) => { cur = Math.max(24, w0 + e.clientX - x0); [th, ...tbl.querySelectorAll(`td[data-col="${c}"]`)].forEach((x) => { x.style.width = x.style.maxWidth = x.style.minWidth = cur + "px"; }); };
+          const up = () => { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); act.w[c] = tgt === "print" ? Math.round(cur / mm) : Math.round(cur); this._saveCfg(tgt, act); };
+          document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
+        };
+        th.appendChild(grip);
+        if (this._dimCols.has(c)) th.style.opacity = ".45";
         hr.appendChild(th); return;
       }
       if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._render(); };
@@ -331,7 +381,7 @@ class DeviceInventoryCard extends HTMLElement {
   _row(d, n, hide) {
     const t = this._t, s = this._state;
     const tr = document.createElement("tr");
-    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); tr.appendChild(td); return td; };
+    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); td.dataset.col = col; if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); if (this._dimCols && this._dimCols.has(col)) td.style.opacity = ".35"; const w = this._widths && this._widths[col]; if (w) td.style.cssText += `;width:${w}px;max-width:${w}px;min-width:${w}px`; tr.appendChild(td); return td; };
     add("#", String(n));
     const led = el("span", null, d.online ? "🟢" : "🔴"); led.title = d.online ? t.online : t.offline;
     add("status", led);
@@ -434,6 +484,10 @@ class DeviceInventoryCard extends HTMLElement {
     if (note) this._pop(nb, (p) => { p.textContent = note; });
     nb.onclick = () => this._editNote(d);
     add("note", nb);
+    // order the cells like the heading
+    const byCol = {};
+    [...tr.children].forEach((td) => { byCol[td.dataset.col] = td; });
+    (this._colOrder || []).forEach((c) => { if (byCol[c]) tr.appendChild(byCol[c]); });
     return tr;
   }
 
@@ -560,50 +614,22 @@ class DeviceInventoryCard extends HTMLElement {
   }
 
   // ---------- print
-  _printCfg() {
+  _cfg(tgt) {
+    const key = tgt === "print" ? "diPrint" : "diView";
     let c = null;
-    try { c = JSON.parse(localStorage.getItem("diPrint") || "null"); } catch (e) { c = null; }
-    if (!c) c = { order: COLS.slice(), off: ["seen", "status"], w: {} }; // default: "Zuletzt" and "Online" are not printed
-    const known = (c.order || []).filter((k) => COLS.includes(k));
-    const order = [...known, ...COLS.filter((k) => !known.includes(k))];
-    return { order, off: new Set(c.off || []), w: c.w || {} };
+    try { c = JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { c = null; }
+    if (!c) c = { order: [], off: tgt === "print" ? ["seen", "status"] : [], w: {} }; // printout default: no "Zuletzt" and "Online"
+    const base = COLS.filter((k) => k !== "kids");
+    const known = (c.order || []).filter((k) => base.includes(k));
+    return { order: [...known, ...base.filter((k) => !known.includes(k))], off: new Set(c.off || []), w: c.w || {} };
   }
 
-  _savePrintCfg(cfg) {
-    try { localStorage.setItem("diPrint", JSON.stringify({ order: cfg.order, off: [...cfg.off], w: cfg.w })); } catch (e) { /* ignore */ }
+  _saveCfg(tgt, cfg) {
+    try { localStorage.setItem(tgt === "print" ? "diPrint" : "diView", JSON.stringify({ order: cfg.order, off: [...cfg.off], w: cfg.w })); } catch (e) { /* ignore */ }
   }
 
-  _printSettings() {
-    const t = this._t, o = this._overlay(), cfg = this._printCfg();
-    const name = (c) => (c === "#" ? "#" : c === "photos" ? "🖼️ " + t.photos : c === "note" ? "📝 " + t.note : c === "battery" ? "🔋 " + t.batteries : c === "internet" ? "🌐 " + t.internet : c === "signal" ? "📶 " + t.signal : c === "temp" ? "🌡️ " + t.temp : c === "distance" ? "📏 " + t.distance : c === "home" ? "🏠 " + t.home : c === "ble" ? "ᛒ " + t.ble : t[c] || c);
-    const draw = () => {
-      o.bx.innerHTML = "";
-      o.bx.appendChild(el("div", "font-weight:600;font-size:16px;margin-bottom:4px", t.printCols));
-      o.bx.appendChild(el("div", "font-size:12px;opacity:.7;margin-bottom:10px", t.printColsHint));
-      const list = el("div", "display:flex;flex-direction:column;gap:2px;max-height:55vh;overflow:auto");
-      cfg.order.filter((c) => c !== "kids").forEach((c) => {
-        const row = el("div", "display:flex;align-items:center;gap:8px;padding:2px 4px;border-radius:6px");
-        const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !cfg.off.has(c);
-        cb.onchange = () => { if (cb.checked) cfg.off.delete(c); else cfg.off.add(c); };
-        const lbl = el("span", "flex:1", name(c));
-        const mv = (dir) => () => { const i = cfg.order.indexOf(c); let j = i + dir; while (j >= 0 && j < cfg.order.length && cfg.order[j] === "kids") j += dir; if (j < 0 || j >= cfg.order.length) return; [cfg.order[i], cfg.order[j]] = [cfg.order[j], cfg.order[i]]; draw(); };
-        const up = this._btn("▲"), dn = this._btn("▼"); up.style.padding = dn.style.padding = "2px 8px"; up.onclick = mv(-1); dn.onclick = mv(1);
-        const w = document.createElement("input"); w.type = "number"; w.min = "5"; w.max = "300"; w.placeholder = "auto"; w.value = cfg.w[c] || "";
-        w.style.cssText = "width:62px;padding:3px 6px;border-radius:6px;border:1px solid var(--divider-color,#888);background:transparent;color:inherit";
-        w.oninput = () => { const v = parseFloat(w.value); if (v > 0) cfg.w[c] = v; else delete cfg.w[c]; };
-        row.append(cb, lbl, up, dn, w, el("span", "font-size:12px;opacity:.6", "mm"));
-        list.appendChild(row);
-      });
-      o.bx.appendChild(list);
-      const ft = el("div", "display:flex;gap:8px;justify-content:flex-end;margin-top:12px");
-      const rs = this._btn(t.reset), cl = this._btn(t.cancel), sv = this._btn(t.save, true);
-      rs.onclick = () => { try { localStorage.removeItem("diPrint"); } catch (e) { /* ignore */ } const d = this._printCfg(); cfg.order = d.order; cfg.off = d.off; cfg.w = d.w; draw(); };
-      cl.onclick = o.close;
-      sv.onclick = () => { this._savePrintCfg(cfg); o.close(); };
-      ft.style.marginRight = "auto"; ft.append(rs, cl, sv); o.bx.appendChild(ft);
-    };
-    draw();
-  }
+  _printCfg() { return this._cfg("print"); }
+  _viewCfg() { return this._cfg("view"); }
 
   _print() {
     const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

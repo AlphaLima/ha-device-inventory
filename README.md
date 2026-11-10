@@ -47,7 +47,7 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 |---|---|
 | 🔄 (two circling arrows) | reload the list now (every tab switch reloads as well) |
 | 🖨️ | print / save as PDF |
-| columns symbol (three bars) | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
+| columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
 | page symbol (▯ upright / ▭ lying page) | page format for printing; the symbol shows the current format, a click switches (remembered in the browser) |
 | 🔍 field | search (see below) |
 | tree symbol (shown only if sub-channels exist) | expand / collapse **all** sub-channels |
@@ -92,7 +92,7 @@ Multi-channel devices appear in Home Assistant as a main device with sub-devices
 
 No settings dialog – you edit the columns **directly in the table**:
 
-1. Click the **columns symbol** (three bars) in the toolbar. The table switches to *edit mode*: every column heading gets a small tool strip.
+1. Click the **columns symbol** (three bars) at the **right end of the toolbar**; the edit buttons (🖥️ Display, 🖨️ Printout, ↺ reset, ✓ done) appear next to it, also on the right. The table switches to *edit mode*: every column heading gets a small tool strip.
 2. Choose **what you edit** with the switch next to it: **🖥️ Display** (what you see on screen) or **🖨️ Printout** (what is printed). Both have their own settings.
 3. In the heading of each column:
    - **checkbox** – show (display) / print (printout) this column. Switched-off columns stay visible but dimmed while you edit;

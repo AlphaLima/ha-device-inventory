@@ -310,12 +310,14 @@ class DeviceInventoryCard extends HTMLElement {
     pcb.title = t.printCols;
     if (edit) { pcb.style.background = "var(--primary-color)"; pcb.style.color = "#fff"; pcb.style.borderColor = "transparent"; }
     pcb.onclick = () => { this._edit = !this._edit; this._render(); };
-    bar.append(rb, pb, pcb, seg);
+    bar.append(rb, pb, seg);
+    const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
+    editGroup.appendChild(pcb);
     if (edit) {
       const mk = (id, lbl, ttl) => { const b = el("button", "padding:4px 9px", lbl); b.title = ttl; if (tgt === id) { b.style.background = "var(--primary-color)"; b.style.color = "#fff"; b.style.borderColor = "transparent"; } b.onclick = () => { this._tgt = id; try { localStorage.setItem("diTgt", id); } catch (e) { /* ignore */ } this._render(); }; return b; };
       const rs = el("button", null, "↺"); rs.title = t.reset; rs.onclick = () => { try { localStorage.removeItem(tgt === "print" ? "diPrint" : "diView"); } catch (e) { /* ignore */ } this._render(); };
       const dn = el("button", null, "✓"); dn.title = t.done; dn.onclick = () => { this._edit = false; this._render(); };
-      bar.append(mk("view", "🖥️", t.tgtView), mk("print", "🖨️", t.tgtPrint), rs, dn);
+      editGroup.append(mk("view", "🖥️", t.tgtView), mk("print", "🖨️", t.tgtPrint), rs, dn);
     }
     if (withKids) {
       const xb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
@@ -324,7 +326,7 @@ class DeviceInventoryCard extends HTMLElement {
       xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
       bar.append(xb);
     }
-    bar.append(qi, cnt);
+    bar.append(qi, cnt, editGroup);
     card.appendChild(bar);
 
     const tbl = document.createElement("table");

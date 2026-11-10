@@ -719,8 +719,10 @@ class DeviceInventoryCard extends HTMLElement {
   _tabIconSvg() {
     // the symbol of the active tab of the sidebar panel (brand logo or Material icon), copied from the page
     try {
-      const panel = document.querySelector("device-inventory-panel");
-      const tab = panel && panel.shadowRoot && panel.shadowRoot.querySelector(".tab.on");
+      // the card sits in the shadow root of the panel (document.querySelector does not reach into shadow roots)
+      const root = this.getRootNode();
+      let tab = root && root.querySelector ? root.querySelector(".tab.on") : null;
+      if (!tab) { const panel = document.querySelector("device-inventory-panel"); tab = panel && panel.shadowRoot && panel.shadowRoot.querySelector(".tab.on"); }
       if (!tab) return "";
       let svg = tab.querySelector("svg");
       if (!svg) {

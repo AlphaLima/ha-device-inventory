@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.14.3 – 2026-11-10
+- Watermark in the column edit mode uses a monitor symbol (blue, display) and a printer symbol (orange, printout) instead of text
+
 ## 1.14.2 – 2026-11-10
 - Column edit mode shows a watermark (DISPLAY blue / PRINTOUT orange) and a frame in the same colour so the two layouts cannot be mixed up
 

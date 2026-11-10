@@ -25,6 +25,10 @@ The *Shelly* tab of the sidebar panel (IP and MAC addresses blacked out): tabs w
 
 <p align="center"><img src="docs/screenshot-shelly.png" width="900" alt="Shelly tab of the Device Inventory panel"></p>
 
+Hovering the photo symbol shows the photos of the device right in the table (here: the Shelly in its flush-mounted box and the distribution cabinet) – the fastest way to answer *"where does this sit?"*:
+
+<p align="center"><img src="docs/screenshot-hover.png" width="900" alt="Hover preview of the photos of a device"></p>
+
 ## Example printout
 
 [`docs/example-printout.pdf`](docs/example-printout.pdf) is a real printout (Shelly devices, A4 portrait, IP and MAC addresses blacked out): heading and page number on every page, status, signal, temperature, **photos** and **notes** per device, sub-channels (BadLED, AussenBeetEinfahrt …) listed below their main device.

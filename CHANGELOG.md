@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.14.2 – 2026-11-10
+- Column edit mode shows a watermark (DISPLAY blue / PRINTOUT orange) and a frame in the same colour so the two layouts cannot be mixed up
+
 ## 1.14.1 – 2026-11-10
 - Default print layout: tuned column widths (mm) taken over from the author's layout; display widths stay automatic
 

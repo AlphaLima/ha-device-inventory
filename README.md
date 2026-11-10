@@ -87,7 +87,7 @@ Click a column heading to sort. Columns without any value in the current tab are
 | 🔋 | battery in % (red ≤ 20, orange ≤ 40) or *Low / OK* |
 | Seen | time of the last update of any entity of the device |
 | 🖼️ | photos (see below) |
-| 📝 | note (see below) |
+| 📝 | note: the **note text is shown in the table** (cut with … when it does not fit, the whole text on hover; click = editor) – the width of the column sets how much is visible |
 
 ## Tree structure (sub-channels)
 
@@ -135,7 +135,7 @@ Type into the 🔍 field: the table filters while you type. Searched are name, m
 - Adding and deleting needs an admin user.
 
 **Notes** (column 📝)
-- ✏️ = no note yet, 📝 = note exists (hover shows the text).
+- ✏️ = no note yet, 📝 = note exists. The **text of the note is shown next to the symbol** (shortened with … if the column is too narrow – widen it in the column editor); hover shows the whole text.
 - Click opens the editor: *Save* (or Ctrl+Enter), *Delete*, *Cancel* (or Esc). An empty text removes the note.
 
 **Printing / PDF – the documentation**

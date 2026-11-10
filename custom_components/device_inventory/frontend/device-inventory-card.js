@@ -37,7 +37,7 @@ const COLS = ["#", "status", "internet", "kids", "name", "model", "area", "dista
 const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="${on ? "color:var(--primary-color)" : ""}"><rect x="3" y="2" width="9" height="5" rx="1.5"/><g ${on ? "" : 'stroke-dasharray="2 2.2" opacity=".55"'}><path d="M7.5 7v10a2.5 2.5 0 0 0 2.5 2.5H13M7.5 12H13"/><rect x="13" y="9.5" width="8" height="5" rx="1.5"/><rect x="13" y="17" width="8" height="5" rx="1.5"/></g></svg>`;
 // Default column layouts (used until a user saves his own): order = [] keeps the built-in order, w = widths (display: px, printout: mm), n = column names
 const DEFAULT_LAYOUT = {
-  view: { order: [], off: [], w: {}, n: {} },
+  view: { order: [], off: [], w: { note: 240 }, n: {} },
   print: { order: [], off: ["seen", "status"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
 };
 const OPTIONAL = ["kids", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
@@ -525,7 +525,15 @@ class DeviceInventoryCard extends HTMLElement {
     const nb = el("span", null, note ? "📝" : "✏️"); nb.className = "ic";
     if (note) this._pop(nb, (p) => { p.textContent = note; });
     nb.onclick = () => this._editNote(d);
-    add("note", nb);
+    // the note text is shown right in the table (cut with "..." when too long; hover = whole text, click = editor)
+    const noteCell = el("span");
+    noteCell.appendChild(nb);
+    if (note) {
+      const nt = el("span", "cursor:pointer", note.replace(/\s+/g, " "));
+      nt.title = note; nt.onclick = nb.onclick;
+      noteCell.appendChild(nt);
+    }
+    add("note", noteCell);
     // order the cells like the heading
     const byCol = {};
     [...tr.children].forEach((td) => { byCol[td.dataset.col] = td; });

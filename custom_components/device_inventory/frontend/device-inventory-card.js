@@ -313,7 +313,11 @@ class DeviceInventoryCard extends HTMLElement {
     const xcb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
     xcb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M12 12v5M9.5 15l2.5 2.5 2.5-2.5"/></svg>';
     xcb.title = t.exportCsv; xcb.onclick = () => this._exportCsv();
-    bar.append(rb, pb, xcb, seg);
+    // refresh + export on the left, a gap, then print and page format directly next to each other as one segmented pair
+    const printPair = el("span", "display:inline-flex;margin-left:14px");
+    pb.style.borderRadius = "8px 0 0 8px"; seg.style.borderRadius = "0 8px 8px 0"; seg.style.marginLeft = "-1px";
+    printPair.append(pb, seg);
+    bar.append(rb, xcb, printPair);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {

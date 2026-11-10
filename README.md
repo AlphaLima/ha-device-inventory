@@ -46,10 +46,10 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 | Symbol | Meaning |
 |---|---|
 | 🔄 (two circling arrows) | reload the list now (every tab switch reloads as well) |
-| 🖨️ | print / save as PDF |
 | document-with-arrow symbol | **export the table as a CSV file** (see *CSV export*) |
-| columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
+| 🖨️ (next to the page symbol, set apart from the first two) | print / save as PDF |
 | page symbol (▯ upright / ▭ lying page) | page format for printing; the symbol shows the current format, a click switches (remembered in the browser) |
+| columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
 | 🔍 field | search (see below) |
 | tree symbol (shown only if sub-channels exist) | expand / collapse **all** sub-channels |
 | Σ 105 | number of devices (while searching: hits / total) |

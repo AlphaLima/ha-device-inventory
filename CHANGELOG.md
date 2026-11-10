@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.12.1 – 2026-11-10
+- The columns symbol and its edit buttons (Display / Printout, reset, done) sit at the right end of the toolbar
+
 ## 1.12.0 – 2026-11-10
 - Column names can be edited in the table heading (edit mode), separately for the display and the printout; empty = default name
 

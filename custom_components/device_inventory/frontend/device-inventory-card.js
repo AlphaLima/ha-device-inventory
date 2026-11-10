@@ -405,6 +405,14 @@ class DeviceInventoryCard extends HTMLElement {
     this._sorted().forEach((d, i) => tb.appendChild(this._row(d, i + 1, hide)));
     tbl.appendChild(tb);
     const wrap = el("div"); wrap.className = "wrap"; wrap.appendChild(tbl);
+    if (edit) {
+      // make the edited side unmistakable: watermark + coloured frame (blue = display, orange = printout)
+      const rgb = tgt === "print" ? "251,140,0" : "30,136,229";
+      const label = (tgt === "print" ? t.tgtPrint : t.tgtView).toUpperCase();
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='190'><text x='150' y='105' text-anchor='middle' font-family='Arial,sans-serif' font-size='38' font-weight='700' fill='rgba(${rgb},0.17)' transform='rotate(-24 150 95)'>${label}</text></svg>`;
+      wrap.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+      wrap.style.outline = `3px solid rgb(${rgb})`; wrap.style.outlineOffset = "-3px";
+    }
     card.appendChild(wrap);
     if (keep) { qi.focus(); try { qi.setSelectionRange(keep[0], keep[1]); } catch (e) { /* ignore */ } }
   }

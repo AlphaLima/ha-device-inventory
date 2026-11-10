@@ -19,8 +19,8 @@ const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homemati
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
 // same wording as the card headings
 const LABEL = {
-  en: { all: "All devices", other: "Other", battery: "Batteries" },
-  de: { all: "Alle Geräte", other: "Sonstige", battery: "Batterien" },
+  en: { all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show red counters (offline devices)", hideBadges: "Hide red counters" },
+  de: { all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Rote Zähler anzeigen (fehlende Geräte)", hideBadges: "Rote Zähler ausblenden" },
 };
 
 class DeviceInventoryPanel extends HTMLElement {
@@ -63,13 +63,34 @@ class DeviceInventoryPanel extends HTMLElement {
         cursor:pointer;border:none;background:transparent;color:inherit;opacity:.75;border-bottom:2px solid transparent;font:inherit}
       .tab:hover{opacity:1}.tab.on{opacity:1;color:var(--primary-color);border-bottom-color:var(--primary-color)}
       .tab svg{width:24px;height:24px;fill:currentColor}.tab ha-icon{--mdc-icon-size:24px}
+      .tabs.nobadge .badge{display:none}
+      .tgl{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:none;background:transparent;cursor:pointer;border-radius:50%;color:inherit}
+      .tgl:hover{background:rgba(127,127,127,.15)}
       .badge{position:absolute;top:8px;right:2px;min-width:16px;height:16px;border-radius:8px;background:var(--error-color,#db4437);color:#fff;font-size:10px;line-height:16px;text-align:center;padding:0 3px}
       .body{padding:12px}`;
     const top = document.createElement("div"); top.className = "top";
     this._menu = document.createElement("ha-menu-button");
     this._menu.hass = this._hass; this._menu.narrow = this._narrow;
     this._tabs = document.createElement("div"); this._tabs.className = "tabs";
-    top.append(this._menu, this._tabs);
+    let showBadges = false; // default: off
+    try { showBadges = localStorage.getItem("diBadges") === "1"; } catch (e) { /* ignore */ }
+    this._badges = showBadges;
+    this._tabs.classList.toggle("nobadge", !showBadges);
+    const tgl = document.createElement("button"); tgl.className = "tgl";
+    const paintTgl = () => {
+      tgl.title = this._badges ? this._lbl.hideBadges : this._lbl.showBadges;
+      tgl.innerHTML = this._badges
+        ? '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9" fill="#db4437"/><text x="12" y="16.2" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Arial,sans-serif">1</text></svg>'
+        : '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".7"><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 2.6"/><path d="M6.5 17.5L17.5 6.5"/></svg>';
+    };
+    paintTgl();
+    tgl.onclick = () => {
+      this._badges = !this._badges;
+      this._tabs.classList.toggle("nobadge", !this._badges);
+      try { localStorage.setItem("diBadges", this._badges ? "1" : "0"); } catch (e) { /* ignore */ }
+      paintTgl();
+    };
+    top.append(this._menu, this._tabs, tgl);
     this._body = document.createElement("div"); this._body.className = "body";
     root.append(st, top, this._body);
     let active = "all";

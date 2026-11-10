@@ -411,7 +411,7 @@ class DeviceInventoryCard extends HTMLElement {
       const icon = tgt === "print"
         ? "<path d='M6 9V3h12v6'/><path d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/><rect x='6' y='14' width='12' height='7'/>"
         : "<rect x='2' y='3' width='20' height='14' rx='2'/><path d='M8 21h8M12 17v4'/>";
-      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><g transform='translate(180 180) rotate(-18) scale(12.5) translate(-12 -12)' fill='none' stroke='rgba(${rgb},0.075)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>${icon}</g></svg>`;
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><g transform='translate(180 180) scale(12.5) translate(-12 -12)' fill='none' stroke='rgba(${rgb},0.075)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>${icon}</g></svg>`;
       wrap.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
       wrap.style.backgroundRepeat = "no-repeat"; wrap.style.backgroundPosition = "center"; wrap.style.backgroundSize = "360px 360px"; wrap.style.minHeight = "380px";
       wrap.style.outline = `3px solid rgb(${rgb})`; wrap.style.outlineOffset = "-3px";

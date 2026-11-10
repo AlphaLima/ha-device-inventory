@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.15.3 – 2026-11-10
+- Fix: the tab symbol in the printout heading was not found because the panel sits inside shadow roots in Home Assistant; it is now taken from the card's own panel
+
 ## 1.15.2 – 2026-11-10
 - Edit-mode watermark fills the table (monitor / printer symbol scaled to the table height, minimum 460 px) and is slightly darker
 

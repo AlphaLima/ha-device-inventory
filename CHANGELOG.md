@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.14.1 – 2026-11-10
+- Default print layout: tuned column widths (mm) taken over from the author's layout; display widths stay automatic
+
 ## 1.14.0 – 2026-11-10
 - Column layout can be copied (📋, JSON to the clipboard) and imported (📥) in edit mode; built-in DEFAULT_LAYOUT for display and printout
 

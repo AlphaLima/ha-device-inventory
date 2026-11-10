@@ -47,6 +47,7 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 |---|---|
 | 🔄 (two circling arrows) | reload the list now (every tab switch reloads as well) |
 | 🖨️ | print / save as PDF |
+| document-with-arrow symbol | **export the table as a CSV file** (see *CSV export*) |
 | columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
 | page symbol (▯ upright / ▭ lying page) | page format for printing; the symbol shows the current format, a click switches (remembered in the browser) |
 | 🔍 field | search (see below) |
@@ -102,6 +103,14 @@ No settings dialog – you edit the columns **directly in the table**:
 4. **↺** resets the selected side to its defaults, **✓** (or the columns symbol again) finishes the edit mode. Everything is saved immediately in the browser.
 
 Defaults: *Display* shows everything that has data; *Printout* leaves out *Status* (online) and *Last seen*. Columns without any value in the current tab stay hidden automatically, in both modes. In edit mode sorting by click on the heading is switched off.
+
+## CSV export
+
+The document symbol with a downward arrow next to 🖨️ saves the current table as a **CSV file** (`device-inventory-<class>-<date>.csv`) for Excel, LibreOffice or further processing:
+
+- **Columns:** the columns of the *Display* layout (visible columns, their order and **your column names**); columns without data are left out like on screen. Values are plain text (no symbols): *Online / Offline*, *Allowed / Blocked*, battery in %, the note as text, the number of photos.
+- **Rows:** what the **search filter** lists, in the current sorting – **all sub-channels included**, whether the tree is collapsed or not; an extra column *Main device* names the main device of each channel.
+- **Format:** UTF-8 with BOM (Excel shows umlauts correctly); separator `;` when Home Assistant runs in German, otherwise `,`.
 
 ## Search
 
@@ -169,6 +178,7 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Baumstruktur (Unterkanäle):** Mehrkanal-Geräte (z. B. Shelly 2.5, RGBW2) stehen mit ihren Kanälen **unter dem Hauptgerät**. Das Hauptgerät zeigt einen Pfeil mit der Zahl der Kanäle (**▸4**) in einer eigenen schmalen Spalte, deshalb stehen alle Gerätenamen linksbündig; nur die **Kanäle sind eingerückt** (└). Ein Klick auf den Pfeil klappt dieses Gerät auf/zu, das **Baumsymbol** (Werkzeugleiste oder Kopf der Pfeil-Spalte) klappt **alle** auf/zu. Das Symbol zeigt den Zustand: ausgeklappt = voller Baum mit drei Kästchen in Blau, eingeklappt = oberes Kästchen durchgezogen, die unteren zwei gestrichelt grau. Beim **Suchen** bleibt der Baum erhalten: nur passende Kanäle werden gezeigt; passt nur ein Kanal, wird sein Hauptgerät aufgeklappt mitgezeigt. Gedruckt wird, was gerade sichtbar ist.
 
+**CSV-Export:** Das Dokument-Symbol mit Pfeil neben 🖨️ speichert die aktuelle Tabelle als CSV (Spalten und Namen der *Anzeige*, Zeilen nach Suchfilter und Sortierung, alle Unterkanäle mit Spalte „Hauptgerät“, UTF-8 mit BOM, Trennzeichen `;` bei deutschem HA).
 **Fotos:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto.
 **Bemerkungen:** ✏️ (noch keine) / 📝 (vorhanden) öffnet den Editor, Strg+Enter speichert.
 **Spalten direkt in der Tabelle einstellen (Anzeige und Druck):** Das Spalten-Symbol (drei Balken) schaltet die Tabelle in den Bearbeitungsmodus. Mit dem Umschalter **🖥️ Anzeige / 🖨️ Druck** wählst du, was du bearbeitest (beides hat eigene Einstellungen). In jeder Spaltenüberschrift: **Häkchen** = Spalte anzeigen bzw. drucken (abgeschaltete bleiben beim Bearbeiten grau sichtbar), **◀ ▶** = verschieben, **Namensfeld** = eigener **Spaltenname** (leer = Standard, getrennt für Anzeige und Druck), **grauen Rand rechts ziehen** = Breite (Doppelklick = automatisch). **↺** setzt die gewählte Seite zurück, **✓** beendet den Modus. Alles wird sofort im Browser gespeichert. Standard: Anzeige zeigt alles mit Daten, im Druck fehlen *Status* (Online) und *Zuletzt*. **Drucken = Dokumentation:** Format wählen, 🖨️ klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). **Schwache Batterien finden:** Tab „Batterien“ öffnen (niedrigste zuerst) und drucken – Foto (wo sitzt der Sensor?) und Bemerkung (Batterietyp, wie man ihn öffnet) machen den Austausch einfach, auch für Personen, die das Haus nicht kennen. Ein echter Beispielausdruck liegt in `docs/example-printout.pdf` (IP und MAC geschwärzt). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.

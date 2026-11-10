@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.13.2 – 2026-11-10
+- Toolbar: print and page format sit directly next to each other (one pair), with a gap to refresh and export
+
 ## 1.13.1 – 2026-11-10
 - Resetting the table configuration asks for confirmation first (all settings of the selected side are lost)
 

@@ -107,7 +107,8 @@ class DeviceInventoryCard extends HTMLElement {
     this._raw = r;
     const cls = this._config.class;
     const s = this._state;
-    s.devices = (r.devices || []).filter((d) => cls === "all" || (cls === "battery" ? this._hasBattery(d) : d.classes.includes(cls)));
+    const hideOff = !!this._config.hide_offline;
+    s.devices = (r.devices || []).filter((d) => (!hideOff || d.online) && (cls === "all" || (cls === "battery" ? this._hasBattery(d) : d.classes.includes(cls))));
     s.notes = r.notes || {};
     s.photos = r.photos || {};
     s.loaded = true;

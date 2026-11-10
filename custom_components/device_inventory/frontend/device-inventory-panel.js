@@ -19,8 +19,8 @@ const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homemati
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
 // same wording as the card headings
 const LABEL = {
-  en: { all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show red counters (offline devices)", hideBadges: "Hide red counters" },
-  de: { all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Rote Zähler anzeigen (fehlende Geräte)", hideBadges: "Rote Zähler ausblenden" },
+  en: { all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show missing (offline) devices and red counters", hideBadges: "Hide missing devices and red counters" },
+  de: { all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Fehlende Geräte und rote Zähler anzeigen", hideBadges: "Fehlende Geräte und rote Zähler ausblenden" },
 };
 
 class DeviceInventoryPanel extends HTMLElement {
@@ -89,6 +89,8 @@ class DeviceInventoryPanel extends HTMLElement {
       this._tabs.classList.toggle("nobadge", !this._badges);
       try { localStorage.setItem("diBadges", this._badges ? "1" : "0"); } catch (e) { /* ignore */ }
       paintTgl();
+      if (this._card) this._card.setConfig({ class: this._active, hide_offline: !this._badges });
+      this._loadTabs();
     };
     top.append(this._menu, this._tabs, tgl);
     this._body = document.createElement("div"); this._body.className = "body";
@@ -98,7 +100,7 @@ class DeviceInventoryPanel extends HTMLElement {
     this._active = active;
     this._card = document.createElement("device-inventory-card");
     this._body.appendChild(this._card);
-    this._card.setConfig({ class: this._active });
+    this._card.setConfig({ class: this._active, hide_offline: !this._badges });
     this._card.hass = this._hass;
   }
 
@@ -106,13 +108,13 @@ class DeviceInventoryPanel extends HTMLElement {
     if (!this._tabs) return;
     let r;
     try { r = await this._hass.callWS({ type: "device_inventory/list" }); } catch (e) { return; }
-    const stats = { all: { n: 0, off: 0 } };
+    const stats = { all: { n: 0, on: 0, off: 0 } };
     (r.devices || []).forEach((d) => {
-      stats.all.n++; if (!d.online) stats.all.off++;
-      d.classes.forEach((c) => { const s = (stats[c] = stats[c] || { n: 0, off: 0 }); s.n++; if (!d.online) s.off++; });
+      stats.all.n++; if (d.online) stats.all.on++; else stats.all.off++;
+      d.classes.forEach((c) => { const s = (stats[c] = stats[c] || { n: 0, on: 0, off: 0 }); s.n++; if (d.online) s.on++; else s.off++; });
       const hasBat = (d.battery !== null && d.battery !== undefined) || (d.battery_low !== null && d.battery_low !== undefined);
       if (hasBat) {
-        const s = (stats.battery = stats.battery || { n: 0, off: 0 }); s.n++;
+        const s = (stats.battery = stats.battery || { n: 0, on: 0, off: 0 }); s.n++; if (d.online) s.on++;
         if ((d.battery !== null && d.battery !== undefined && d.battery <= 20) || d.battery_low === true) s.off++;
       }
     });
@@ -121,7 +123,7 @@ class DeviceInventoryPanel extends HTMLElement {
     this._tabs.innerHTML = "";
     keys.forEach((k) => {
       const b = document.createElement("button"); b.className = "tab" + (k === this._active ? " on" : "");
-      b.title = `${this._lbl[k] || NAMES[k] || k} (${stats[k].n})`;
+      b.title = `${this._lbl[k] || NAMES[k] || k} (${this._badges ? stats[k].n : stats[k].on})`;
       if (SVG[k]) {
         const ns = "http://www.w3.org/2000/svg", s = document.createElementNS(ns, "svg"), p = document.createElementNS(ns, "path");
         s.setAttribute("viewBox", SVG[k].vb); p.setAttribute("d", SVG[k].d); s.appendChild(p); b.appendChild(s);
@@ -137,7 +139,7 @@ class DeviceInventoryPanel extends HTMLElement {
   _select(k) {
     this._active = k;
     try { localStorage.setItem("diTab", k); } catch (e) { /* ignore */ }
-    this._card.setConfig({ class: k });
+    this._card.setConfig({ class: k, hide_offline: !this._badges });
     this._tabs.querySelectorAll(".tab").forEach((t) => t.classList.remove("on"));
     this._loadTabs();
   }

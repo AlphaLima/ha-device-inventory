@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.16.0 – 2026-11-10
+- The note text is shown in the table next to the note symbol (cut with ... when it does not fit, whole text on hover, click opens the editor); applies to every tab; default width 240 px, adjustable in the column editor
+
 ## 1.15.3 – 2026-11-10
 - Fix: the tab symbol in the printout heading was not found because the panel sits inside shadow roots in Home Assistant; it is now taken from the card's own panel
 

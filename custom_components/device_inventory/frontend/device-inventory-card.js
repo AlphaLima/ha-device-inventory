@@ -408,8 +408,10 @@ class DeviceInventoryCard extends HTMLElement {
     if (edit) {
       // make the edited side unmistakable: watermark + coloured frame (blue = display, orange = printout)
       const rgb = tgt === "print" ? "251,140,0" : "30,136,229";
-      const label = (tgt === "print" ? t.tgtPrint : t.tgtView).toUpperCase();
-      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='190'><text x='150' y='105' text-anchor='middle' font-family='Arial,sans-serif' font-size='38' font-weight='700' fill='rgba(${rgb},0.17)' transform='rotate(-24 150 95)'>${label}</text></svg>`;
+      const icon = tgt === "print"
+        ? "<path d='M6 9V3h12v6'/><path d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/><rect x='6' y='14' width='12' height='7'/>"
+        : "<rect x='2' y='3' width='20' height='14' rx='2'/><path d='M8 21h8M12 17v4'/>";
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='240' height='190'><g transform='translate(120 95) rotate(-20) scale(4.4) translate(-12 -12)' fill='none' stroke='rgba(${rgb},0.2)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>${icon}</g></svg>`;
       wrap.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
       wrap.style.outline = `3px solid rgb(${rgb})`; wrap.style.outlineOffset = "-3px";
     }

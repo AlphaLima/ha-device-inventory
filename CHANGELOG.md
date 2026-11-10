@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.15.2 – 2026-11-10
+- Edit-mode watermark fills the table (monitor / printer symbol scaled to the table height, minimum 460 px) and is slightly darker
+
 ## 1.15.1 – 2026-11-10
 - Edit-mode watermark is straight (no tilt)
 

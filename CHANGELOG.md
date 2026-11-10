@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.13.1 – 2026-11-10
+- Resetting the table configuration asks for confirmation first (all settings of the selected side are lost)
+
 ## 1.13.0 – 2026-11-10
 - CSV export button: saves the current table (display columns and names, search filter, sorting, all sub-channels with a Main device column) as UTF-8 CSV; semicolon separator in German Home Assistant
 

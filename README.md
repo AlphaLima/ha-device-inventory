@@ -19,6 +19,12 @@ Photos and notes are stored on the server (`.storage/device_inventory`, `config/
 
 > Status: **v1.x** – in daily use on the author's system (300+ devices). Requires Home Assistant 2024.7 or newer. Bug reports and pull requests are welcome.
 
+## Screenshot
+
+The *Shelly* tab of the sidebar panel (IP and MAC addresses blacked out): tabs with the device classes on top, toolbar (refresh, CSV export, print + page format, tree, search, column editor at the right), status LED, 🌐 internet switch, tree arrows (**▸4** = four sub-channels), signal, temperature, Bluetooth, battery, photos and notes.
+
+<p align="center"><img src="docs/screenshot-shelly.png" width="900" alt="Shelly tab of the Device Inventory panel"></p>
+
 ## Example printout
 
 [`docs/example-printout.pdf`](docs/example-printout.pdf) is a real printout (Shelly devices, A4 portrait, IP and MAC addresses blacked out): heading and page number on every page, status, signal, temperature, **photos** and **notes** per device, sub-channels (BadLED, AussenBeetEinfahrt …) listed below their main device.

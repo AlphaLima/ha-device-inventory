@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.15.1 – 2026-11-10
+- Edit-mode watermark is straight (no tilt)
+
 ## 1.15.0 – 2026-11-10
 - Printout: the symbol of the tab (Shelly logo, battery, Bluetooth ...) is printed in front of the heading when printing from the sidebar panel
 - Edit-mode watermark: one large, much paler symbol in the middle instead of a repeated pattern

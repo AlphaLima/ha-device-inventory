@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.9.0 – 2026-11-10
+- The switch at the right end of the tab bar also hides the missing (offline) devices in the lists (default off = clean view); on = badges and missing devices visible. Card option hide_offline
+
 ## 1.8.0 – 2026-11-10
 - Round switch at the right end of the tab bar shows / hides the red counters (offline devices) on the tabs; default off, remembered in the browser
 

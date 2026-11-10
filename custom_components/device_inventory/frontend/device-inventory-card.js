@@ -23,13 +23,13 @@ const T = {
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", bluetooth: "Bluetooth" };
@@ -252,6 +252,7 @@ class DeviceInventoryCard extends HTMLElement {
     const shown = (edit ? act : vcfg).order.filter((c) => !hide.has(c));
     if (!hide.has("kids")) shown.splice(Math.max(0, shown.indexOf("name")), 0, "kids");
     this._colOrder = shown;
+    const names = (edit ? act : vcfg).n || {};
     this._dimCols = edit ? act.off : new Set();
     const mm = 3.7795;
     this._widths = {};
@@ -331,7 +332,8 @@ class DeviceInventoryCard extends HTMLElement {
     this._colOrder.forEach((c) => {
       const th = document.createElement("th");
       th.dataset.col = c;
-      const label = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "distance" ? "📏" : c === "home" ? "🏠" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
+      const dflt = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "distance" ? "📏" : c === "home" ? "🏠" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]);
+      const label = (names[c] || dflt) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
       th.textContent = label;
       if (["photos", "note", "battery", "internet", "signal", "temp", "ble", "distance", "home"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
       if (this._widths[c]) th.style.cssText += `;width:${this._widths[c]}px;max-width:${this._widths[c]}px;min-width:${this._widths[c]}px`;
@@ -349,7 +351,11 @@ class DeviceInventoryCard extends HTMLElement {
         const move = (dir) => () => { const i = act.order.indexOf(c); let j = i + dir; while (j >= 0 && j < act.order.length && !shown.includes(act.order[j])) j += dir; if (j < 0 || j >= act.order.length) return; [act.order[i], act.order[j]] = [act.order[j], act.order[i]]; this._saveCfg(tgt, act); this._render(); };
         const l = el("button", null, "◀"), r = el("button", null, "▶"); l.onclick = move(-1); r.onclick = move(1);
         ctl.append(cb, l, r);
-        const title = el("div", null, label);
+        const title = document.createElement("input");
+        title.type = "text"; title.value = names[c] || ""; title.placeholder = c === "#" ? "#" : (t[c] || c); title.title = t.rename;
+        title.style.cssText = "width:100%;min-width:48px;box-sizing:border-box;font:inherit;font-weight:700;padding:1px 3px;border:1px dashed var(--divider-color,#888);border-radius:4px;background:transparent;color:inherit";
+        title.onkeydown = (ev) => { ev.stopPropagation(); if (ev.key === "Enter") title.blur(); };
+        title.onchange = () => { const v = title.value.trim(); if (v) { act.n = act.n || {}; act.n[c] = v; } else if (act.n) delete act.n[c]; this._saveCfg(tgt, act); this._render(); };
         th.textContent = ""; th.append(ctl, title);
         const grip = el("span", "position:absolute;right:0;top:0;bottom:0;width:7px;cursor:col-resize;background:rgba(127,127,127,.25)");
         grip.title = "↔";
@@ -618,14 +624,14 @@ class DeviceInventoryCard extends HTMLElement {
     const key = tgt === "print" ? "diPrint" : "diView";
     let c = null;
     try { c = JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { c = null; }
-    if (!c) c = { order: [], off: tgt === "print" ? ["seen", "status"] : [], w: {} }; // printout default: no "Zuletzt" and "Online"
+    if (!c) c = { order: [], off: tgt === "print" ? ["seen", "status"] : [], w: {}, n: {} }; // printout default: no "Zuletzt" and "Online"
     const base = COLS.filter((k) => k !== "kids");
     const known = (c.order || []).filter((k) => base.includes(k));
-    return { order: [...known, ...base.filter((k) => !known.includes(k))], off: new Set(c.off || []), w: c.w || {} };
+    return { order: [...known, ...base.filter((k) => !known.includes(k))], off: new Set(c.off || []), w: c.w || {}, n: c.n || {} };
   }
 
   _saveCfg(tgt, cfg) {
-    try { localStorage.setItem(tgt === "print" ? "diPrint" : "diView", JSON.stringify({ order: cfg.order, off: [...cfg.off], w: cfg.w })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(tgt === "print" ? "diPrint" : "diView", JSON.stringify({ order: cfg.order, off: [...cfg.off], w: cfg.w, n: cfg.n || {} })); } catch (e) { /* ignore */ }
   }
 
   _printCfg() { return this._cfg("print"); }
@@ -645,7 +651,7 @@ class DeviceInventoryCard extends HTMLElement {
       body{font-family:Arial,sans-serif;font-size:${small ? 7.5 : 9}pt;color:#000;margin:0}th.ttl{background:#fff;border:none;border-bottom:.5pt solid #999;padding:0 0 2mm;font-size:13pt}th.ttl small{font-size:8pt;font-weight:normal;color:#444;margin-left:3mm}
       table{border-collapse:collapse;width:100%}th,td{border:.5pt solid #999;padding:1mm 1.4mm;text-align:left;vertical-align:top}th{background:#e8e8e8}
       thead{display:table-header-group}tr{page-break-inside:avoid}img{width:${small ? 48 : 64}px;height:${small ? 48 : 64}px;object-fit:cover;margin:1px}</style></head><body>
-      <table><thead><tr><th class="ttl" colspan="${cols.length}">${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${E(c === "#" ? "#" : t[c])}</th>`).join("")}</tr></thead><tbody>`;
+      <table><thead><tr><th class="ttl" colspan="${cols.length}">${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${E(pcfg.n[c] || (c === "#" ? "#" : t[c]))}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
         "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? t.allowed : x === "off" ? t.blocked : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",

@@ -100,7 +100,8 @@ No settings dialog – you edit the columns **directly in the table**:
    - **◀ ▶** – move the column left or right;
    - **name field** below the tool strip – type your own **column name** (e.g. *Designation* instead of *Device*); empty = default name. Display and printout have separate names;
    - **drag the grey edge** at the right of the heading – set the width (double-click the edge = automatic again). On the *Printout* side the table shows the widths as they will be printed.
-4. **↺** resets the selected side to its defaults (after a **confirmation**, because all its settings – columns, order, widths, names – are lost), **✓** (or the columns symbol again) finishes the edit mode. Everything is saved immediately in the browser.
+4. **📋** copies the whole layout (display and printout) as JSON to the clipboard, **📥** imports such a JSON – to take your layout to another browser or to share it. (Maintainers can store a layout as the built-in default in `DEFAULT_LAYOUT` at the top of `device-inventory-card.js`.)
+5. **↺** resets the selected side to its defaults (after a **confirmation**, because all its settings – columns, order, widths, names – are lost), **✓** (or the columns symbol again) finishes the edit mode. Everything is saved immediately in the browser.
 
 Defaults: *Display* shows everything that has data; *Printout* leaves out *Status* (online) and *Last seen*. Columns without any value in the current tab stay hidden automatically, in both modes. In edit mode sorting by click on the heading is switched off.
 

@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.13.3 – 2026-11-10
+- Logo: ZigBee symbol removed, Bluetooth and Matter symbols larger and further apart, all three list rows equally wide; sidebar symbol follows
+
 ## 1.13.2 – 2026-11-10
 - Toolbar: print and page format sit directly next to each other (one pair), with a gap to refresh and export
 

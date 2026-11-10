@@ -411,8 +411,9 @@ class DeviceInventoryCard extends HTMLElement {
       const icon = tgt === "print"
         ? "<path d='M6 9V3h12v6'/><path d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/><rect x='6' y='14' width='12' height='7'/>"
         : "<rect x='2' y='3' width='20' height='14' rx='2'/><path d='M8 21h8M12 17v4'/>";
-      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='240' height='190'><g transform='translate(120 95) rotate(-20) scale(4.4) translate(-12 -12)' fill='none' stroke='rgba(${rgb},0.2)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>${icon}</g></svg>`;
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><g transform='translate(180 180) rotate(-18) scale(12.5) translate(-12 -12)' fill='none' stroke='rgba(${rgb},0.075)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>${icon}</g></svg>`;
       wrap.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+      wrap.style.backgroundRepeat = "no-repeat"; wrap.style.backgroundPosition = "center"; wrap.style.backgroundSize = "360px 360px"; wrap.style.minHeight = "380px";
       wrap.style.outline = `3px solid rgb(${rgb})`; wrap.style.outlineOffset = "-3px";
     }
     card.appendChild(wrap);
@@ -715,6 +716,22 @@ class DeviceInventoryCard extends HTMLElement {
     setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
 
+  _tabIconSvg() {
+    // the symbol of the active tab of the sidebar panel (brand logo or Material icon), copied from the page
+    try {
+      const panel = document.querySelector("device-inventory-panel");
+      const tab = panel && panel.shadowRoot && panel.shadowRoot.querySelector(".tab.on");
+      if (!tab) return "";
+      let svg = tab.querySelector("svg");
+      if (!svg) {
+        const hi = tab.querySelector("ha-icon");
+        const hs = hi && hi.shadowRoot && hi.shadowRoot.querySelector("ha-svg-icon");
+        svg = hs && hs.shadowRoot && hs.shadowRoot.querySelector("svg");
+      }
+      return svg ? svg.outerHTML : "";
+    } catch (e) { return ""; }
+  }
+
   _print() {
     const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const hide = new Set(this._config.hide || []);
@@ -724,12 +741,13 @@ class DeviceInventoryCard extends HTMLElement {
     const cols = pcfg.order.filter((c) => !pcfg.off.has(c) && !hide.has(c));
     const wst = (c) => (pcfg.w[c] ? ` style="width:${pcfg.w[c]}mm;max-width:${pcfg.w[c]}mm;word-break:break-word"` : "");
     const title = this._label();
+    const tabIcon = this._tabIconSvg();
     const small = this._ori === "portrait" || cols.length > 11;
     let html = `<!doctype html><html><head><meta charset="utf-8"><title>${E(title)}</title><style>@page{size:A4 ${this._ori};margin:8mm 8mm 12mm;@bottom-right{content:counter(page) "/" counter(pages);font:8pt Arial,sans-serif;color:#444}}
-      body{font-family:Arial,sans-serif;font-size:${small ? 7.5 : 9}pt;color:#000;margin:0}th.ttl{background:#fff;border:none;border-bottom:.5pt solid #999;padding:0 0 2mm;font-size:13pt}th.ttl small{font-size:8pt;font-weight:normal;color:#444;margin-left:3mm}
+      body{font-family:Arial,sans-serif;font-size:${small ? 7.5 : 9}pt;color:#000;margin:0}th.ttl{background:#fff;border:none;border-bottom:.5pt solid #999;padding:0 0 2mm;font-size:13pt}th.ttl .ico{display:inline-block;vertical-align:middle;margin-right:2.5mm}th.ttl .ico svg{width:8mm;height:8mm;display:block}th.ttl .ico svg,th.ttl .ico svg path{fill:#000}th.ttl small{font-size:8pt;font-weight:normal;color:#444;margin-left:3mm}
       table{border-collapse:collapse;width:100%}th,td{border:.5pt solid #999;padding:1mm 1.4mm;text-align:left;vertical-align:top}th{background:#e8e8e8}
       thead{display:table-header-group}tr{page-break-inside:avoid}img{width:${small ? 48 : 64}px;height:${small ? 48 : 64}px;object-fit:cover;margin:1px}</style></head><body>
-      <table><thead><tr><th class="ttl" colspan="${cols.length}">${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${E(pcfg.n[c] || (c === "#" ? "#" : t[c]))}</th>`).join("")}</tr></thead><tbody>`;
+      <table><thead><tr><th class="ttl" colspan="${cols.length}">${tabIcon ? `<span class="ico">${tabIcon}</span>` : ""}${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${E(pcfg.n[c] || (c === "#" ? "#" : t[c]))}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
         "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? t.allowed : x === "off" ? t.blocked : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",

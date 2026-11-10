@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.11.0 – 2026-11-10
+- Columns can be edited directly in the table for the display and for the printout (switch Display / Printout): show/hide, move left/right, drag the heading edge for the width; separate settings, reset per side; replaces the print column dialog
+
 ## 1.10.0 – 2026-11-10
 - Print column settings: dialog (columns symbol next to the print button) to choose the printed columns, their order and width in mm; Status and Last seen are off by default; remembered in the browser, Reset restores defaults
 

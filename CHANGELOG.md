@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.10.0 – 2026-11-10
+- Print column settings: dialog (columns symbol next to the print button) to choose the printed columns, their order and width in mm; Status and Last seen are off by default; remembered in the browser, Reset restores defaults
+
 ## 1.9.0 – 2026-11-10
 - The switch at the right end of the tab bar also hides the missing (offline) devices in the lists (default off = clean view); on = badges and missing devices visible. Card option hide_offline
 

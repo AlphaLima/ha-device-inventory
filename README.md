@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/icon.png" width="128" alt="Device Inventory icon"></p>
+<p align="center"><img src="docs/icon.png?v=1.13.3" width="128" alt="Device Inventory icon"></p>
 
 # Device Inventory for Home Assistant
 
@@ -35,7 +35,7 @@ Reload the browser page (Ctrl+F5) after an update – the card JavaScript is loa
 
 ## The sidebar panel
 
-After setup a **Device Inventory** entry appears in the sidebar: a complete dashboard, no Lovelace configuration needed.
+After setup a **Device Inventory** entry appears in the sidebar: a complete dashboard, no Lovelace configuration needed. Its symbol is the integration logo in one colour: the Bluetooth and Matter symbols above a list with three lines.
 
 - The tabs along the top are the device classes. A **red badge** counts offline devices (on the *Batteries* tab: batteries at 20 % or below). The round switch at the right end of the tab bar controls the **problem view**: *off* (default, grey dashed circle) hides the red badges **and the missing (offline) devices in the lists**, so you see a clean list of what is working; *on* (red circle with a number) shows the badges and the missing devices. Tab tooltips and the device counter follow the switch. The choice is remembered in the browser. In your own dashboard card the same filter is `hide_offline: true`.
 - Tab symbols: a tile grid for *All*, the brand logos of Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff and Tasmota, the Bluetooth symbol for *Bluetooth* and a battery for *Batteries*. Hover a tab for its name and device count.

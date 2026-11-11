@@ -60,7 +60,7 @@ class InventoryManager:
     async def _async_update(self) -> list[dict[str, Any]]:
         start = time.monotonic()
         self.last_refresh = start
-        result = build_inventory(self.hass)
+        result = build_inventory(self.hass, set(self.data["notes"]) | set(self.data["photos"]))
         took = time.monotonic() - start
         if took > 0.5:
             _LOGGER.warning("Building the inventory took %.1f s (%d devices)", took, len(result))

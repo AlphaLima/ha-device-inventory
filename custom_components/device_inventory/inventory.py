@@ -72,7 +72,38 @@ def _entry_ids(dev: dr.DeviceEntry) -> tuple[str, ...]:
     return tuple(dev.config_entries)
 
 
-def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
+def _merge_same_phone(result: list[dict[str, Any]], prefer: set[str]) -> list[dict[str, Any]]:
+    """One row per Bluetooth device: Private BLE Device and Bermuda each create a device with the same name."""
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for d in result:
+        if "bluetooth" in d["classes"] and d.get("ble"):
+            groups.setdefault(d["name"].strip().lower(), []).append(d)
+    drop: set[str] = set()
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        # the device that already carries notes / photos stays, otherwise the one with a scanner (Bermuda)
+        members.sort(key=lambda m: (m["id"] not in prefer, not (m["ble"] or {}).get("scanner")))
+        primary, others = members[0], members[1:]
+        for other in others:
+            ble = primary["ble"] or {}
+            for key, value in (other["ble"] or {}).items():
+                if ble.get(key) in (None, "") and value not in (None, ""):
+                    ble[key] = value
+            primary["ble"] = ble
+            for key in ("area", "ip", "mac", "rssi", "temp", "manufacturer", "model", "sw_version", "battery", "battery_low"):
+                if primary.get(key) in (None, "") and other.get(key) not in (None, ""):
+                    primary[key] = other[key]
+            primary["online"] = primary["online"] or other["online"]
+            if other.get("last_seen") and (not primary.get("last_seen") or other["last_seen"] > primary["last_seen"]):
+                primary["last_seen"] = other["last_seen"]
+            primary["classes"] = sorted(set(primary["classes"]) | set(other["classes"]))
+            primary["integrations"] = sorted(set(primary["integrations"]) | set(other["integrations"]))
+            drop.add(other["id"])
+    return [d for d in result if d["id"] not in drop]
+
+
+def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list[dict[str, Any]]:
     """Return one dict per physical device (service entries are skipped)."""
     dev_reg = dr.async_get(hass)
     ent_reg = er.async_get(hass)
@@ -257,6 +288,7 @@ def build_inventory(hass: HomeAssistant) -> list[dict[str, Any]]:
         pid = d.get("parent")
         if not pid or pid == d["id"] or pid not in ids or not (set(entry_ids.get(d["id"], ())) & set(entry_ids.get(pid, ()))):
             d["parent"] = None
+    result = _merge_same_phone(result, prefer or set())
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

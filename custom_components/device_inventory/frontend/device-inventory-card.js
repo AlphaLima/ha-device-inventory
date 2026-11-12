@@ -42,6 +42,33 @@ const DEFAULT_LAYOUT = {
 };
 const OPTIONAL = ["kids", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
+const ICONS = {
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>',
+  printer: '<path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>',
+  note: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7"/>',
+  pencil: '<path d="M4 20l1-4L16 5l3 3L8 19z"/>',
+  battery: '<rect x="2" y="7" width="17" height="10" rx="2"/><path d="M22 11v2M6 11v2M10 11v2"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  signal: '<path d="M5 19v-3M10 19v-6M15 19V9M20 19V4"/>',
+  thermo: '<path d="M10 14V5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0z"/>',
+  ruler: '<path d="M3 17L17 3l4 4L7 21z"/><path d="M8 12l2 2M11 9l2 2M14 6l2 2"/>',
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  bluetooth: '<path d="M7 7l10 10-5 4V3l5 4L7 17"/>',
+  check: '<path d="M5 12l5 5 9-11"/>',
+  checkc: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  block: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
+  reset: '<path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v5h5"/>',
+  clipboard: '<rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/>',
+  import: '<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+};
+const ico = (n, size) => `<svg viewBox="0 0 24 24" width="${size || 18}" height="${size || 18}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">${ICONS[n]}</svg>`;
+const escH = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
 function el(tag, css, txt) {
   const x = document.createElement(tag);
   if (css) x.style.cssText = css;
@@ -282,7 +309,7 @@ class DeviceInventoryCard extends HTMLElement {
     root.appendChild(card);
 
     const bar = el("div"); bar.className = "bar";
-    const pb = el("button", "font-size:16px;padding:4px 12px", "🖨️"); pb.title = t.print; pb.onclick = () => this._print();
+    const pb = el("button", "padding:4px 10px;display:inline-flex;align-items:center"); pb.innerHTML = ico("printer", 20); pb.title = t.print; pb.onclick = () => this._print();
     const PAGE = {
       portrait: '<path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5"/>',
       landscape: '<path d="M3 7a2 2 0 0 1 2-2h11l5 5v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 5v5h5"/>',
@@ -297,11 +324,11 @@ class DeviceInventoryCard extends HTMLElement {
     rb.title = t.refresh;
     rb.onclick = async () => { rb.style.opacity = ".4"; await this._load(); rb.style.opacity = ""; };
     const cnt = el("span", null, ""); cnt.className = "dim"; cnt.title = t.count;
-    const upd = () => { cnt.textContent = !s.loaded ? "⏳" : this._q ? (() => { this._sorted(); return `Σ ${this._matchCount}/${s.devices.length}`; })() : `Σ ${s.devices.length}`; };
+    const upd = () => { cnt.textContent = !s.loaded ? "…" : this._q ? (() => { this._sorted(); return `Σ ${this._matchCount}/${s.devices.length}`; })() : `Σ ${s.devices.length}`; };
     upd();
     const qi = document.createElement("input");
-    qi.className = "q"; qi.type = "search"; qi.placeholder = "🔍"; qi.title = t.search; qi.value = this._q || "";
-    qi.style.cssText = "padding:4px 8px;width:150px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px";
+    qi.className = "q"; qi.type = "search"; qi.placeholder = ""; qi.title = t.search; qi.value = this._q || "";
+    qi.style.cssText = "padding:4px 8px 4px 28px;width:150px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px";
     qi.oninput = () => {
       this._q = qi.value; upd();
       const body = this._tbody; body.innerHTML = "";
@@ -326,21 +353,21 @@ class DeviceInventoryCard extends HTMLElement {
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {
-      const mk = (id, lbl, ttl) => { const b = el("button", "padding:4px 9px", lbl); b.title = ttl; if (tgt === id) { b.style.background = "var(--primary-color)"; b.style.color = "#fff"; b.style.borderColor = "transparent"; } b.onclick = () => { this._tgt = id; try { localStorage.setItem("diTgt", id); } catch (e) { /* ignore */ } this._render(); }; return b; };
-      const rs = el("button", null, "↺"); rs.title = t.reset; rs.onclick = () => { if (!confirm(`${tgt === "print" ? t.tgtPrint : t.tgtView}: ${t.resetAsk}`)) return; try { localStorage.removeItem(tgt === "print" ? "diPrint" : "diView"); } catch (e) { /* ignore */ } this._render(); };
-      const dn = el("button", null, "✓"); dn.title = t.done; dn.onclick = () => { this._edit = false; this._render(); };
-      const cp = el("button", null, "📋"); cp.title = t.copyLayout;
+      const mk = (id, lbl, ttl) => { const b = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); b.innerHTML = lbl; b.title = ttl; if (tgt === id) { b.style.background = "var(--primary-color)"; b.style.color = "#fff"; b.style.borderColor = "transparent"; } b.onclick = () => { this._tgt = id; try { localStorage.setItem("diTgt", id); } catch (e) { /* ignore */ } this._render(); }; return b; };
+      const rs = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); rs.innerHTML = ico("reset"); rs.title = t.reset; rs.onclick = () => { if (!confirm(`${tgt === "print" ? t.tgtPrint : t.tgtView}: ${t.resetAsk}`)) return; try { localStorage.removeItem(tgt === "print" ? "diPrint" : "diView"); } catch (e) { /* ignore */ } this._render(); };
+      const dn = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); dn.innerHTML = ico("check"); dn.title = t.done; dn.onclick = () => { this._edit = false; this._render(); };
+      const cp = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); cp.innerHTML = ico("clipboard"); cp.title = t.copyLayout;
       cp.onclick = async () => {
         const ser = (c) => ({ order: c.order, off: [...c.off], w: c.w, n: c.n || {} });
         const text = JSON.stringify({ view: ser(this._viewCfg()), print: ser(this._printCfg()) });
         try { await navigator.clipboard.writeText(text); alert(t.layoutCopied); } catch (e) { window.prompt(t.copyLayout, text); }
       };
-      const im = el("button", null, "📥"); im.title = t.importLayout;
+      const im = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); im.innerHTML = ico("import"); im.title = t.importLayout;
       im.onclick = () => {
         const text = window.prompt(t.importLayout, ""); if (!text) return;
         try { const j = JSON.parse(text); ["view", "print"].forEach((k) => { if (j[k]) { const c = this._cfg(k); c.order = j[k].order || c.order; c.off = new Set(j[k].off || []); c.w = j[k].w || {}; c.n = j[k].n || {}; this._saveCfg(k, c); } }); this._render(); } catch (e) { alert(`${t.saveFail}: ${e.message || e}`); }
       };
-      editGroup.append(mk("view", "🖥️", t.tgtView), mk("print", "🖨️", t.tgtPrint), cp, im, rs, dn);
+      editGroup.append(mk("view", ico("monitor"), t.tgtView), mk("print", ico("printer"), t.tgtPrint), cp, im, rs, dn);
     }
     if (withKids) {
       const xb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
@@ -349,7 +376,11 @@ class DeviceInventoryCard extends HTMLElement {
       xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
       bar.append(xb);
     }
-    bar.append(qi, cnt, editGroup);
+    const qwrap = el("span", "position:relative;display:inline-flex;align-items:center");
+    const qico = el("span", "position:absolute;left:8px;pointer-events:none;opacity:.6;display:inline-flex");
+    qico.innerHTML = ico("search", 16);
+    qwrap.append(qico, qi);
+    bar.append(qwrap, cnt, editGroup);
     card.appendChild(bar);
 
     const tbl = document.createElement("table");
@@ -357,9 +388,10 @@ class DeviceInventoryCard extends HTMLElement {
     this._colOrder.forEach((c) => {
       const th = document.createElement("th");
       th.dataset.col = c;
-      const dflt = (c === "#" ? "#" : c === "photos" ? "🖼️" : c === "note" ? "📝" : c === "battery" ? "🔋" : c === "internet" ? "🌐" : c === "distance" ? "📏" : c === "home" ? "🏠" : c === "signal" ? "📶" : c === "temp" ? "🌡️" : c === "ble" ? "ᛒ" : t[c]);
-      const label = (names[c] || dflt) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
-      th.textContent = label;
+      const IC = { photos: "image", note: "note", battery: "battery", internet: "globe", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth" };
+      const dfltHtml = c === "#" ? "#" : IC[c] ? ico(IC[c], 17) : escH(t[c]);
+      const label = (names[c] ? escH(names[c]) : dfltHtml) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
+      th.innerHTML = label;
       if (["photos", "note", "battery", "internet", "signal", "temp", "ble", "distance", "home"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
       if (this._widths[c]) th.style.cssText += `;width:${this._widths[c]}px;max-width:${this._widths[c]}px;min-width:${this._widths[c]}px`;
       if (c === "kids") {
@@ -425,13 +457,13 @@ class DeviceInventoryCard extends HTMLElement {
     const tr = document.createElement("tr");
     const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); td.dataset.col = col; if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); if (this._dimCols && this._dimCols.has(col)) td.style.opacity = ".35"; const w = this._widths && this._widths[col]; if (w) td.style.cssText += `;width:${w}px;max-width:${w}px;min-width:${w}px`; tr.appendChild(td); return td; };
     add("#", String(n));
-    const led = el("span", null, d.online ? "🟢" : "🔴"); led.title = d.online ? t.online : t.offline;
+    const led = el("span", `display:inline-block;width:11px;height:11px;border-radius:50%;background:${d.online ? "var(--success-color,#43a047)" : "var(--error-color,#e53935)"}`); led.title = d.online ? t.online : t.offline;
     add("status", led);
     const inet = this._inet(d);
     if (inet === null) add("internet", "–");
     else {
       const on = inet === "on", off = inet === "off";
-      const sw = el("span", "cursor:pointer;font-size:14px", on ? "✅" : off ? "🚫" : "❔");
+      const sw = el("span", `cursor:pointer;display:inline-flex;color:${on ? "var(--success-color,#43a047)" : off ? "var(--error-color,#e53935)" : "var(--secondary-text-color,#888)"}`); sw.innerHTML = ico(on ? "checkc" : off ? "block" : "help", 17);
       sw.title = on ? t.allowed : off ? t.blocked : inet;
       sw.onclick = async () => {
         if (!on && !off) return;
@@ -461,7 +493,8 @@ class DeviceInventoryCard extends HTMLElement {
     add("area", d.area || "–");
     const b = d.ble || {};
     add("distance", b.distance == null ? "–" : b.distance.toFixed(1) + " m");
-    add("home", b.home == null ? "–" : el("span", null, b.home ? "✅" : "🚫"));
+    let homeEl = "–"; if (b.home != null) { homeEl = el("span", `display:inline-flex;color:${b.home ? "var(--success-color,#43a047)" : "var(--error-color,#e53935)"}`); homeEl.innerHTML = ico(b.home ? "checkc" : "block", 17); }
+    add("home", homeEl);
     if (d.ip) {
       const a = el("a", "color:var(--primary-color)", d.ip); a.href = `http://${d.ip.includes(":") ? "[" + d.ip + "]" : d.ip}`; a.target = "_blank"; a.rel = "noopener";
       add("ip", a);
@@ -506,7 +539,7 @@ class DeviceInventoryCard extends HTMLElement {
     const ps = s.photos[d.id] || [];
     const tp = document.createElement("span");
     if (ps.length) {
-      const b = el("span", null, "🖼️" + (ps.length > 1 ? ps.length : "")); b.className = "ic";
+      const b = el("span", "display:inline-flex;align-items:center;gap:2px"); b.innerHTML = ico("image", 18) + (ps.length > 1 ? `<small>${ps.length}</small>` : ""); b.className = "ic";
       b.onclick = () => this._gallery(d);
       this._pop(b, (p) => {
         const g = el("div", `display:grid;grid-template-columns:repeat(${ps.length > 1 ? 2 : 1},auto);gap:6px`);
@@ -516,13 +549,13 @@ class DeviceInventoryCard extends HTMLElement {
       });
       tp.appendChild(b);
     }
-    const ad = el("span", null, "📷"); ad.className = "ic"; ad.title = t.addPhoto;
-    ad.onclick = async () => { ad.textContent = "⏳"; await this._pick(d, (x) => (ad.textContent = x)); await this._load(); };
+    const ad = el("span", "display:inline-flex"); ad.innerHTML = ico("camera", 18); ad.className = "ic"; ad.title = t.addPhoto;
+    ad.onclick = async () => { ad.textContent = "…"; await this._pick(d, (x) => (ad.textContent = x)); await this._load(); };
     tp.appendChild(ad);
     add("photos", tp);
 
     const note = (s.notes[d.id] || {}).t || "";
-    const nb = el("span", null, note ? "📝" : "✏️"); nb.className = "ic";
+    const nb = el("span", "display:inline-flex"); nb.innerHTML = ico(note ? "note" : "pencil", 18); nb.className = "ic";
     if (note) this._pop(nb, (p) => { p.textContent = note; });
     nb.onclick = () => this._editNote(d);
     // the note text is shown right in the table (cut with "..." when too long; hover = whole text, click = editor)
@@ -585,8 +618,8 @@ class DeviceInventoryCard extends HTMLElement {
         const w = el("div", "position:relative"), a = document.createElement("a");
         a.href = `/api/device_inventory/photo/${p.id}`; a.target = "_blank";
         const im = el("img", "width:100%;height:200px;object-fit:cover;border-radius:8px;display:block"); im.src = a.href; a.appendChild(im); w.appendChild(a);
-        const x = el("span", "position:absolute;top:6px;right:6px;cursor:pointer;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center", "✖");
-        x.title = t.del;
+        const x = el("span", "position:absolute;top:6px;right:6px;cursor:pointer;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center", "");
+        x.innerHTML = ico("close", 14); x.title = t.del;
         x.onclick = async () => {
           if (!confirm(t.delPhoto)) return;
           try { this._apply(await this._hass.callWS({ type: "device_inventory/delete_photo", device_id: d.id, photo_id: p.id })); draw(); } catch (e) { alert(`${t.saveFail}: ${e.message || e.code}`); }
@@ -596,7 +629,7 @@ class DeviceInventoryCard extends HTMLElement {
       o.bx.appendChild(g);
       const ft = el("div", "display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:12px");
       const stt = el("span", "margin-right:auto;font-size:12px;opacity:.8");
-      const add = this._btn("📷 " + t.addPhoto, true), cl = this._btn(t.close);
+      const add = this._btn("", true), cl = this._btn(t.close); add.innerHTML = ico("camera", 16) + " " + escH(t.addPhoto);
       add.onclick = async () => { add.disabled = true; await this._pick(d, (x) => (stt.textContent = x)); await this._load(); draw(); };
       cl.onclick = o.close;
       ft.append(stt, add, cl); o.bx.appendChild(ft);
@@ -650,7 +683,7 @@ class DeviceInventoryCard extends HTMLElement {
         const files = [...(inp.files || [])]; inp.remove();
         try {
           for (let i = 0; i < files.length; i++) {
-            status(`⏳ ${i + 1}/${files.length}`);
+            status(`… ${i + 1}/${files.length}`);
             const blob = await this._resize(files[i]);
             const fd = new FormData(); fd.append("file", blob, "photo.jpg");
             const r = await this._hass.fetchWithAuth(`/api/device_inventory/upload/${d.id}`, { method: "POST", body: fd });
@@ -760,7 +793,7 @@ class DeviceInventoryCard extends HTMLElement {
       <table><thead><tr><th class="ttl" colspan="${cols.length}">${tabIcon ? `<span class="ico">${tabIcon}</span>` : ""}${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${E(pcfg.n[c] || (c === "#" ? "#" : t[c]))}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
-        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? t.allowed : x === "off" ? t.blocked : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
+        "#": i + 1, status: d.online ? "● " + t.online : "○ " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? t.allowed : x === "off" ? t.blocked : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
         seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };

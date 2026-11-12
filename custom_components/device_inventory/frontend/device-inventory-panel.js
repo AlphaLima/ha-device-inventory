@@ -80,7 +80,7 @@ class DeviceInventoryPanel extends HTMLElement {
     const paintTgl = () => {
       tgl.title = this._badges ? this._lbl.hideBadges : this._lbl.showBadges;
       tgl.innerHTML = this._badges
-        ? '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9" fill="#db4437"/><text x="12" y="16.2" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Arial,sans-serif">1</text></svg>'
+        ? '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9" fill="currentColor"/><text x="12" y="16.2" text-anchor="middle" font-size="12" font-weight="700" fill="var(--app-header-background-color,#fff)" font-family="Arial,sans-serif">1</text></svg>'
         : '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".7"><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 2.6"/><path d="M6.5 17.5L17.5 6.5"/></svg>';
     };
     paintTgl();

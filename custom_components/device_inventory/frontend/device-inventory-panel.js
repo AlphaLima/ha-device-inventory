@@ -118,7 +118,9 @@ class DeviceInventoryPanel extends HTMLElement {
         if ((d.battery !== null && d.battery !== undefined && d.battery <= 20) || d.battery_low === true) s.off++;
       }
     });
-    const keys = [...PREFERRED.filter((k) => stats[k]), ...Object.keys(stats).filter((k) => !PREFERRED.includes(k)).sort()];
+    // tabs without any (visible) entry are hidden; "all" always stays
+    const count = (k) => (this._badges ? stats[k].n : stats[k].on);
+    const keys = [...PREFERRED.filter((k) => stats[k]), ...Object.keys(stats).filter((k) => !PREFERRED.includes(k)).sort()].filter((k) => k === "all" || count(k) > 0);
     if (!keys.includes(this._active)) this._select("all");
     this._tabs.innerHTML = "";
     keys.forEach((k) => {

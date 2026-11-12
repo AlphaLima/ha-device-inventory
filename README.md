@@ -201,5 +201,10 @@ MIT
 
 ## Releasing (maintainers)
 
-`python scripts/release.py patch|minor|major "change 1" "change 2"` bumps the version in `manifest.json`, adds the changelog entry, commits and tags.
-`git push origin main --follow-tags` then triggers the GitHub workflow, which creates the release automatically – HACS and the Marketplace show that version number.
+Work happens on the **`dev`** branch – pushes there create **no release** and notify nobody. A release is made **at most once a day**:
+
+1. **Develop and test on `dev`.** Frontend-only changes: `python scripts/deploy.py` copies the integration into the Home Assistant config (Samba), then Ctrl+F5 in the browser. Backend (`*.py`) changes need a Home Assistant restart.
+2. **Optional test release for testers:** `python scripts/release.py beta "what changed"` makes version `1.2.3b1` (tag `v1.2.3b1`) and `git push origin dev --follow-tags`; the workflow publishes it as a **GitHub pre-release**. Only people who enabled *Show beta versions* for this repository in HACS see it – everybody else stays on the stable version.
+3. **Stable release (once a day):** merge `dev` into `main`, then `python scripts/release.py patch|minor|major|final "change 1" "change 2"` (bumps `manifest.json`, writes the changelog, commits, tags) and `git push origin main --follow-tags`. The workflow creates the release automatically – HACS and the Marketplace show that version. `final` turns the current beta `1.2.3bN` into the stable `1.2.3`.
+
+Rule of thumb: backend changes are tested on a beta first, JavaScript-only fixes can go straight to the daily release.

@@ -37,4 +37,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$TAG" --title "$TAG" --generate-notes --latest
+          # tags like v1.17.0b1 are PRE-releases: only people who enabled "show beta versions" in HACS see them
+          if [[ "$TAG" =~ [0-9](a|b|rc)[0-9]+$ ]]; then FLAG="--prerelease"; else FLAG="--latest"; fi
+          gh release create "$TAG" --title "$TAG" --generate-notes $FLAG

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Bump the version, update the changelog, commit and tag.
 
-Usage:  python scripts/release.py patch|minor|major ["changelog line", ...]
+Usage:  python scripts/release.py patch|minor|major|beta|final ["changelog line", ...]
+  beta  = test version 1.2.3b1 (GitHub pre-release, only for testers)
+  final = turns the current beta 1.2.3bN into the stable 1.2.3
 Then:   git push origin main --follow-tags   (the GitHub workflow creates the release)
 """
 
@@ -18,18 +20,27 @@ CHANGELOG = ROOT / "CHANGELOG.md"
 
 
 def main() -> None:
-    if len(sys.argv) < 2 or sys.argv[1] not in ("patch", "minor", "major"):
+    if len(sys.argv) < 2 or sys.argv[1] not in ("patch", "minor", "major", "beta", "final"):
         sys.exit(__doc__)
     kind, notes = sys.argv[1], sys.argv[2:]
     data = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    major, minor, patch = (int(x) for x in data["version"].split("."))
-    if kind == "major":
-        major, minor, patch = major + 1, 0, 0
-    elif kind == "minor":
-        minor, patch = minor + 1, 0
+    m = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)(?:b(\d+))?", data["version"])
+    major, minor, patch = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    beta = int(m.group(4)) if m.group(4) else None
+    if kind == "final":
+        if beta is None:
+            sys.exit("current version is not a beta")
+        new = f"{major}.{minor}.{patch}"
+    elif kind == "beta":
+        new = f"{major}.{minor}.{patch}b{beta + 1}" if beta is not None else f"{major}.{minor}.{patch + 1}b1"
     else:
-        patch += 1
-    new = f"{major}.{minor}.{patch}"
+        if kind == "major":
+            major, minor, patch = major + 1, 0, 0
+        elif kind == "minor":
+            minor, patch = minor + 1, 0
+        elif beta is None:
+            patch += 1
+        new = f"{major}.{minor}.{patch}"
 
     text = MANIFEST.read_text(encoding="utf-8")
     MANIFEST.write_text(re.sub(r'"version": "[^"]+"', f'"version": "{new}"', text), encoding="utf-8")

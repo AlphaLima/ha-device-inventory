@@ -14,7 +14,7 @@ from aiohttp import web
 import voluptuous as vol
 
 from homeassistant.components import frontend, panel_custom, websocket_api
-from homeassistant.components.http import HomeAssistantView, StaticPathConfig
+from homeassistant.components.http import HomeAssistantView
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
@@ -37,6 +37,8 @@ from .inventory import build_inventory
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor"]
+FRONTEND_DIR = Path(__file__).parent / "frontend"
+FRONTEND_FILES = ("device-inventory-card.js", "device-inventory-panel.js")
 
 
 class InventoryManager:
@@ -99,11 +101,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await manager.coordinator.async_config_entry_first_refresh()
     hass.data[DOMAIN] = manager
 
-    frontend_dir = Path(__file__).parent / "frontend"
-    await hass.http.async_register_static_paths(
-        [StaticPathConfig(f"/{DOMAIN}_static", str(frontend_dir), False)]
-    )
-    version = (await async_get_integration(hass, DOMAIN)).version
+    hass.http.register_view(FrontendFileView)
+    # the URL changes with the version and with every change of the files, so browsers never keep an old copy
+    stamp = await hass.async_add_executor_job(lambda: int(sum((FRONTEND_DIR / f).stat().st_mtime for f in FRONTEND_FILES)))
+    version = f"{(await async_get_integration(hass, DOMAIN)).version}.{stamp}"
     frontend.add_extra_js_url(hass, f"{CARD_URL}?v={version}")
     try:
         await panel_custom.async_register_panel(
@@ -282,6 +283,19 @@ async def ws_import_legacy(hass: HomeAssistant, connection, msg: dict[str, Any])
 
 def _is_image(data: bytes) -> bool:
     return data[:3] == b"\xff\xd8\xff" or data[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+class FrontendFileView(HomeAssistantView):
+    """Serves the card and panel JavaScript with Cache-Control: no-cache (revalidated with the ETag)."""
+
+    url = f"/{DOMAIN}_static/{{filename}}"
+    name = f"{DOMAIN}:static"
+    requires_auth = False
+
+    async def get(self, request: web.Request, filename: str) -> web.StreamResponse:
+        if filename not in FRONTEND_FILES:
+            return web.Response(status=404)
+        return web.FileResponse(FRONTEND_DIR / filename, headers={"Cache-Control": "no-cache"})
 
 
 class PhotoUploadView(HomeAssistantView):

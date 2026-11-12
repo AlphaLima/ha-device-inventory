@@ -17,7 +17,7 @@ Made for installations with many devices where nobody remembers any more *which 
 
 Photos and notes are stored on the server (`.storage/device_inventory`, `config/device_inventory/photos/`): shared by all users and part of your backups.
 
-> Status: **v1.x** – in daily use on the author's system (300+ devices). Requires Home Assistant 2024.7 or newer. Bug reports and pull requests are welcome.
+> Status: **v1.x** – in daily use on the author's system (300+ devices, Home Assistant **2026.11**). The integration needs Home Assistant 2024.7 or newer, but it has so far **only been tested on 2026.11** – on older versions some details (e.g. IP / Bluetooth scanner data) may be missing; please report problems as an [issue](https://github.com/AlphaLima/ha-device-inventory/issues) with your Home Assistant version. Bug reports and pull requests are welcome.
 
 ## Screenshot
 

@@ -277,6 +277,10 @@ class DeviceInventoryCard extends HTMLElement {
     const hide = new Set(cfg.hide || []);
     this._presentIds = new Set(s.devices.map((x) => x.id));
     OPTIONAL.forEach((c) => { if (!s.devices.some((d) => this._has(d, c))) hide.add(c); });
+    this._sorted(); // sets this._kids for the rows that are listed right now (search filter included)
+    const treeNeeded = Object.keys(this._kids || {}).some((k) => this._kids[k] > 0);
+    this._treeShown = treeNeeded;
+    if (!treeNeeded) hide.add("kids");
     // column layout: display configuration, or - in edit mode - the configuration of the selected target (display / printout)
     const edit = !!this._edit, tgt = this._tgt || "view";
     const vcfg = this._viewCfg(), act = tgt === "print" ? this._printCfg() : vcfg;
@@ -331,6 +335,8 @@ class DeviceInventoryCard extends HTMLElement {
     qi.style.cssText = "padding:4px 8px 4px 28px;width:150px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px";
     qi.oninput = () => {
       this._q = qi.value; upd();
+      this._sorted();
+      if (Object.keys(this._kids || {}).some((k) => this._kids[k] > 0) !== this._treeShown) { this._render(); return; } // the tree column appears / disappears
       const body = this._tbody; body.innerHTML = "";
       this._sorted().forEach((d, i) => body.appendChild(this._row(d, i + 1, hide)));
     };

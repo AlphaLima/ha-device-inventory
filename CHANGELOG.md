@@ -2,6 +2,10 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.17.0 – 2026-11-12
+- Printer friendly (monochrome icons)
+- Hide tabs without entries, hide tree column without sub-channels, no-cache frontend files
+
 ## 1.16.1 – 2026-11-11
 - Bluetooth: Private BLE Device and Bermuda entries with the same name are merged into one row (IRK, scanner, distance, room, last seen combined)
 

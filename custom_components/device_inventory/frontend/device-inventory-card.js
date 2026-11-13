@@ -244,6 +244,14 @@ class DeviceInventoryCard extends HTMLElement {
       const c = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
       return (c || String(a.name).localeCompare(String(b.name))) * (s.sortCol ? s.sortDir : 1);
     });
+    // after adding a photo / note the rows keep their positions (until the sorting is changed)
+    if (this._freeze && this._lastOrder) {
+      const pos = new Map(this._lastOrder.map((id, i) => [id, i]));
+      const old = all.filter((d) => pos.has(d.id)).sort((a, b) => pos.get(a.id) - pos.get(b.id));
+      const fresh = all.filter((d) => !pos.has(d.id));
+      all.length = 0; all.push(...old, ...fresh);
+    }
+    this._lastOrder = all.map((d) => d.id);
     // group sub-channels under their parent; a parent stays visible when one of its channels matches
     this._lvl = {}; this._kids = {};
     const present = new Set(all.map((d) => d.id));
@@ -301,6 +309,11 @@ class DeviceInventoryCard extends HTMLElement {
     const wsrc = (edit ? act : vcfg).w;
     Object.keys(wsrc).forEach((c) => { if (wsrc[c] > 0) this._widths[c] = (edit && tgt === "print") ? wsrc[c] * mm : wsrc[c]; });
     const root = this._root;
+    // keep scroll positions (table area and the surrounding page / panel) over the rebuild
+    const oldWrap = root.querySelector(".wrap");
+    const scrolls = [];
+    for (let n = this; n; n = n.parentNode || n.host) if (n.scrollTop > 0 || n.scrollLeft > 0) scrolls.push([n, n.scrollTop, n.scrollLeft]);
+    const wrapPos = oldWrap ? [oldWrap.scrollTop, oldWrap.scrollLeft] : null;
     root.innerHTML = "";
     const st = document.createElement("style");
     st.textContent = `ha-card{padding:4px 8px 6px}
@@ -444,7 +457,7 @@ class DeviceInventoryCard extends HTMLElement {
         if (this._dimCols.has(c)) th.style.opacity = ".45";
         hr.appendChild(th); return;
       }
-      if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._render(); };
+      if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._freeze = false; this._render(); };
       hr.appendChild(th);
     });
     const thead = document.createElement("thead"); thead.appendChild(hr); tbl.appendChild(thead);
@@ -465,6 +478,8 @@ class DeviceInventoryCard extends HTMLElement {
       wrap.style.outline = `3px solid rgb(${rgb})`; wrap.style.outlineOffset = "-3px";
     }
     card.appendChild(wrap);
+    if (wrapPos) { wrap.scrollTop = wrapPos[0]; wrap.scrollLeft = wrapPos[1]; }
+    scrolls.forEach(([n, y, x]) => { n.scrollTop = y; n.scrollLeft = x; });
     if (keep) { qi.focus(); try { qi.setSelectionRange(keep[0], keep[1]); } catch (e) { /* ignore */ } }
   }
 
@@ -566,7 +581,7 @@ class DeviceInventoryCard extends HTMLElement {
       tp.appendChild(b);
     }
     const ad = el("span", "display:inline-flex"); ad.innerHTML = ico("camera", 18); ad.className = "ic"; ad.title = t.addPhoto;
-    ad.onclick = async () => { ad.textContent = "…"; await this._pick(d, (x) => (ad.textContent = x)); await this._load(); };
+    ad.onclick = async () => { ad.textContent = "…"; await this._pick(d, (x) => (ad.textContent = x)); this._freeze = true; await this._load(); };
     tp.appendChild(ad);
     add("photos", tp);
 
@@ -638,7 +653,7 @@ class DeviceInventoryCard extends HTMLElement {
         x.innerHTML = ico("close", 14); x.title = t.del;
         x.onclick = async () => {
           if (!confirm(t.delPhoto)) return;
-          try { this._apply(await this._hass.callWS({ type: "device_inventory/delete_photo", device_id: d.id, photo_id: p.id })); draw(); } catch (e) { alert(`${t.saveFail}: ${e.message || e.code}`); }
+          try { this._freeze = true; this._apply(await this._hass.callWS({ type: "device_inventory/delete_photo", device_id: d.id, photo_id: p.id })); draw(); } catch (e) { alert(`${t.saveFail}: ${e.message || e.code}`); }
         };
         w.appendChild(x); g.appendChild(w);
       });
@@ -646,7 +661,7 @@ class DeviceInventoryCard extends HTMLElement {
       const ft = el("div", "display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:12px");
       const stt = el("span", "margin-right:auto;font-size:12px;opacity:.8");
       const add = this._btn("", true), cl = this._btn(t.close); add.innerHTML = ico("camera", 16) + " " + escH(t.addPhoto);
-      add.onclick = async () => { add.disabled = true; await this._pick(d, (x) => (stt.textContent = x)); await this._load(); draw(); };
+      add.onclick = async () => { add.disabled = true; await this._pick(d, (x) => (stt.textContent = x)); this._freeze = true; await this._load(); draw(); };
       cl.onclick = o.close;
       ft.append(stt, add, cl); o.bx.appendChild(ft);
     };
@@ -663,7 +678,7 @@ class DeviceInventoryCard extends HTMLElement {
     const bD = this._btn(t.del), bC = this._btn(t.cancel), bS = this._btn(t.save, true);
     const save = async (text) => {
       bS.disabled = true;
-      try { this._apply(await this._hass.callWS({ type: "device_inventory/set_note", device_id: d.id, text })); o.close(); } catch (e) { bS.disabled = false; alert(`${t.saveFail}: ${e.message || e.code}`); }
+      try { this._freeze = true; this._apply(await this._hass.callWS({ type: "device_inventory/set_note", device_id: d.id, text })); o.close(); } catch (e) { bS.disabled = false; alert(`${t.saveFail}: ${e.message || e.code}`); }
     };
     ta.onkeydown = (ev) => { if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); save(ta.value); } };
     bD.onclick = () => { if (confirm(t.delNote)) save(""); };

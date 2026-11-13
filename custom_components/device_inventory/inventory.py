@@ -14,6 +14,9 @@ from homeassistant.helpers import (
     entity_registry as er,
 )
 
+CHANNEL_DOMAINS = {"switch", "light", "cover", "lock", "valve", "fan"}
+CHANNEL_INTEGRATIONS = {"homematicip_local", "homematic", "homematicip_cloud"}
+
 from .const import CLASS_MAP, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
 
 UNAVAILABLE = ("unavailable", "unknown")
@@ -157,11 +160,14 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         distance = None
         tracker = None
         sonoff_hint = False
+        chan: list[tuple[Any, Any]] = []
         for ent in entities:
             state = hass.states.get(ent.entity_id)
             if state is None:
                 continue
             primary_entity = primary_entity or ent.entity_id
+            if ent.domain in CHANNEL_DOMAINS and not ent.entity_category and not ent.hidden_by and not ent.disabled_by:
+                chan.append((ent, state))
             if not sonoff_hint and "sonoff" in ent.entity_id:
                 sonoff_hint = True
             if internet_switch is None and ent.domain == "switch" and INTERNET_SWITCH.search(ent.entity_id):
@@ -270,6 +276,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "temp": temp,
                 "rssi": rssi,
                 "ble": ble,
+                "_chan": chan if (domains & CHANNEL_INTEGRATIONS and len(chan) > 1) else [],
             }
         )
 
@@ -289,6 +296,41 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         if not pid or pid == d["id"] or pid not in ids or not (set(entry_ids.get(d["id"], ())) & set(entry_ids.get(pid, ()))):
             d["parent"] = None
     result = _merge_same_phone(result, prefer or set())
+    # Homematic: the channels of a multi-channel device (switch actuators, key pairs ...) become sub-rows like the Shelly channels
+    kids: list[dict[str, Any]] = []
+    for d in result:
+        chan = d.pop("_chan", [])
+        prefix = d["name"].strip().lower()
+        for ent, state in chan:
+            label = str(state.attributes.get("friendly_name") or ent.name or ent.original_name or ent.entity_id)
+            if label.lower().startswith(prefix) and len(label) > len(prefix):
+                label = label[len(prefix):].strip(" -_:") or label
+            kids.append(
+                {
+                    "id": f"{d['id']}~{ent.entity_id}",
+                    "parent": d["id"],
+                    "name": label,
+                    "manufacturer": d["manufacturer"],
+                    "model": ent.domain,
+                    "sw_version": None,
+                    "area": d["area"],
+                    "mac": None,
+                    "ip": None,
+                    "classes": d["classes"],
+                    "integrations": d["integrations"],
+                    "online": state.state != "unavailable",
+                    "battery": None,
+                    "battery_low": None,
+                    "last_seen": state.last_updated.isoformat(),
+                    "entity": ent.entity_id,
+                    "internet_switch": None,
+                    "ble_switch": None,
+                    "temp": None,
+                    "rssi": None,
+                    "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+                }
+            )
+    result.extend(kids)
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

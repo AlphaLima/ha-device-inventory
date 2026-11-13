@@ -21,9 +21,13 @@ Photos and notes are stored on the server (`.storage/device_inventory`, `config/
 
 ## Screenshot
 
-The *Shelly* tab of the sidebar panel (IP and MAC addresses blacked out): tabs with the device classes on top, toolbar (refresh, CSV export, print + page format, tree, search, column editor at the right), status LED, 🌐 internet switch, tree arrows (**▸4** = four sub-channels), signal, temperature, Bluetooth, battery, photos and notes.
+The *Shelly* tab of the sidebar panel (IP and MAC addresses blurred with the eye button): tabs with the device classes on top, toolbar (refresh, CSV export, print + page format, tree, search, column editor at the right), status LED, 🌐 internet switch, tree arrows (**▸4** = four sub-channels), signal, temperature, Bluetooth, battery, photos and notes.
 
 <p align="center"><img src="docs/screenshot-shelly.png" width="900" alt="Shelly tab of the Device Inventory panel"></p>
+
+The *ZigBee* tab: columns without values (IP, MAC, signal, temperature …) are hidden automatically, and so is the tree column when there are no sub-channels.
+
+<p align="center"><img src="docs/screenshot-zigbee.png" width="900" alt="ZigBee tab of the Device Inventory panel"></p>
 
 Hovering the photo symbol shows the photos of the device right in the table (here: the Shelly in its flush-mounted box and the distribution cabinet) – the fastest way to answer *"where does this sit?"*:
 

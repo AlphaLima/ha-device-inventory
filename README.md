@@ -29,6 +29,10 @@ The *ZigBee* tab: columns without values (IP, MAC, signal, temperature …) are 
 
 <p align="center"><img src="docs/screenshot-zigbee.png" width="900" alt="ZigBee tab of the Device Inventory panel"></p>
 
+The *Homematic* tab with expandable sub-channels: multi-channel devices (here the *Außenlampen* switch actuator with five channels) fold out into one row per channel, just like the Shelly channels.
+
+<p align="center"><img src="docs/screenshot-homematic.png" width="900" alt="Homematic tab with expanded sub-channels"></p>
+
 Hovering the photo symbol shows the photos of the device right in the table (here: the Shelly in its flush-mounted box and the distribution cabinet) – the fastest way to answer *"where does this sit?"*:
 
 ## Example printout

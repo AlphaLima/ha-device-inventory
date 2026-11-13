@@ -20,12 +20,14 @@ window.customIcons.deviceinventory = {
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
     maker: "Manufacturer", fw: "Firmware", seen: "Seen", battery: "Batt.", photos: "Photos", note: "Note",
+    blurOn: "Blur IP / MAC addresses (e.g. for screenshots)", blurOff: "Show IP / MAC addresses",
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
+    blurOn: "IP- / MAC-Adressen verwischen (z. B. für Screenshots)", blurOff: "IP- / MAC-Adressen anzeigen",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
@@ -40,7 +42,8 @@ const DEFAULT_LAYOUT = {
   view: { order: [], off: [], w: { note: 240 }, n: {} },
   print: { order: [], off: ["seen", "status"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
 };
-const OPTIONAL = ["kids", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
+const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip", "irk"]; // columns blurred by the "hide addresses" option
+const OPTIONAL =["kids", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
 const ICONS = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>',
@@ -65,6 +68,8 @@ const ICONS = {
   clipboard: '<rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/>',
   import: '<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
 };
 const ico = (n, size) => `<svg viewBox="0 0 24 24" width="${size || 18}" height="${size || 18}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">${ICONS[n]}</svg>`;
 const escH = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -86,6 +91,7 @@ class DeviceInventoryCard extends HTMLElement {
     let ori = "portrait";
     try { if (localStorage.getItem("diOri") === "landscape") ori = "landscape"; } catch (e) { /* ignore */ }
     this._ori = ori;
+    try { this._blur = localStorage.getItem("diBlur") === "1"; } catch (e) { this._blur = false; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
     }
@@ -355,7 +361,11 @@ class DeviceInventoryCard extends HTMLElement {
     const printPair = el("span", "display:inline-flex;margin-left:14px");
     pb.style.borderRadius = "8px 0 0 8px"; seg.style.borderRadius = "0 8px 8px 0"; seg.style.marginLeft = "-1px";
     printPair.append(pb, seg);
-    bar.append(rb, xcb, printPair);
+    const bl = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    bl.innerHTML = ico(this._blur ? "eyeoff" : "eye", 20); bl.title = this._blur ? t.blurOff : t.blurOn;
+    if (this._blur) bl.style.background = "var(--primary-color)", bl.style.color = "var(--text-primary-color,#fff)";
+    bl.onclick = () => { this._blur = !this._blur; try { localStorage.setItem("diBlur", this._blur ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+    bar.append(rb, xcb, printPair, bl);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {
@@ -461,7 +471,7 @@ class DeviceInventoryCard extends HTMLElement {
   _row(d, n, hide) {
     const t = this._t, s = this._state;
     const tr = document.createElement("tr");
-    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); td.dataset.col = col; if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); if (this._dimCols && this._dimCols.has(col)) td.style.opacity = ".35"; const w = this._widths && this._widths[col]; if (w) td.style.cssText += `;width:${w}px;max-width:${w}px;min-width:${w}px`; tr.appendChild(td); return td; };
+    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); td.dataset.col = col; if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); if (this._dimCols && this._dimCols.has(col)) td.style.opacity = ".35"; if (this._blur && BLURCOLS.includes(col)) { td.style.filter = "blur(5px)"; td.style.userSelect = "none"; td.style.pointerEvents = "none"; } const w = this._widths && this._widths[col]; if (w) td.style.cssText += `;width:${w}px;max-width:${w}px;min-width:${w}px`; tr.appendChild(td); return td; };
     add("#", String(n));
     const led = el("span", `display:inline-block;width:11px;height:11px;border-radius:50%;background:${d.online ? "var(--success-color,#43a047)" : "var(--error-color,#e53935)"}`); led.title = d.online ? t.online : t.offline;
     add("status", led);
@@ -795,7 +805,7 @@ class DeviceInventoryCard extends HTMLElement {
     const small = this._ori === "portrait" || cols.length > 11;
     let html = `<!doctype html><html><head><meta charset="utf-8"><title>${E(title)}</title><style>@page{size:A4 ${this._ori};margin:8mm 8mm 12mm;@bottom-right{content:counter(page) "/" counter(pages);font:8pt Arial,sans-serif;color:#444}}
       body{font-family:Arial,sans-serif;font-size:${small ? 7.5 : 9}pt;color:#000;margin:0}th.ttl{background:#fff;border:none;border-bottom:.5pt solid #999;padding:0 0 2mm;font-size:13pt}th.ttl .ico{display:inline-block;vertical-align:middle;margin-right:2.5mm}th.ttl .ico svg{width:8mm;height:8mm;display:block}th.ttl .ico svg,th.ttl .ico svg path{fill:#000}th.ttl small{font-size:8pt;font-weight:normal;color:#444;margin-left:3mm}
-      table{border-collapse:collapse;width:100%}th,td{border:.5pt solid #999;padding:1mm 1.4mm;text-align:left;vertical-align:top}th{background:#e8e8e8}th svg{display:block;stroke:#000}
+      table{border-collapse:collapse;width:100%}th,td{border:.5pt solid #999;padding:1mm 1.4mm;text-align:left;vertical-align:top}td.bl{filter:blur(4px)}th{background:#e8e8e8}th svg{display:block;stroke:#000}
       thead{display:table-header-group}tr{page-break-inside:avoid}img{width:${small ? 48 : 64}px;height:${small ? 48 : 64}px;object-fit:cover;margin:1px}</style></head><body>
       <table><thead><tr><th class="ttl" colspan="${cols.length}">${tabIcon ? `<span class="ico">${tabIcon}</span>` : ""}${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${pcfg.n[c] ? E(pcfg.n[c]) : c === "#" ? "#" : PIC[c] ? ico(PIC[c], 15) : E(t[c])}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
@@ -807,7 +817,7 @@ class DeviceInventoryCard extends HTMLElement {
       html += "<tr>" + cols.map((c) => c === "photos"
         ? `<td${wst(c)}>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
         : c === "internet" && cells[c].startsWith("<svg") ? `<td${wst(c)}>${cells[c]}</td>`
-        : `<td${wst(c)}>${E(cells[c]).replace(/\n/g, "<br>")}</td>`).join("") + "</tr>";
+        : `<td${wst(c)}${this._blur && BLURCOLS.includes(c) ? ' class="bl"' : ""}>${E(this._blur && BLURCOLS.includes(c) ? String(cells[c]).replace(/[0-9a-fA-F]/g, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]) : cells[c]).replace(/\n/g, "<br>")}</td>`).join("") + "</tr>";
     });
     html += "</tbody></table></body></html>";
     const f = document.createElement("iframe");

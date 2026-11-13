@@ -33,6 +33,10 @@ The *Homematic* tab with expandable sub-channels: multi-channel devices (here th
 
 <p align="center"><img src="docs/screenshot-homematic.png" width="900" alt="Homematic tab with expanded sub-channels"></p>
 
+**All devices in one room:** type the room name (or part of it) into the search field of the *All devices* tab – the search also looks into the *Room* column, so every device of that room is listed, whatever its class (here *Gästebad*: Homematic, Shelly …, 24 of 427). With the eye button the addresses are blurred.
+
+<p align="center"><img src="docs/screenshot-room.png" width="900" alt="All devices of one room via search"></p>
+
 Hovering the photo symbol shows the photos of the device right in the table (here: the Shelly in its flush-mounted box and the distribution cabinet) – the fastest way to answer *"where does this sit?"*:
 
 ## Example printout

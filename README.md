@@ -5,7 +5,7 @@
 One overview of **all devices in your smart home**, sorted by device class – with IP and MAC address, status, photos, notes and a printable documentation.
 Made for installations with many devices where nobody remembers any more *which device sits where, under which address*, e.g. when an electrician has to take over or when you search for a fault.
 
-- **One tab per device class:** All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Z-Wave, Hue, Tuya, Bluetooth, Batteries, Other (only classes that exist in your system are shown, each with a red badge for offline devices).
+- **One tab per device class:** All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Z-Wave, Hue, Tuya, Blink, Amazon Echo, Bluetooth, Batteries, Other (only classes that exist in your system are shown, each with a red badge for offline devices).
 - **Status LED** 🟢/🔴 per device (online = at least one live entity).
 - **IP address as a link** to the web page of the device, **MAC address** (click = copy).
 - **Several photos and a note per device** – where it is installed, which fuse, what is connected.
@@ -58,7 +58,7 @@ Reload the browser page (Ctrl+F5) after an update – the card JavaScript is loa
 After setup a **Device Inventory** entry appears in the sidebar: a complete dashboard, no Lovelace configuration needed. Its symbol is the integration logo in one colour: the Bluetooth and Matter symbols above a list with three lines.
 
 - The tabs along the top are the device classes. A **red badge** counts offline devices (on the *Batteries* tab: batteries at 20 % or below). The round switch at the right end of the tab bar controls the **problem view**: *off* (default, grey dashed circle) hides the red badges **and the missing (offline) devices in the lists**, so you see a clean list of what is working; *on* (red circle with a number) shows the badges and the missing devices. Tab tooltips and the device counter follow the switch. The choice is remembered in the browser. In your own dashboard card the same filter is `hide_offline: true`.
-- Tab symbols: a tile grid for *All*, the brand logos of Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff and Tasmota, the Bluetooth symbol for *Bluetooth* and a battery for *Batteries*. Hover a tab for its name and device count.
+- Tab symbols: a tile grid for *All*, the brand logos of Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff and Tasmota, a camera for *Blink*, the Alexa symbol for *Amazon Echo*, the Bluetooth symbol for *Bluetooth* and a battery for *Batteries*. Hover a tab for its name and device count.
 - The first tab shows all devices, the others only devices of that class. A device reached by two integrations (e.g. a Sonoff over ESPHome) appears in both.
 
 ### Toolbar (above every table)
@@ -166,7 +166,7 @@ Type into the <img src="docs/icons/search.svg" height="16" alt="search"> field: 
 
 ```yaml
 type: custom:device-inventory-card
-class: esphome        # all | shelly | esphome | mqtt | matter | wled | sonoff | tasmota | zigbee | zwave | homematic | hue | tuya | bluetooth | battery | other
+class: esphome        # all | shelly | esphome | mqtt | matter | wled | sonoff | tasmota | zigbee | zwave | homematic | hue | tuya | blink | alexa | bluetooth | battery | other
 title: My ESPHome devices   # optional, default is the category name
 hide: [maker, fw]      # optional, columns to hide (keys below)
 max_height: 70vh       # optional, height of the scroll area (default: window height - 170 px)

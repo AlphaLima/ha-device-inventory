@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ipaddress
 import re
+import socket
 from typing import Any
 from urllib.parse import urlparse
 
@@ -67,6 +68,23 @@ def _all_devices(dev_reg: dr.DeviceRegistry) -> list[dr.DeviceEntry]:
     if isinstance(first, str):  # older Home Assistant: mapping id -> entry
         return list(devices.values())
     return list(devices)
+
+
+def _server_ip(hass: HomeAssistant) -> str | None:
+    """IP address of the machine Home Assistant runs on (the server itself is no device in the registry)."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect(("10.255.255.255", 1))  # no packet is sent, the OS only picks the outgoing interface
+            ip = _valid_ip(sock.getsockname()[0])
+            if ip and not ip.startswith("127."):
+                return ip
+    except OSError:
+        pass
+    for url in (hass.config.internal_url, hass.config.external_url):
+        host = urlparse(url).hostname if url else None
+        if _valid_ip(host):
+            return _valid_ip(host)
+    return None
 
 
 def _entry_ids(dev: dr.DeviceEntry) -> tuple[str, ...]:
@@ -359,6 +377,71 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "battery_low": None,
                 "last_seen": state.last_updated.isoformat(),
                 "entity": ent.entity_id,
+                "internet_switch": None,
+                "ble_switch": None,
+                "temp": None,
+                "rssi": None,
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+            }
+        )
+    # the Home Assistant server itself is no device in the registry: add a row so its IP can be found
+    server_ip = _server_ip(hass)
+    if server_ip and not any(d["ip"] == server_ip for d in result):
+        result.append(
+            {
+                "id": "ha~server",
+                "parent": None,
+                "name": f"{hass.config.location_name} (Home Assistant)",
+                "manufacturer": "Home Assistant",
+                "model": "Server",
+                "sw_version": None,
+                "area": None,
+                "mac": None,
+                "ip": server_ip,
+                "classes": [OTHER],
+                "integrations": ["homeassistant"],
+                "online": True,
+                "battery": None,
+                "battery_low": None,
+                "last_seen": None,
+                "entity": None,
+                "internet_switch": None,
+                "ble_switch": None,
+                "temp": None,
+                "rssi": None,
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+            }
+        )
+    # network clients known only as device trackers (FRITZ!Box, router, nmap ...), e.g. a Proxmox host or a PC: one row per IP not yet listed
+    known_ips = {d["ip"] for d in result if d["ip"]}
+    known_macs = {d["mac"] for d in result if d["mac"]}
+    for state in hass.states.async_all("device_tracker"):
+        attrs = state.attributes
+        ip = _valid_ip(attrs.get("ip") or attrs.get("ip_address"))
+        if not ip or ip in known_ips:
+            continue
+        mac = str(attrs.get("mac") or "").upper() or None
+        if mac and mac in known_macs:
+            continue
+        known_ips.add(ip)
+        result.append(
+            {
+                "id": f"net~{state.entity_id}",
+                "parent": None,
+                "name": str(attrs.get("friendly_name") or attrs.get("host_name") or state.entity_id),
+                "manufacturer": None,
+                "model": "Network",
+                "sw_version": None,
+                "area": None,
+                "mac": mac,
+                "ip": ip,
+                "classes": [OTHER],
+                "integrations": ["device_tracker"],
+                "online": state.state in ("home", "on"),
+                "battery": None,
+                "battery_low": None,
+                "last_seen": state.last_updated.isoformat(),
+                "entity": state.entity_id,
                 "internet_switch": None,
                 "ble_switch": None,
                 "temp": None,

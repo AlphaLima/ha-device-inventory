@@ -2,6 +2,14 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.1 – 2026-11-13
+- Sub-channels as expandable tree rows for Homematic, MQTT, ESPHome, ZigBee, Matter ... (multi-channel devices)
+- Option: unfold only sub-rows with comment or photo (funnel button)
+- New tabs: Blink, Amazon Echo (Alexa), Modbus (one row per Modbus entity) with logos
+- Natural sort order (ch2 before ch10)
+- Adding / editing a photo or note keeps scroll position and row order
+- README: flat icons, new screenshots and example printout
+
 ## 1.18.0 – 2026-11-13
 - Option to blur IP / MAC addresses (screen and printout)
 - Print: icons as column headings and for the internet column

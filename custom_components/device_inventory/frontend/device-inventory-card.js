@@ -418,7 +418,20 @@ class DeviceInventoryCard extends HTMLElement {
         const text = window.prompt(t.importLayout, ""); if (!text) return;
         try { const j = JSON.parse(text); ["view", "print"].forEach((k) => { if (j[k]) { const c = this._cfg(k); c.order = j[k].order || c.order; c.off = new Set(j[k].off || []); c.w = j[k].w || {}; c.n = j[k].n || {}; this._saveCfg(k, c); } }); this._render(); } catch (e) { alert(`${t.saveFail}: ${e.message || e}`); }
       };
-      editGroup.append(mk("view", ico("monitor"), t.tgtView), mk("print", ico("printer"), t.tgtPrint), cp, im, rs, dn);
+      const au = el("button", "padding:4px 9px;display:inline-flex;align-items:center;font-weight:600"); au.textContent = "Auto";
+      au.title = (this._hass.language || "en").startsWith("de") ? "Spaltenbreiten automatisch an die längsten Texte/Symbole anpassen" : "Fit column widths automatically to the widest content";
+      au.onclick = () => {
+        const tb = this._root.querySelector("table"); if (!tb) return;
+        const natural = (n) => { const rg = document.createRange(); rg.selectNodeContents(n); const cs = getComputedStyle(n); return Math.ceil(rg.getBoundingClientRect().width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)) + 2; };
+        const w = {};
+        tb.querySelectorAll("tbody tr").forEach((r) => [...r.children].forEach((td) => { const c = td.dataset.col; if (!c) return; const x = natural(td); if (!(w[c] >= x)) w[c] = x; }));
+        tb.querySelectorAll("thead th, tr:first-child th").forEach((th) => { const c = th.dataset.col; if (!c) return; let x; const inp = th.querySelector("input[type=text]"); if (inp) { const pr = document.createElement("span"); pr.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font-weight:700"; pr.textContent = (inp.value || inp.placeholder || "") + "▲"; th.appendChild(pr); x = Math.ceil(pr.getBoundingClientRect().width) + 12; pr.remove(); } else x = natural(th); if (!(w[c] >= x)) w[c] = x; });
+        const act = this._cfg(tgt);
+        act.w = act.w || {};
+        Object.keys(w).forEach((c) => { if (c !== "kids") act.w[c] = tgt === "print" ? Math.round(w[c] / mm) : w[c]; });
+        this._saveCfg(tgt, act); this._render();
+      };
+      editGroup.append(mk("view", ico("monitor"), t.tgtView), mk("print", ico("printer"), t.tgtPrint), au, cp, im, rs, dn);
     }
     if (withKids) {
       const xb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");

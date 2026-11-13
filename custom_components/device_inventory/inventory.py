@@ -15,7 +15,9 @@ from homeassistant.helpers import (
 )
 
 CHANNEL_DOMAINS = {"switch", "light", "cover", "lock", "valve", "fan"}
-CHANNEL_INTEGRATIONS = {"homematicip_local", "homematic", "homematicip_cloud"}
+# integrations whose multi-channel devices (several switches / lights / covers on ONE device) get sub-rows; Shelly already has real
+# sub-devices, WLED / FRITZ!Box entities are settings and not channels
+CHANNEL_INTEGRATIONS = {"homematicip_local", "homematic", "homematicip_cloud", "mqtt", "esphome", "tasmota", "zha", "deconz", "matter", "zwave_js", "hue", "tuya", "sonoff"}
 
 from .const import CLASS_MAP, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
 
@@ -296,7 +298,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         if not pid or pid == d["id"] or pid not in ids or not (set(entry_ids.get(d["id"], ())) & set(entry_ids.get(pid, ()))):
             d["parent"] = None
     result = _merge_same_phone(result, prefer or set())
-    # Homematic: the channels of a multi-channel device (switch actuators, key pairs ...) become sub-rows like the Shelly channels
+    # the channels of a multi-channel device (switch actuators, relays ...) become sub-rows like the Shelly channels
     kids: list[dict[str, Any]] = []
     for d in result:
         chan = d.pop("_chan", [])

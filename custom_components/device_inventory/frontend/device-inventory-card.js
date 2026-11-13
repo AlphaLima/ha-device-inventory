@@ -644,6 +644,13 @@ class DeviceInventoryCard extends HTMLElement {
     const byCol = {};
     [...tr.children].forEach((td) => { byCol[td.dataset.col] = td; });
     (this._colOrder || []).forEach((c) => { if (byCol[c]) tr.appendChild(byCol[c]); });
+    // rows with visible thumbnails are tall anyway: text may use several lines, broken at whole words
+    if (this._thumbs && ps.length) {
+      ["name", "model", "area", "maker", "fw", "scanner", "seen", "note"].forEach((c) => {
+        const td = byCol[c]; if (!td) return;
+        td.style.whiteSpace = "normal"; td.style.textOverflow = "clip"; td.style.overflowWrap = "normal"; td.style.wordBreak = "normal"; td.style.hyphens = "manual";
+      });
+    }
     return tr;
   }
 

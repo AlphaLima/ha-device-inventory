@@ -20,6 +20,7 @@ window.customIcons.deviceinventory = {
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
     maker: "Manufacturer", fw: "Firmware", seen: "Seen", battery: "Batt.", photos: "Photos", note: "Note",
+    commentsOff: "Hide the comment text in the list", commentsOn: "Show the comment text in the list",
     thumbsOff: "Hide the thumbnails in the list", thumbsOn: "Show thumbnails in the list",
     kidFilterOn: "Unfold only sub-rows with a comment or photo", kidFilterOff: "Unfold all sub-rows",
     blurOn: "Blur IP / MAC addresses (e.g. for screenshots)", blurOff: "Show IP / MAC addresses",
@@ -29,6 +30,7 @@ const T = {
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
+    commentsOff: "Kommentartext in der Liste ausblenden", commentsOn: "Kommentartext in der Liste anzeigen",
     thumbsOff: "Miniaturbilder in der Liste ausblenden", thumbsOn: "Miniaturbilder in der Liste anzeigen",
     kidFilterOn: "Beim Ausklappen nur Unterelemente mit Kommentar oder Bild", kidFilterOff: "Alle Unterelemente ausklappen",
     blurOn: "IP- / MAC-Adressen verwischen (z. B. für Screenshots)", blurOff: "IP- / MAC-Adressen anzeigen",
@@ -74,6 +76,7 @@ const ICONS = {
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
   imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
+  noteoff: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M3 3l18 18"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
 };
@@ -100,6 +103,7 @@ class DeviceInventoryCard extends HTMLElement {
     try { this._blur = localStorage.getItem("diBlur") === "1"; } catch (e) { this._blur = false; }
     try { this._kidFilter = localStorage.getItem("diKidFilter") === "1"; } catch (e) { this._kidFilter = false; }
     try { this._thumbs = localStorage.getItem("diThumbs") !== "0"; } catch (e) { this._thumbs = true; }
+    try { this._comments = localStorage.getItem("diComments") !== "0"; } catch (e) { this._comments = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
     }
@@ -392,7 +396,11 @@ class DeviceInventoryCard extends HTMLElement {
     thb.innerHTML = ico(this._thumbs ? "image" : "imageoff", 20); thb.title = this._thumbs ? t.thumbsOff : t.thumbsOn;
     if (!this._thumbs) thb.style.background = "var(--primary-color)", thb.style.color = "var(--text-primary-color,#fff)";
     thb.onclick = () => { this._thumbs = !this._thumbs; try { localStorage.setItem("diThumbs", this._thumbs ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-    bar.append(rb, xcb, printPair, bl, thb);
+    const cmb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    cmb.innerHTML = ico(this._comments ? "note" : "noteoff", 20); cmb.title = this._comments ? t.commentsOff : t.commentsOn;
+    if (!this._comments) cmb.style.background = "var(--primary-color)", cmb.style.color = "var(--text-primary-color,#fff)";
+    cmb.onclick = () => { this._comments = !this._comments; try { localStorage.setItem("diComments", this._comments ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+    bar.append(rb, xcb, printPair, bl, thb, cmb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {
@@ -613,7 +621,7 @@ class DeviceInventoryCard extends HTMLElement {
     // the note text is shown right in the table (cut with "..." when too long; hover = whole text, click = editor)
     const noteCell = el("span");
     noteCell.appendChild(nb);
-    if (note) {
+    if (note && this._comments) {
       const nt = el("span", "cursor:pointer", note.replace(/\s+/g, " "));
       nt.title = note; nt.onclick = nb.onclick;
       noteCell.appendChild(nt);

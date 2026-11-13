@@ -2,6 +2,12 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.2 – 2026-11-13
+- Switches to show/hide thumbnails and comment text in the list (hover always works)
+- Full-text tooltip on truncated cells
+- Auto button in column settings: fit widths to content
+- Rows with thumbnails wrap text at whole words over several lines
+
 ## 1.18.1 – 2026-11-13
 - Sub-channels as expandable tree rows for Homematic, MQTT, ESPHome, ZigBee, Matter ... (multi-channel devices)
 - Option: unfold only sub-rows with comment or photo (funnel button)

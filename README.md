@@ -21,7 +21,7 @@ Photos and notes are stored on the server (`.storage/device_inventory`, `config/
 
 ## Screenshot
 
-The *Shelly* tab of the sidebar panel (IP and MAC addresses blurred with the eye button): tabs with the device classes on top, toolbar (refresh, CSV export, print + page format, tree, search, column editor at the right), status LED, 🌐 internet switch, tree arrows (**▸4** = four sub-channels), signal, temperature, Bluetooth, battery, photos and notes.
+The *Shelly* tab of the sidebar panel (IP and MAC addresses blurred with the eye button): tabs with the device classes on top, toolbar (refresh, CSV export, print + page format, tree, search, column editor at the right), status LED, <img src="docs/icons/globe.svg" height="16" alt="globe"> internet switch, tree arrows (**▸4** = four sub-channels), signal, temperature, Bluetooth, battery, photos and notes.
 
 <p align="center"><img src="docs/screenshot-shelly.png" width="900" alt="Shelly tab of the Device Inventory panel"></p>
 
@@ -65,14 +65,14 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 
 | Symbol | Meaning |
 |---|---|
-| 🔄 (two circling arrows) | reload the list now (every tab switch reloads as well) |
+| <img src="docs/icons/refresh.svg" height="16" alt="refresh"> (two circling arrows) | reload the list now (every tab switch reloads as well) |
 | document-with-arrow symbol | **export the table as a CSV file** (see *CSV export*) |
-| 🖨️ (next to the page symbol, set apart from the first two) | print / save as PDF |
+| <img src="docs/icons/printer.svg" height="16" alt="printer"> (next to the page symbol, set apart from the first two) | print / save as PDF |
 | page symbol (▯ upright / ▭ lying page) | page format for printing; the symbol shows the current format, a click switches (remembered in the browser) |
 | funnel symbol (next to the tree symbol) | **unfold only sub-rows that have a comment or a photo** (remembered in the browser; the ▸N counter shows only those) |
 | eye symbol (next to the page symbol) | **blur IP / MAC addresses** (also Bluetooth address, scanner IP, IRK) for screenshots; the printout then contains scrambled, blurred values instead of the real ones; remembered in the browser; the CSV export is not affected |
 | columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
-| 🔍 field | search (see below) |
+| <img src="docs/icons/search.svg" height="16" alt="search"> field | search (see below) |
 | tree symbol (shown only if sub-channels exist) | expand / collapse **all** sub-channels |
 | Σ 105 | number of devices (while searching: hits / total) |
 
@@ -84,22 +84,22 @@ Click a column heading to sort. Columns without any value in the current tab are
 |---|---|
 | `#` | running number |
 | Status | 🟢 online / 🔴 offline |
-| 🌐 Internet | FRITZ!Box internet access of the device: ✅ allowed, 🚫 blocked, ❔ unavailable, – none. **Click toggles** the switch, both directions ask for confirmation |
+| <img src="docs/icons/globe.svg" height="16" alt="globe"> Internet | FRITZ!Box internet access of the device: <img src="docs/icons/checkc.svg" height="16" alt="checkc"> allowed, <img src="docs/icons/block.svg" height="16" alt="block"> blocked, <img src="docs/icons/help.svg" height="16" alt="help"> unavailable, – none. **Click toggles** the switch, both directions ask for confirmation |
 | tree symbol column | arrow with the number of sub-channels (see *Tree structure*); heading = expand/collapse all |
 | Device | name (sub-channels are indented with └) |
 | Model, Area | from the device registry |
-| 📏 Distance, 🏠 Home | Bluetooth presence: estimated distance in m, home ✅ / away 🚫 |
+| <img src="docs/icons/ruler.svg" height="16" alt="ruler"> Distance, <img src="docs/icons/home.svg" height="16" alt="home"> Home | Bluetooth presence: estimated distance in m, home <img src="docs/icons/checkc.svg" height="16" alt="checkc"> / away <img src="docs/icons/block.svg" height="16" alt="block"> |
 | IP | link to `http://<IP>` (opens the web page of the device) |
 | MAC | MAC address, click copies it |
 | BLE MAC, Scanner, Scanner IP, IRK | Bluetooth presence (Private BLE Device and Bermuda): address, the scanner that sees the device (e.g. a Shelly or ESP proxy), its IP as link, the IRK (shortened, click copies the whole key) |
 | Manufacturer, Firmware | from the device registry |
-| 📶 Signal | WiFi signal in dBm (green ≥ −60, orange ≥ −75, red below) |
-| 🌡️ Temp | device temperature (green up to 55 °C, orange up to 65 °C, red above) |
+| <img src="docs/icons/signal.svg" height="16" alt="signal"> Signal | WiFi signal in dBm (green ≥ −60, orange ≥ −75, red below) |
+| <img src="docs/icons/thermo.svg" height="16" alt="thermo"> Temp | device temperature (green up to 55 °C, orange up to 65 °C, red above) |
 | ᛒ | Shelly Bluetooth scanner switch: blue = on, grey = off, **click toggles** |
-| 🔋 | battery in % (red ≤ 20, orange ≤ 40) or *Low / OK* |
+| <img src="docs/icons/battery.svg" height="16" alt="battery"> | battery in % (red ≤ 20, orange ≤ 40) or *Low / OK* |
 | Seen | time of the last update of any entity of the device |
-| 🖼️ | photos (see below) |
-| 📝 | note: the **note text is shown in the table** (cut with … when it does not fit, the whole text on hover; click = editor) – the width of the column sets how much is visible |
+| <img src="docs/icons/image.svg" height="16" alt="image"> | photos (see below) |
+| <img src="docs/icons/note.svg" height="16" alt="note"> | note: the **note text is shown in the table** (cut with … when it does not fit, the whole text on hover; click = editor) – the width of the column sets how much is visible |
 
 ## Tree structure (sub-channels)
 
@@ -115,21 +115,21 @@ Multi-channel devices appear in Home Assistant as a main device with sub-devices
 
 No settings dialog – you edit the columns **directly in the table**:
 
-1. Click the **columns symbol** (three bars) at the **right end of the toolbar**; the edit buttons (🖥️ Display, 🖨️ Printout, ↺ reset, ✓ done) appear next to it, also on the right. The table switches to *edit mode*: every column heading gets a small tool strip.
-2. Choose **what you edit** with the switch next to it: **🖥️ Display** (what you see on screen) or **🖨️ Printout** (what is printed). Both have their own settings. So you cannot mix them up, the table shows one large, pale **watermark** in the middle (a blue **monitor** symbol for *Display* / an orange **printer** symbol for *Printout*) and a frame in the same colour while you edit.
+1. Click the **columns symbol** (three bars) at the **right end of the toolbar**; the edit buttons (<img src="docs/icons/monitor.svg" height="16" alt="monitor"> Display, <img src="docs/icons/printer.svg" height="16" alt="printer"> Printout, <img src="docs/icons/reset.svg" height="16" alt="reset"> reset, <img src="docs/icons/check.svg" height="16" alt="check"> done) appear next to it, also on the right. The table switches to *edit mode*: every column heading gets a small tool strip.
+2. Choose **what you edit** with the switch next to it: **<img src="docs/icons/monitor.svg" height="16" alt="monitor"> Display** (what you see on screen) or **<img src="docs/icons/printer.svg" height="16" alt="printer"> Printout** (what is printed). Both have their own settings. So you cannot mix them up, the table shows one large, pale **watermark** in the middle (a blue **monitor** symbol for *Display* / an orange **printer** symbol for *Printout*) and a frame in the same colour while you edit.
 3. In the heading of each column:
    - **checkbox** – show (display) / print (printout) this column. Switched-off columns stay visible but dimmed while you edit;
    - **◀ ▶** – move the column left or right;
    - **name field** below the tool strip – type your own **column name** (e.g. *Designation* instead of *Device*); empty = default name. Display and printout have separate names;
    - **drag the grey edge** at the right of the heading – set the width (double-click the edge = automatic again). On the *Printout* side the table shows the widths as they will be printed.
-4. **📋** copies the whole layout (display and printout) as JSON to the clipboard, **📥** imports such a JSON – to take your layout to another browser or to share it. (Maintainers can store a layout as the built-in default in `DEFAULT_LAYOUT` at the top of `device-inventory-card.js`.)
-5. **↺** resets the selected side to its defaults (after a **confirmation**, because all its settings – columns, order, widths, names – are lost), **✓** (or the columns symbol again) finishes the edit mode. Everything is saved immediately in the browser.
+4. **<img src="docs/icons/clipboard.svg" height="16" alt="clipboard">** copies the whole layout (display and printout) as JSON to the clipboard, **<img src="docs/icons/import.svg" height="16" alt="import">** imports such a JSON – to take your layout to another browser or to share it. (Maintainers can store a layout as the built-in default in `DEFAULT_LAYOUT` at the top of `device-inventory-card.js`.)
+5. **<img src="docs/icons/reset.svg" height="16" alt="reset">** resets the selected side to its defaults (after a **confirmation**, because all its settings – columns, order, widths, names – are lost), **<img src="docs/icons/check.svg" height="16" alt="check">** (or the columns symbol again) finishes the edit mode. Everything is saved immediately in the browser.
 
 Defaults: *Display* shows everything that has data with automatic widths; *Printout* leaves out *Status* (online) and *Last seen* and uses a tuned set of column widths in mm (number 6, internet 12, name 22, model 19, room 16, IP 24, MAC 29, manufacturer 16, firmware 19, signal 14, temperature 10, battery 14, photos 18, note 63 – together about 280 mm, i.e. made for **landscape**; for portrait shrink or switch off columns). Columns without any value in the current tab stay hidden automatically, in both modes. In edit mode sorting by click on the heading is switched off.
 
 ## CSV export
 
-The document symbol with a downward arrow next to 🖨️ saves the current table as a **CSV file** (`device-inventory-<class>-<date>.csv`) for Excel, LibreOffice or further processing:
+The document symbol with a downward arrow next to <img src="docs/icons/printer.svg" height="16" alt="printer"> saves the current table as a **CSV file** (`device-inventory-<class>-<date>.csv`) for Excel, LibreOffice or further processing:
 
 - **Columns:** the columns of the *Display* layout (visible columns, their order and **your column names**); columns without data are left out like on screen. Values are plain text (no symbols): *Online / Offline*, *Allowed / Blocked*, battery in %, the note as text, the number of photos.
 - **Rows:** what the **search filter** lists, in the current sorting – **all sub-channels included**, whether the tree is collapsed or not; an extra column *Main device* names the main device of each channel.
@@ -137,23 +137,23 @@ The document symbol with a downward arrow next to 🖨️ saves the current tabl
 
 ## Search
 
-Type into the 🔍 field: the table filters while you type. Searched are name, model, room, IP, MAC, manufacturer, firmware, the note and the words *online* / *offline* (e.g. `.68`, `kitchen`, `offline`, `fuse 3`). **Esc** clears the field. The counter shows hits / total. **The search field is also the filter for the printout – on purpose:** whatever is listed is printed. Filter for a room (`kitchen`), a device class (open its tab), an address range (`192.168.188.6`) or `offline`, check the result on screen and print exactly that.
+Type into the <img src="docs/icons/search.svg" height="16" alt="search"> field: the table filters while you type. Searched are name, model, room, IP, MAC, manufacturer, firmware, the note and the words *online* / *offline* (e.g. `.68`, `kitchen`, `offline`, `fuse 3`). **Esc** clears the field. The counter shows hits / total. **The search field is also the filter for the printout – on purpose:** whatever is listed is printed. Filter for a room (`kitchen`), a device class (open its tab), an address range (`192.168.188.6`) or `offline`, check the result on screen and print exactly that.
 
 ## Photos, notes, printing
 
-**Photos** (column 🖼️)
-- 📷 **add**: pick one or several images (JPG/PNG, resized to 1600 px in the browser).
-- 🖼️ appears once a device has photos (a number = how many). **Hover** = thumbnail preview, **click** = gallery: click a photo to open it full size, **✖** on a photo deletes it, *Add photo(s)* adds more.
+**Photos** (column <img src="docs/icons/image.svg" height="16" alt="image">)
+- <img src="docs/icons/camera.svg" height="16" alt="camera"> **add**: pick one or several images (JPG/PNG, resized to 1600 px in the browser).
+- <img src="docs/icons/image.svg" height="16" alt="image"> appears once a device has photos (a number = how many). **Hover** = thumbnail preview, **click** = gallery: click a photo to open it full size, **<img src="docs/icons/close.svg" height="16" alt="close">** on a photo deletes it, *Add photo(s)* adds more.
 - Adding and deleting needs an admin user.
 
-**Notes** (column 📝)
-- ✏️ = no note yet, 📝 = note exists. The **text of the note is shown next to the symbol** (shortened with … if the column is too narrow – widen it in the column editor); hover shows the whole text.
+**Notes** (column <img src="docs/icons/note.svg" height="16" alt="note">)
+- <img src="docs/icons/pencil.svg" height="16" alt="pencil"> = no note yet, <img src="docs/icons/note.svg" height="16" alt="note"> = note exists. The **text of the note is shown next to the symbol** (shortened with … if the column is too narrow – widen it in the column editor); hover shows the whole text.
 - Click opens the editor: *Save* (or Ctrl+Enter), *Delete*, *Cancel* (or Esc). An empty text removes the note.
 
 **Printing / PDF – the documentation**
-- Choose the page format with the page symbol, then click 🖨️. In the browser's print dialog choose *Save as PDF* for a PDF.
+- Choose the page format with the page symbol, then click <img src="docs/icons/printer.svg" height="16" alt="printer">. In the browser's print dialog choose *Save as PDF* for a PDF.
 - The printout is a **documentation of your installation**, not just a table: every row has the **photos** of the device (up to eight small thumbnails: where it is mounted, the wiring, the label) and its **note** (fuse, circuit, what is connected, remarks). That is what you hand to the **electrician or installer**, put in the folder in the technical room, or take along when you **search for a fault**: *which device, in which room, with which address, how does it look, what was noted*.
-- **Choose the printed columns:** with the columns symbol next to 🖨️ (see *Columns: show, order, width*) – switch to **🖨️ Printout** and set which columns are printed, in which order, how wide and how they are **named** in the printout. By default *Status* (online) and *Last seen* are **not** printed. Columns that are hidden on screen because they are empty stay out of the printout as well.
+- **Choose the printed columns:** with the columns symbol next to <img src="docs/icons/printer.svg" height="16" alt="printer"> (see *Columns: show, order, width*) – switch to **<img src="docs/icons/printer.svg" height="16" alt="printer"> Printout** and set which columns are printed, in which order, how wide and how they are **named** in the printout. By default *Status* (online) and *Last seen* are **not** printed. Columns that are hidden on screen because they are empty stay out of the printout as well.
 - **What you see is what is printed:** current sorting, **the search filter**, the expanded / collapsed state of the tree and the visible columns. Open the tab of one device class, or filter for one room or address range, and print only that part – for example *"all Shelly devices in the basement"* for the electrician.
 - Every page repeats the **heading** (category) – with the **symbol of the tab** (Shelly logo, battery, …) in front of it when you print from the sidebar panel – and the column titles; the page number is printed as **1/3** at the bottom right (Chrome / Edge 131 or newer). Date and device count are part of the heading.
 - **Finding weak batteries:** open the *Batteries* tab (lowest first) and print it. Every row tells you which device it is, in which room, how it looks (photo) and what to do (note, e.g. *"CR2032, cover clips off at the bottom"*) – so the round with the battery tin is quick, also for someone who does not know the house.
@@ -196,16 +196,16 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Was es ist:** Eine Übersicht über alle Geräte im Haus, nach Klassen sortiert (Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Bluetooth, Batterien …), mit Status-LED, IP-Adresse als Link zur Geräte-Webseite, MAC, Fotos, Bemerkungen und Papierdokumentation. Nach der Installation (HACS bzw. Marketplace als eigenes Repository, HA neu starten, Integration hinzufügen) erscheint „Device Inventory“ in der Seitenleiste. Der runde Schalter rechts in der Tab-Leiste steuert die **Problemansicht**: **aus** (Standard) blendet die **roten Zähler und die fehlenden (offline) Geräte in den Listen** aus, **an** zeigt beides. Auch der Zähler und die Tab-Tooltips folgen dem Schalter. Mit `custom:device-inventory-card` lässt sich eine Tabelle auch in ein eigenes Dashboard setzen.
 
-**Werkzeugleiste:** 🔄 (zwei kreisende Pfeile) lädt neu · 🖨️ druckt (im Druckdialog „Als PDF speichern“) · das **Seitensymbol** zeigt das Druckformat (hochkant / quer) und schaltet beim Klick um · 🔍 filtert beim Tippen (Name, Modell, Raum, IP, MAC, Hersteller, Firmware, Bemerkung, online/offline; Esc leert) – **der Filter gilt bewusst auch für den Ausdruck** · das **Baumsymbol** klappt alle Unterkanäle auf bzw. zu · „Σ 5/105“ = Treffer/Gesamt.
+**Werkzeugleiste:** <img src="docs/icons/refresh.svg" height="16" alt="refresh"> (zwei kreisende Pfeile) lädt neu · <img src="docs/icons/printer.svg" height="16" alt="printer"> druckt (im Druckdialog „Als PDF speichern“) · das **Seitensymbol** zeigt das Druckformat (hochkant / quer) und schaltet beim Klick um · <img src="docs/icons/search.svg" height="16" alt="search"> filtert beim Tippen (Name, Modell, Raum, IP, MAC, Hersteller, Firmware, Bemerkung, online/offline; Esc leert) – **der Filter gilt bewusst auch für den Ausdruck** · das **Baumsymbol** klappt alle Unterkanäle auf bzw. zu · „Σ 5/105“ = Treffer/Gesamt.
 
-**Spalten:** Status 🟢/🔴 · 🌐 Internet (FRITZ!Box-Zugang: ✅ erlaubt, 🚫 gesperrt; Klick schaltet, mit Rückfrage) · Pfeil-Spalte für Unterkanäle · Name · Modell · Raum · 📏 Entfernung und 🏠 Zuhause (Bluetooth-Präsenz) · IP (Link) · MAC (Klick kopiert) · BLE-MAC, Scanner, Scanner-IP, IRK · Hersteller · Firmware · 📶 WLAN-Signal · 🌡️ Temperatur · ᛒ Bluetooth-Schalter der Shellys (blau = an, Klick schaltet) · 🔋 Batterie · Zuletzt · 🖼️ Fotos · 📝 Bemerkung. Spalten ohne Werte werden automatisch ausgeblendet. Ein Klick auf die Überschrift sortiert. Spalten (Sichtbarkeit, Reihenfolge, Breite und **Namen**) lassen sich direkt in der Tabelle einstellen, getrennt für Anzeige und Druck (siehe unten); die Einstellungen liegen im Browser.
+**Spalten:** Status 🟢/🔴 · <img src="docs/icons/globe.svg" height="16" alt="globe"> Internet (FRITZ!Box-Zugang: <img src="docs/icons/checkc.svg" height="16" alt="checkc"> erlaubt, <img src="docs/icons/block.svg" height="16" alt="block"> gesperrt; Klick schaltet, mit Rückfrage) · Pfeil-Spalte für Unterkanäle · Name · Modell · Raum · <img src="docs/icons/ruler.svg" height="16" alt="ruler"> Entfernung und <img src="docs/icons/home.svg" height="16" alt="home"> Zuhause (Bluetooth-Präsenz) · IP (Link) · MAC (Klick kopiert) · BLE-MAC, Scanner, Scanner-IP, IRK · Hersteller · Firmware · <img src="docs/icons/signal.svg" height="16" alt="signal"> WLAN-Signal · <img src="docs/icons/thermo.svg" height="16" alt="thermo"> Temperatur · ᛒ Bluetooth-Schalter der Shellys (blau = an, Klick schaltet) · <img src="docs/icons/battery.svg" height="16" alt="battery"> Batterie · Zuletzt · <img src="docs/icons/image.svg" height="16" alt="image"> Fotos · <img src="docs/icons/note.svg" height="16" alt="note"> Bemerkung. Spalten ohne Werte werden automatisch ausgeblendet. Ein Klick auf die Überschrift sortiert. Spalten (Sichtbarkeit, Reihenfolge, Breite und **Namen**) lassen sich direkt in der Tabelle einstellen, getrennt für Anzeige und Druck (siehe unten); die Einstellungen liegen im Browser.
 
 **Baumstruktur (Unterkanäle):** Mehrkanal-Geräte (z. B. Shelly 2.5, RGBW2) stehen mit ihren Kanälen **unter dem Hauptgerät**. Das Hauptgerät zeigt einen Pfeil mit der Zahl der Kanäle (**▸4**) in einer eigenen schmalen Spalte, deshalb stehen alle Gerätenamen linksbündig; nur die **Kanäle sind eingerückt** (└). Ein Klick auf den Pfeil klappt dieses Gerät auf/zu, das **Baumsymbol** (Werkzeugleiste oder Kopf der Pfeil-Spalte) klappt **alle** auf/zu. Das Symbol zeigt den Zustand: ausgeklappt = voller Baum mit drei Kästchen in Blau, eingeklappt = oberes Kästchen durchgezogen, die unteren zwei gestrichelt grau. Beim **Suchen** bleibt der Baum erhalten: nur passende Kanäle werden gezeigt; passt nur ein Kanal, wird sein Hauptgerät aufgeklappt mitgezeigt. Gedruckt wird, was gerade sichtbar ist.
 
-**CSV-Export:** Das Dokument-Symbol mit Pfeil neben 🖨️ speichert die aktuelle Tabelle als CSV (Spalten und Namen der *Anzeige*, Zeilen nach Suchfilter und Sortierung, alle Unterkanäle mit Spalte „Hauptgerät“, UTF-8 mit BOM, Trennzeichen `;` bei deutschem HA).
-**Fotos:** 📷 fügt ein oder mehrere Fotos hinzu (nur Admin). 🖼️ zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das ✖ ein Foto.
-**Bemerkungen:** ✏️ (noch keine) / 📝 (vorhanden) öffnet den Editor, Strg+Enter speichert.
-**Spalten direkt in der Tabelle einstellen (Anzeige und Druck):** Das Spalten-Symbol (drei Balken) schaltet die Tabelle in den Bearbeitungsmodus. Mit dem Umschalter **🖥️ Anzeige / 🖨️ Druck** wählst du, was du bearbeitest (beides hat eigene Einstellungen). Damit man beides nicht verwechselt, zeigt die Tabelle beim Bearbeiten **einmal mittig ein großes, blasses Wasserzeichen** (blaues **Bildschirm**-Symbol für *Anzeige* / oranges **Drucker**-Symbol für *Druck*) und einen Rahmen in derselben Farbe. In jeder Spaltenüberschrift: **Häkchen** = Spalte anzeigen bzw. drucken (abgeschaltete bleiben beim Bearbeiten grau sichtbar), **◀ ▶** = verschieben, **Namensfeld** = eigener **Spaltenname** (leer = Standard, getrennt für Anzeige und Druck), **grauen Rand rechts ziehen** = Breite (Doppelklick = automatisch). **↺** setzt die gewählte Seite zurück (mit Rückfrage, weil alle ihre Einstellungen verloren gehen), **✓** beendet den Modus. Alles wird sofort im Browser gespeichert. Standard: Anzeige zeigt alles mit Daten, im Druck fehlen *Status* (Online) und *Zuletzt*. **Drucken = Dokumentation:** Format wählen, 🖨️ klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). **Schwache Batterien finden:** Tab „Batterien“ öffnen (niedrigste zuerst) und drucken – Foto (wo sitzt der Sensor?) und Bemerkung (Batterietyp, wie man ihn öffnet) machen den Austausch einfach, auch für Personen, die das Haus nicht kennen. Ein echter Beispielausdruck liegt in `docs/example-printout.pdf` (Homematic-Geräte). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.
+**CSV-Export:** Das Dokument-Symbol mit Pfeil neben <img src="docs/icons/printer.svg" height="16" alt="printer"> speichert die aktuelle Tabelle als CSV (Spalten und Namen der *Anzeige*, Zeilen nach Suchfilter und Sortierung, alle Unterkanäle mit Spalte „Hauptgerät“, UTF-8 mit BOM, Trennzeichen `;` bei deutschem HA).
+**Fotos:** <img src="docs/icons/camera.svg" height="16" alt="camera"> fügt ein oder mehrere Fotos hinzu (nur Admin). <img src="docs/icons/image.svg" height="16" alt="image"> zeigt beim Überfahren eine Vorschau, ein Klick öffnet die Galerie; dort löscht das <img src="docs/icons/close.svg" height="16" alt="close"> ein Foto.
+**Bemerkungen:** <img src="docs/icons/pencil.svg" height="16" alt="pencil"> (noch keine) / <img src="docs/icons/note.svg" height="16" alt="note"> (vorhanden) öffnet den Editor, Strg+Enter speichert.
+**Spalten direkt in der Tabelle einstellen (Anzeige und Druck):** Das Spalten-Symbol (drei Balken) schaltet die Tabelle in den Bearbeitungsmodus. Mit dem Umschalter **<img src="docs/icons/monitor.svg" height="16" alt="monitor"> Anzeige / <img src="docs/icons/printer.svg" height="16" alt="printer"> Druck** wählst du, was du bearbeitest (beides hat eigene Einstellungen). Damit man beides nicht verwechselt, zeigt die Tabelle beim Bearbeiten **einmal mittig ein großes, blasses Wasserzeichen** (blaues **Bildschirm**-Symbol für *Anzeige* / oranges **Drucker**-Symbol für *Druck*) und einen Rahmen in derselben Farbe. In jeder Spaltenüberschrift: **Häkchen** = Spalte anzeigen bzw. drucken (abgeschaltete bleiben beim Bearbeiten grau sichtbar), **◀ ▶** = verschieben, **Namensfeld** = eigener **Spaltenname** (leer = Standard, getrennt für Anzeige und Druck), **grauen Rand rechts ziehen** = Breite (Doppelklick = automatisch). **<img src="docs/icons/reset.svg" height="16" alt="reset">** setzt die gewählte Seite zurück (mit Rückfrage, weil alle ihre Einstellungen verloren gehen), **<img src="docs/icons/check.svg" height="16" alt="check">** beendet den Modus. Alles wird sofort im Browser gespeichert. Standard: Anzeige zeigt alles mit Daten, im Druck fehlen *Status* (Online) und *Zuletzt*. **Drucken = Dokumentation:** Format wählen, <img src="docs/icons/printer.svg" height="16" alt="printer"> klicken. Der Ausdruck enthält je Gerät die **Fotos** (bis zu acht kleine Vorschaubilder) und die **Bemerkung** und dient als **Dokumentation zur Fehlersuche und für den Elektroinstallateur** (welches Gerät, in welchem Raum, mit welcher IP, wie sieht der Einbau aus, was wurde notiert). Gedruckt wird genau, was angezeigt wird: aktuelle Sortierung, **Suchfilter**, Auf-/Zuklappzustand des Baums und sichtbare Spalten, also z. B. nur „Shelly im Keller“. Überschrift und Spaltentitel auf jeder Seite, Seitenzahl „1/3“ unten rechts (Chrome/Edge 131+). **Schwache Batterien finden:** Tab „Batterien“ öffnen (niedrigste zuerst) und drucken – Foto (wo sitzt der Sensor?) und Bemerkung (Batterietyp, wie man ihn öffnet) machen den Austausch einfach, auch für Personen, die das Haus nicht kennen. Ein echter Beispielausdruck liegt in `docs/example-printout.pdf` (Homematic-Geräte). Tipp: erst Bemerkungen (Standort, Sicherung, Stromkreis) und 1–2 Fotos pro Gerät hinterlegen, dann beantwortet der Ausdruck die meisten Fragen ohne Gang zum Schaltschrank.
 
 ## License
 

@@ -473,7 +473,7 @@ class DeviceInventoryCard extends HTMLElement {
     const tr = document.createElement("tr");
     const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); td.dataset.col = col; if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); if (this._dimCols && this._dimCols.has(col)) td.style.opacity = ".35"; if (this._blur && BLURCOLS.includes(col)) { td.style.filter = "blur(5px)"; td.style.userSelect = "none"; td.style.pointerEvents = "none"; } const w = this._widths && this._widths[col]; if (w) td.style.cssText += `;width:${w}px;max-width:${w}px;min-width:${w}px`; tr.appendChild(td); return td; };
     add("#", String(n));
-    const led = el("span", `display:inline-block;width:11px;height:11px;border-radius:50%;background:${d.online ? "var(--success-color,#43a047)" : "var(--error-color,#e53935)"}`); led.title = d.online ? t.online : t.offline;
+    const led = el("span", null, d.online ? "🟢" : "🔴"); led.title = d.online ? t.online : t.offline;
     add("status", led);
     const inet = this._inet(d);
     if (inet === null) add("internet", "–");
@@ -810,7 +810,7 @@ class DeviceInventoryCard extends HTMLElement {
       <table><thead><tr><th class="ttl" colspan="${cols.length}">${tabIcon ? `<span class="ico">${tabIcon}</span>` : ""}${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${pcfg.n[c] ? E(pcfg.n[c]) : c === "#" ? "#" : PIC[c] ? ico(PIC[c], 15) : E(t[c])}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
-        "#": i + 1, status: d.online ? "● " + t.online : "○ " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
+        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
         seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };

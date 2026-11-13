@@ -65,6 +65,7 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 | document-with-arrow symbol | **export the table as a CSV file** (see *CSV export*) |
 | 🖨️ (next to the page symbol, set apart from the first two) | print / save as PDF |
 | page symbol (▯ upright / ▭ lying page) | page format for printing; the symbol shows the current format, a click switches (remembered in the browser) |
+| funnel symbol (next to the tree symbol) | **unfold only sub-rows that have a comment or a photo** (remembered in the browser; the ▸N counter shows only those) |
 | eye symbol (next to the page symbol) | **blur IP / MAC addresses** (also Bluetooth address, scanner IP, IRK) for screenshots; the printout then contains scrambled, blurred values instead of the real ones; remembered in the browser; the CSV export is not affected |
 | columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
 | 🔍 field | search (see below) |

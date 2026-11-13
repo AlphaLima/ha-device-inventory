@@ -20,6 +20,7 @@ window.customIcons.deviceinventory = {
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
     maker: "Manufacturer", fw: "Firmware", seen: "Seen", battery: "Batt.", photos: "Photos", note: "Note",
+    thumbsOff: "Hide thumbnails (hover preview and printout)", thumbsOn: "Show thumbnails (hover preview and printout)",
     kidFilterOn: "Unfold only sub-rows with a comment or photo", kidFilterOff: "Unfold all sub-rows",
     blurOn: "Blur IP / MAC addresses (e.g. for screenshots)", blurOff: "Show IP / MAC addresses",
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
@@ -28,6 +29,7 @@ const T = {
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
+    thumbsOff: "Miniaturbilder ausblenden (Vorschau und Ausdruck)", thumbsOn: "Miniaturbilder einblenden (Vorschau und Ausdruck)",
     kidFilterOn: "Beim Ausklappen nur Unterelemente mit Kommentar oder Bild", kidFilterOff: "Alle Unterelemente ausklappen",
     blurOn: "IP- / MAC-Adressen verwischen (z. B. für Screenshots)", blurOff: "IP- / MAC-Adressen anzeigen",
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
@@ -71,6 +73,7 @@ const ICONS = {
   import: '<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
+  imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
 };
@@ -96,6 +99,7 @@ class DeviceInventoryCard extends HTMLElement {
     this._ori = ori;
     try { this._blur = localStorage.getItem("diBlur") === "1"; } catch (e) { this._blur = false; }
     try { this._kidFilter = localStorage.getItem("diKidFilter") === "1"; } catch (e) { this._kidFilter = false; }
+    try { this._thumbs = localStorage.getItem("diThumbs") !== "0"; } catch (e) { this._thumbs = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
     }
@@ -384,7 +388,11 @@ class DeviceInventoryCard extends HTMLElement {
     bl.innerHTML = ico(this._blur ? "eyeoff" : "eye", 20); bl.title = this._blur ? t.blurOff : t.blurOn;
     if (this._blur) bl.style.background = "var(--primary-color)", bl.style.color = "var(--text-primary-color,#fff)";
     bl.onclick = () => { this._blur = !this._blur; try { localStorage.setItem("diBlur", this._blur ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-    bar.append(rb, xcb, printPair, bl);
+    const thb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    thb.innerHTML = ico(this._thumbs ? "image" : "imageoff", 20); thb.title = this._thumbs ? t.thumbsOff : t.thumbsOn;
+    if (!this._thumbs) thb.style.background = "var(--primary-color)", thb.style.color = "var(--text-primary-color,#fff)";
+    thb.onclick = () => { this._thumbs = !this._thumbs; try { localStorage.setItem("diThumbs", this._thumbs ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+    bar.append(rb, xcb, printPair, bl, thb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {
@@ -582,7 +590,7 @@ class DeviceInventoryCard extends HTMLElement {
     if (ps.length) {
       const b = el("span", "display:inline-flex;align-items:center;gap:2px"); b.innerHTML = ico("image", 18) + (ps.length > 1 ? `<small>${ps.length}</small>` : ""); b.className = "ic";
       b.onclick = () => this._gallery(d);
-      this._pop(b, (p) => {
+      if (this._thumbs) this._pop(b, (p) => {
         const g = el("div", `display:grid;grid-template-columns:repeat(${ps.length > 1 ? 2 : 1},auto);gap:6px`);
         ps.slice(0, 6).forEach((q) => { const im = el("img", ps.length > 1 ? "width:150px;height:150px;object-fit:cover;border-radius:4px" : "max-width:260px;max-height:260px;object-fit:contain"); im.src = `/api/device_inventory/photo/${q.id}`; g.appendChild(im); });
         p.appendChild(g);
@@ -840,7 +848,7 @@ class DeviceInventoryCard extends HTMLElement {
         seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };
       html += "<tr>" + cols.map((c) => c === "photos"
-        ? `<td${wst(c)}>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
+        ? `<td${wst(c)}>${!this._thumbs ? ((s.photos[d.id] || []).length || "") : (s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
         : c === "internet" && cells[c].startsWith("<svg") ? `<td${wst(c)}>${cells[c]}</td>`
         : `<td${wst(c)}${this._blur && BLURCOLS.includes(c) ? ' class="bl"' : ""}>${E(this._blur && BLURCOLS.includes(c) ? String(cells[c]).replace(/[0-9a-fA-F]/g, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]) : cells[c]).replace(/\n/g, "<br>")}</td>`).join("") + "</tr>";
     });

@@ -73,6 +73,7 @@ const ICONS = {
   import: '<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
+  imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
 };
@@ -98,7 +99,7 @@ class DeviceInventoryCard extends HTMLElement {
     this._ori = ori;
     try { this._blur = localStorage.getItem("diBlur") === "1"; } catch (e) { this._blur = false; }
     try { this._kidFilter = localStorage.getItem("diKidFilter") === "1"; } catch (e) { this._kidFilter = false; }
-    try { this._thumbs = localStorage.getItem("diThumbs") === "1"; } catch (e) { this._thumbs = false; }
+    try { this._thumbs = localStorage.getItem("diThumbs") !== "0"; } catch (e) { this._thumbs = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
     }
@@ -388,8 +389,8 @@ class DeviceInventoryCard extends HTMLElement {
     if (this._blur) bl.style.background = "var(--primary-color)", bl.style.color = "var(--text-primary-color,#fff)";
     bl.onclick = () => { this._blur = !this._blur; try { localStorage.setItem("diBlur", this._blur ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
     const thb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
-    thb.innerHTML = ico("image", 20); thb.title = this._thumbs ? t.thumbsOff : t.thumbsOn;
-    if (this._thumbs) thb.style.background = "var(--primary-color)", thb.style.color = "var(--text-primary-color,#fff)";
+    thb.innerHTML = ico(this._thumbs ? "image" : "imageoff", 20); thb.title = this._thumbs ? t.thumbsOff : t.thumbsOn;
+    if (!this._thumbs) thb.style.background = "var(--primary-color)", thb.style.color = "var(--text-primary-color,#fff)";
     thb.onclick = () => { this._thumbs = !this._thumbs; try { localStorage.setItem("diThumbs", this._thumbs ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
     bar.append(rb, xcb, printPair, bl, thb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");

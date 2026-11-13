@@ -333,6 +333,39 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 }
             )
     result.extend(kids)
+    # Modbus (YAML) creates entities but no devices: every Modbus entity gets one row of its own in the Modbus tab
+    for ent in list(ent_reg.entities.values()):
+        if ent.platform != "modbus" or ent.device_id or ent.disabled_by or ent.hidden_by:
+            continue
+        state = hass.states.get(ent.entity_id)
+        if state is None:
+            continue
+        area = area_reg.async_get_area(ent.area_id) if ent.area_id else None
+        result.append(
+            {
+                "id": f"modbus~{ent.entity_id}",
+                "parent": None,
+                "name": str(state.attributes.get("friendly_name") or ent.original_name or ent.entity_id),
+                "manufacturer": None,
+                "model": ent.domain,
+                "sw_version": None,
+                "area": area.name if area else None,
+                "mac": None,
+                "ip": None,
+                "classes": ["modbus"],
+                "integrations": ["modbus"],
+                "online": state.state != "unavailable",
+                "battery": None,
+                "battery_low": None,
+                "last_seen": state.last_updated.isoformat(),
+                "entity": ent.entity_id,
+                "internet_switch": None,
+                "ble_switch": None,
+                "temp": None,
+                "rssi": None,
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+            }
+        )
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

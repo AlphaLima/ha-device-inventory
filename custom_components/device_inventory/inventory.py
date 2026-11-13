@@ -70,6 +70,14 @@ def _all_devices(dev_reg: dr.DeviceRegistry) -> list[dr.DeviceEntry]:
     return list(devices)
 
 
+def _lan_ip(value: Any) -> str | None:
+    """Like _valid_ip, but only addresses of the own network (an 'external IP' sensor, e.g. the FRITZ!Box WAN address, is no device IP)."""
+    ip = _valid_ip(value)
+    if ip and ipaddress.ip_address(ip).is_private:
+        return ip
+    return None
+
+
 def _server_ip(hass: HomeAssistant) -> str | None:
     """IP address of the machine Home Assistant runs on (the server itself is no device in the registry)."""
     try:
@@ -218,9 +226,9 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                         pass
             if ip is None:
                 if IP_ENTITY.search(ent.entity_id.split(".", 1)[1]):
-                    ip = _valid_ip(state.state)
+                    ip = _lan_ip(state.state)
                 if ip is None:
-                    ip = _valid_ip(state.attributes.get("ip_address") or state.attributes.get("ip"))
+                    ip = _lan_ip(state.attributes.get("ip_address") or state.attributes.get("ip"))
             if state.state not in UNAVAILABLE:
                 alive += 1
             if last_seen is None or state.last_updated > last_seen:

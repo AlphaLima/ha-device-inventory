@@ -20,7 +20,7 @@ window.customIcons.deviceinventory = {
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
     maker: "Manufacturer", fw: "Firmware", seen: "Seen", battery: "Batt.", photos: "Photos", note: "Note",
-    denseOn: "Tighter row spacing", denseOff: "Normal row spacing", commentsOff: "Hide the comment text in the list", commentsOn: "Show the comment text in the list",
+    denseOn: "Wider row spacing", denseOff: "Tighter row spacing", commentsOff: "Hide the comment text in the list", commentsOn: "Show the comment text in the list",
     thumbsOff: "Hide the thumbnails in the list", thumbsOn: "Show thumbnails in the list",
     kidFilterOn: "Unfold only sub-rows with a comment or photo", kidFilterOff: "Unfold all sub-rows",
     blurOn: "Blur IP / MAC addresses (e.g. for screenshots)", blurOff: "Show IP / MAC addresses",
@@ -30,7 +30,7 @@ const T = {
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
-    denseOn: "Engerer Zeilenabstand", denseOff: "Normaler Zeilenabstand", commentsOff: "Kommentartext in der Liste ausblenden", commentsOn: "Kommentartext in der Liste anzeigen",
+    denseOn: "Weiterer Zeilenabstand", denseOff: "Engerer Zeilenabstand", commentsOff: "Kommentartext in der Liste ausblenden", commentsOn: "Kommentartext in der Liste anzeigen",
     thumbsOff: "Miniaturbilder in der Liste ausblenden", thumbsOn: "Miniaturbilder in der Liste anzeigen",
     kidFilterOn: "Beim Ausklappen nur Unterelemente mit Kommentar oder Bild", kidFilterOff: "Alle Unterelemente ausklappen",
     blurOn: "IP- / MAC-Adressen verwischen (z. B. für Screenshots)", blurOff: "IP- / MAC-Adressen anzeigen",
@@ -104,7 +104,7 @@ class DeviceInventoryCard extends HTMLElement {
     try { this._blur = localStorage.getItem("diBlur") === "1"; } catch (e) { this._blur = false; }
     try { this._kidFilter = localStorage.getItem("diKidFilter") === "1"; } catch (e) { this._kidFilter = false; }
     try { this._thumbs = localStorage.getItem("diThumbs") !== "0"; } catch (e) { this._thumbs = true; }
-    try { this._dense = localStorage.getItem("diDense") === "1"; } catch (e) { this._dense = false; }
+    try { this._dense = localStorage.getItem("diWide") === "1"; } catch (e) { this._dense = false; }
     try { this._comments = localStorage.getItem("diComments") !== "0"; } catch (e) { this._comments = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
@@ -337,7 +337,7 @@ class DeviceInventoryCard extends HTMLElement {
       table{width:auto;border-collapse:collapse;font-size:12px}
       th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:3px 4px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
       th:hover{color:var(--primary-color)}
-      td{padding:${this._dense ? 1 : 7}px 4px;line-height:1.3;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 170}px;overflow:hidden;text-overflow:ellipsis}
+      td{padding:${this._dense ? 7 : 2}px 4px;line-height:1.3;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 170}px;overflow:hidden;text-overflow:ellipsis}
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
       th .cfgc{display:flex;gap:2px;align-items:center;margin-bottom:2px}th .cfgc button{padding:0 4px;font-size:11px;line-height:16px;border-radius:4px}th .cfgc input{margin:0}
@@ -405,7 +405,7 @@ class DeviceInventoryCard extends HTMLElement {
     const dnb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
     dnb.innerHTML = ico("dense", 20); dnb.title = this._dense ? t.denseOff : t.denseOn;
     if (this._dense) dnb.style.background = "var(--primary-color)", dnb.style.color = "var(--text-primary-color,#fff)";
-    dnb.onclick = () => { this._dense = !this._dense; try { localStorage.setItem("diDense", this._dense ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+    dnb.onclick = () => { this._dense = !this._dense; try { localStorage.setItem("diWide", this._dense ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
     bar.append(rb, xcb, printPair, bl, thb, cmb, dnb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);

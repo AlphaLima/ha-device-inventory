@@ -72,7 +72,7 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 | funnel symbol (next to the tree symbol) | **unfold only sub-rows that have a comment or a photo** (remembered in the browser; the ▸N counter shows only those) |
 | image symbol (right of the eye) | **show / hide the photo thumbnails in the list** (default: shown, up to 3 per row); like the eye it is highlighted and crossed out while the thumbnails are hidden (then only the photo symbol is shown). The hover preview always works. Remembered in the browser |
 | note symbol (right of the image symbol) | **show / hide the comment text in the list** (default: shown); like the eye it is highlighted and crossed out while the text is hidden (then only the note symbol is shown, hover still shows the whole text). Remembered in the browser |
-| four lines (right of the note symbol) | **tighter row spacing** for more rows on screen; highlighted while active, remembered in the browser |
+| four lines (right of the note symbol) | **wider row spacing** (default: tight, more rows on screen); highlighted while active, remembered in the browser |
 | eye symbol (next to the page symbol) | **blur IP / MAC addresses** (also Bluetooth address, scanner IP, IRK) for screenshots; the printout then contains scrambled, blurred values instead of the real ones; remembered in the browser; the CSV export is not affected |
 | columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
 | <img src="docs/icons/search.svg" height="16" alt="search"> field | search (see below) |

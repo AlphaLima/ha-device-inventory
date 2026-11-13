@@ -241,8 +241,9 @@ class DeviceInventoryCard extends HTMLElement {
     const col = s.sortCol || (this._config.class === "battery" ? "battery" : "area");
     all.sort((a, b) => {
       const x = this._val(a, col), y = this._val(b, col);
-      const c = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
-      return (c || String(a.name).localeCompare(String(b.name))) * (s.sortCol ? s.sortDir : 1);
+      const NAT = { numeric: true, sensitivity: "base" }; // natural order: ch2 before ch10
+      const c = typeof x === "number" ? x - y : String(x).localeCompare(String(y), undefined, NAT);
+      return (c || String(a.name).localeCompare(String(b.name), undefined, NAT)) * (s.sortCol ? s.sortDir : 1);
     });
     // after adding a photo / note the rows keep their positions (until the sorting is changed)
     if (this._freeze && this._lastOrder) {

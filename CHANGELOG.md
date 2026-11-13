@@ -2,6 +2,12 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.0 – 2026-11-13
+- Option to blur IP / MAC addresses (screen and printout)
+- Print: icons as column headings and for the internet column
+- Status LED as green / red circle again
+- Adding / editing / deleting a photo or note keeps the scroll position and row order
+
 ## 1.17.0 – 2026-11-12
 - Printer friendly (monochrome icons)
 - Hide tabs without entries, hide tree column without sub-channels, no-cache frontend files

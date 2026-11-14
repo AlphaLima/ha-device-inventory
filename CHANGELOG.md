@@ -2,6 +2,11 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.3 – 2026-11-14
+- Network overview: the Home Assistant server and IP-bearing network trackers (e.g. Proxmox) get rows
+- Switch for row spacing (tight by default)
+- Only LAN addresses from IP sensors, no external/WAN IP
+
 ## 1.18.2 – 2026-11-13
 - Switches to show/hide thumbnails and comment text in the list (hover always works)
 - Full-text tooltip on truncated cells

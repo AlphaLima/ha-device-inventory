@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.4 – 2026-11-14
+- Panel: no more blank page – loads the card itself if Home Assistant did not and shows a diagnostic message (with HA version and browser) when it cannot be loaded
+
 ## 1.18.3 – 2026-11-14
 - Network overview: the Home Assistant server and IP-bearing network trackers (e.g. Proxmox) get rows
 - Switch for row spacing (tight by default)

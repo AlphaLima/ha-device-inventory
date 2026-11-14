@@ -32,16 +32,47 @@ class DeviceInventoryPanel extends HTMLElement {
     if (!this._built) {
       this._built = true;
       // the card is loaded globally (extra JS url); wait until it is defined
-      customElements.whenDefined("device-inventory-card").then(() => {
-        this._build();
-        this._loadTabs();
-        [5000, 12000, 25000].forEach((ms) => setTimeout(() => this._loadTabs(), ms)); // warm-up after start
-        if (this._card) this._card.hass = this._hass;
-      });
+      this._whenCard().then(() => {
+        try {
+          this._build();
+          this._loadTabs();
+          [5000, 12000, 25000].forEach((ms) => setTimeout(() => this._loadTabs(), ms)); // warm-up after start
+          if (this._card) this._card.hass = this._hass;
+        } catch (e) { this._fail(`Error while building the page: ${e && e.message ? e.message : e}`); }
+      }).catch((e) => this._fail(e && e.message ? e.message : String(e)));
       this._timer = setInterval(() => (this.isConnected ? this._loadTabs() : clearInterval(this._timer)), 60000);
     }
     if (this._menu) this._menu.hass = hass;
     if (this._card) this._card.hass = hass;
+  }
+
+  // the card file is normally loaded by Home Assistant itself; if it did not arrive, load it from here and show why it failed
+  _whenCard() {
+    if (customElements.get("device-inventory-card")) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      let done = false;
+      const ok = () => { if (!done) { done = true; resolve(); } };
+      customElements.whenDefined("device-inventory-card").then(ok);
+      setTimeout(() => {
+        if (done) return;
+        const sc = document.createElement("script");
+        sc.src = "/device_inventory_static/device-inventory-card.js?r=" + Date.now();
+        sc.onerror = () => { if (!done) { done = true; reject(new Error("The file /device_inventory_static/device-inventory-card.js could not be loaded (blocked by proxy, adblocker or network filter, or 404).")); } };
+        document.head.appendChild(sc);
+        setTimeout(() => { if (!done) { done = true; reject(new Error("The card script loaded but did not start (JavaScript error, probably an outdated browser/app). See the browser console (F12).")); } }, 8000);
+      }, 3000);
+    });
+  }
+
+  _fail(msg) {
+    const box = document.createElement("div");
+    box.style.cssText = "padding:24px;max-width:640px;font:14px/1.5 sans-serif;color:var(--primary-text-color)";
+    box.innerHTML = "<h3 style='margin:0 0 8px'>Device Inventory</h3>";
+    const p = document.createElement("p"); p.textContent = msg; box.appendChild(p);
+    const q = document.createElement("p"); q.style.opacity = ".7";
+    q.textContent = `Home Assistant: ${(this._hass && this._hass.config && this._hass.config.version) || "?"} · ${navigator.userAgent}`;
+    box.appendChild(q);
+    this.appendChild(box);
   }
 
   set narrow(narrow) {

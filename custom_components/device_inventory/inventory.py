@@ -484,10 +484,13 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
     # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
     seen_fritz: dict[tuple[str, str], str] = {}
     drop_fritz: set[str] = set()
-    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x["name"])):
+    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x.get("ip") is None, x["name"])):
         if "fritz" not in d["classes"] or ":" in d["id"] or "~" in d["id"]:
             continue
-        key = ((d["name"] or "").strip().lower().replace("internetgatewaydevicev2 - ", ""), (d.get("model") or "").lower(), (d.get("mac") or "").upper())
+        if d.get("mac") and (d.get("model") or "").startswith(("FRITZ!Box", "FRITZ!Repeater")):
+            key = ("box", str(d["mac"]).upper())  # one physical box = one MAC, however many integrations / mirror devices it appears in
+        else:
+            key = ((d["name"] or "").strip().lower(), (d.get("model") or "").lower(), (d.get("mac") or "").upper())
         if key in seen_fritz:
             drop_fritz.add(d["id"])
         else:
@@ -512,7 +515,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         if hn not in node_clients or hn in node_dev:
             continue
         reg = ent_reg.async_get(state.entity_id)
-        mac = str(state.attributes.get("mac") or (reg.unique_id if reg else "") or "").upper()
+        mac_m = re.search(r"(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}", str(state.attributes.get("mac") or (reg.unique_id if reg else "") or ""))
+        mac = mac_m.group(0).upper() if mac_m else ""
         dev_hit = next((d for d in fritz_devs if mac and (d.get("mac") or "").upper() == mac and _free(d)), None)
         if dev_hit is not None:
             node_dev[hn] = dev_hit

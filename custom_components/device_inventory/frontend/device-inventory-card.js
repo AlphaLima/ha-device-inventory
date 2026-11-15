@@ -49,11 +49,11 @@ const COLS = ["#", "status", "internet", "mesh", "conn", "kids", "name", "model"
 const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="${on ? "color:var(--primary-color)" : ""}"><rect x="3" y="2" width="9" height="5" rx="1.5"/><g ${on ? "" : 'stroke-dasharray="2 2.2" opacity=".55"'}><path d="M7.5 7v10a2.5 2.5 0 0 0 2.5 2.5H13M7.5 12H13"/><rect x="13" y="9.5" width="8" height="5" rx="1.5"/><rect x="13" y="17" width="8" height="5" rx="1.5"/></g></svg>`;
 // Default column layouts (used until a user saves his own): order = [] keeps the built-in order, w = widths (display: px, printout: mm), n = column names
 const DEFAULT_LAYOUT = {
-  view: { order: [], off: [], w: { note: 240 }, n: {} },
+  view: { order: [], off: [], w: {}, n: {} }, // no widths = columns fit their content (auto)
   print: { order: [], off: ["seen", "status"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
 };
 // own default layout of the FRITZ! tab (used until the layout of that tab is changed; saved separately from the other tabs)
-const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","mesh","conn","distance","home","ip","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":[],"w":{"fw":65,"name":127,"internet":67,"status":59,"#":32,"model":148,"area":97,"mac":107,"maker":83,"signal":58,"temp":55,"ble":77,"battery":50,"note":720,"photos":61,"home":71,"seen":99,"distance":84,"ip":101,"bleaddr":110,"scanner":84,"scannerip":101,"irk":72,"mesh":104,"conn":87},"n":{}},"print":{"order":["#","status","internet","mesh","conn","name","model","area","distance","home","ip","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
+const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","mesh","conn","distance","home","ip","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":[],"w":{},"n":{}},"print":{"order":["#","status","internet","mesh","conn","name","model","area","distance","home","ip","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
 const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip", "irk"]; // columns blurred by the "hide addresses" option
 const OPTIONAL =["kids", "mesh", "conn", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
@@ -375,7 +375,8 @@ class DeviceInventoryCard extends HTMLElement {
       table{width:auto;border-collapse:collapse;font-size:12px}
       th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:3px 4px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
       th:hover{color:var(--primary-color)}
-      td{padding:${this._dense ? 7 : 2}px 4px;line-height:1.3;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell || 170}px;overflow:hidden;text-overflow:ellipsis}
+      td{padding:${this._dense ? 7 : 2}px 4px;line-height:1.3;border-bottom:1px solid var(--divider-color,#444);white-space:nowrap;max-width:${cfg.max_cell ? cfg.max_cell + "px" : "none"};overflow:hidden;text-overflow:ellipsis}
+      td[data-col=note]{max-width:${cfg.max_cell ? cfg.max_cell + "px" : "420px"}}
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
       th .cfgc{display:flex;gap:2px;align-items:center;margin-bottom:2px}th .cfgc button{padding:0 4px;font-size:11px;line-height:16px;border-radius:4px}th .cfgc input{margin:0}

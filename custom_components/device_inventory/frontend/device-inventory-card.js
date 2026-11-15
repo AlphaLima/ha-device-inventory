@@ -45,7 +45,7 @@ const T = {
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", mesh: "FRITZ!Mesh", bluetooth: "Bluetooth" };
-const COLS = ["#", "status", "internet", "kids", "name", "model", "area", "mesh", "conn", "distance", "home", "ip", "mac", "bleaddr", "scanner", "scannerip", "irk", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
+const COLS = ["#", "status", "internet", "mesh", "conn", "kids", "name", "model", "area", "distance", "home", "ip", "mac", "bleaddr", "scanner", "scannerip", "irk", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
 const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="${on ? "color:var(--primary-color)" : ""}"><rect x="3" y="2" width="9" height="5" rx="1.5"/><g ${on ? "" : 'stroke-dasharray="2 2.2" opacity=".55"'}><path d="M7.5 7v10a2.5 2.5 0 0 0 2.5 2.5H13M7.5 12H13"/><rect x="13" y="9.5" width="8" height="5" rx="1.5"/><rect x="13" y="17" width="8" height="5" rx="1.5"/></g></svg>`;
 // Default column layouts (used until a user saves his own): order = [] keeps the built-in order, w = widths (display: px, printout: mm), n = column names
 const DEFAULT_LAYOUT = {
@@ -103,7 +103,7 @@ class DeviceInventoryCard extends HTMLElement {
     this._state = { devices: [], notes: {}, photos: {}, sortCol: null, sortDir: 1, loaded: false };
     const cached = this._raw;
     if (this._tgt === undefined) { try { this._tgt = localStorage.getItem("diTgt") === "print" ? "print" : "view"; } catch (e) { this._tgt = "view"; } }
-    if (this._exp === undefined) { this._exp = new Set(); try { this._expAll = localStorage.getItem("diExpand") === "1"; } catch (e) { this._expAll = false; } }
+    if (this._exp === undefined) { this._exp = new Set(); try { this._expG = localStorage.getItem("diExpand") === "1"; } catch (e) { this._expG = false; } try { this._expM = localStorage.getItem("diExpandMesh") === "1"; } catch (e) { this._expM = false; } }
     let ori = "portrait";
     try { if (localStorage.getItem("diOri") === "landscape") ori = "landscape"; } catch (e) { /* ignore */ }
     this._ori = ori;
@@ -486,7 +486,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       const xb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
       xb.innerHTML = TREE_SVG(this._expAll);
       xb.title = this._expAll ? t.collapse : t.expand;
-      xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+      xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem(this._config.class === "mesh" ? "diExpandMesh" : "diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
       const fb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
       fb.innerHTML = ico("filter", 20); fb.title = this._kidFilter ? t.kidFilterOff : t.kidFilterOn;
       if (this._kidFilter) fb.style.background = "var(--primary-color)", fb.style.color = "var(--text-primary-color,#fff)";
@@ -513,7 +513,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       if (this._widths[c]) th.style.cssText += `;width:${this._widths[c]}px;max-width:${this._widths[c]}px;min-width:${this._widths[c]}px`;
       if (c === "kids") {
         th.innerHTML = TREE_SVG(this._expAll); th.title = this._expAll ? t.collapse : t.expand; th.style.textAlign = "center";
-        th.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem("diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+        th.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem(this._config.class === "mesh" ? "diExpandMesh" : "diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
         hr.appendChild(th); return;
       }
       if (edit) {
@@ -908,6 +908,10 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       return svg ? svg.outerHTML : "";
     } catch (e) { return ""; }
   }
+
+  // "expand all" is remembered separately for the FRITZ!Mesh tab (default: only the mesh nodes visible)
+  get _expAll() { return this._config.class === "mesh" ? !!this._expM : !!this._expG; }
+  set _expAll(v) { if (this._config.class === "mesh") this._expM = v; else this._expG = v; }
 
   _cardsOn() { return this._config.class === "mesh" && !!this._meshView && !this._edit; }
 

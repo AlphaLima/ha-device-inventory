@@ -476,40 +476,16 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         ip = _valid_ip(attrs.get("ip"))
         if ip:
             mesh_by_ip[ip] = info
-    mesh_used: set[int] = set()  # a client is one row: sub-devices of the same device (same IP) must not count again
-    for pass_kids in (False, True):
-        for d in result:
-            if bool(d.get("parent")) != pass_kids:
-                continue
-            info = mesh_by_mac.get(d.get("mac") or "") or mesh_by_ip.get(d.get("ip") or "")
-            if info is not None and id(info) in mesh_used:
-                info = None
-            if info is not None:
-                mesh_used.add(id(info))
-                d["classes"] = sorted(set(d["classes"]) | {"mesh"})
+    # a client is one row: devices with a real class first, sub-devices (same IP) and registry shells ("other") last, so each client is counted once
+    mesh_used: set[int] = set()
+    for d in result:
+        d["mesh"] = None
+    for d in sorted(result, key=lambda x: (bool(x.get("parent")), x["classes"] == [OTHER], x.get("ip") is None)):
+        info = mesh_by_mac.get(d.get("mac") or "") or mesh_by_ip.get(d.get("ip") or "")
+        if info is not None and id(info) not in mesh_used:
+            mesh_used.add(id(info))
             d["mesh"] = info
-    # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
-    seen_fritz: dict[tuple[str, str], str] = {}
-    drop_fritz: set[str] = set()
-    by_id = {d["id"]: d for d in result}
-    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x.get("sw_version") is None, x.get("ip") is None, x["name"])):
-        if "fritz" not in d["classes"] or ":" in d["id"] or "~" in d["id"]:
-            continue
-        if d.get("mac") and (d.get("model") or "").startswith(("FRITZ!Box", "FRITZ!Repeater")):
-            key = ("box", str(d["mac"]).upper())  # one physical box = one MAC, however many integrations / mirror devices it appears in
-        else:
-            key = ((d["name"] or "").strip().lower(), (d.get("model") or "").lower(), (d.get("mac") or "").upper())
-        if key in seen_fritz:
-            drop_fritz.add(d["id"])
-            kept = by_id[seen_fritz[key]]
-            for field in ("sw_version", "ip", "temp", "rssi", "area", "last_seen", "entity", "internet_switch"):  # what only the other copy knows (firmware, CPU temperature ...)
-                if kept.get(field) in (None, "") and d.get(field) not in (None, ""):
-                    kept[field] = d[field]
-            kept["online"] = bool(kept.get("online") or d.get("online"))
-        else:
-            seen_fritz[key] = d["id"]
-    if drop_fritz:
-        result = [d for d in result if d["id"] not in drop_fritz]
+            d["classes"] = sorted(set(d["classes"]) | {"mesh"})
     # the mesh nodes themselves (master, repeaters) are no devices of Home Assistant: one row each in the FRITZ! tab
     node_clients: dict[str, list[dict[str, Any]]] = {}
     for info in {id(v): v for v in list(mesh_by_mac.values()) + list(mesh_by_ip.values())}.values():

@@ -1,6 +1,8 @@
 {
   "domain": "device_inventory",
   "name": "Device Inventory",
+  "after_dependencies": ["bluetooth"],
+  "categories": ["productivity_information"],
   "codeowners": ["@AlphaLima"],
   "config_flow": true,
   "dependencies": ["http", "websocket_api", "frontend", "panel_custom"],

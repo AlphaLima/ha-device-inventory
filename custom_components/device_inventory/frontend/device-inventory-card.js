@@ -198,7 +198,7 @@ class DeviceInventoryCard extends HTMLElement {
     Object.keys(nodes).forEach((n) => {
       const cl = nodes[n], lan = cl.filter((d) => d.mesh.type && /lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type)).length;
       s.devices.push({
-        id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: `LAN ${lan} · WiFi ${cl.length - lan}`, sw_version: null, area: null, mac: null, ip: null,
+        id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: "Mesh", mesh_stats: { total: cl.length, lan, wlan: cl.length - lan }, sw_version: null, area: null, mac: null, ip: null,
         classes: ["mesh"], integrations: ["fritz"], online: cl.some((d) => d.online), battery: null, battery_low: null, last_seen: null, entity: null,
         internet_switch: null, ble_switch: null, temp: null, rssi: null, ble: { home: null, distance: null, address: null, scanner: null, irk: null }, mesh: null,
       });

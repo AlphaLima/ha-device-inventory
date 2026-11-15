@@ -491,7 +491,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
     # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
     seen_fritz: dict[tuple[str, str], str] = {}
     drop_fritz: set[str] = set()
-    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x.get("ip") is None, x["name"])):
+    by_id = {d["id"]: d for d in result}
+    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x.get("sw_version") is None, x.get("ip") is None, x["name"])):
         if "fritz" not in d["classes"] or ":" in d["id"] or "~" in d["id"]:
             continue
         if d.get("mac") and (d.get("model") or "").startswith(("FRITZ!Box", "FRITZ!Repeater")):
@@ -500,6 +501,11 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
             key = ((d["name"] or "").strip().lower(), (d.get("model") or "").lower(), (d.get("mac") or "").upper())
         if key in seen_fritz:
             drop_fritz.add(d["id"])
+            kept = by_id[seen_fritz[key]]
+            for field in ("sw_version", "ip", "temp", "rssi", "area", "last_seen", "entity", "internet_switch"):  # what only the other copy knows (firmware, CPU temperature ...)
+                if kept.get(field) in (None, "") and d.get(field) not in (None, ""):
+                    kept[field] = d[field]
+            kept["online"] = bool(kept.get("online") or d.get("online"))
         else:
             seen_fritz[key] = d["id"]
     if drop_fritz:

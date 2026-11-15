@@ -670,7 +670,8 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     add("fw", (d.sw_version || "–").split(" ")[0]);
     const sev = (v, good, warn, hi) => (hi ? (v >= good ? "var(--success-color)" : v >= warn ? "var(--warning-color)" : "var(--error-color)") : (v <= good ? "var(--success-color)" : v <= warn ? "var(--warning-color)" : "var(--error-color)"));
     add("signal", d.rssi == null ? "–" : el("span", `color:${sev(d.rssi, -60, -75, true)}`, d.rssi + " dBm"));
-    add("temp", d.temp == null ? "–" : el("span", `color:${sev(d.temp, 55, 65, false)}`, d.temp.toFixed(1) + "°C"));
+    const lim = d.classes && d.classes.includes("fritz") ? [85, 95] : [55, 65]; // FRITZ! boxes report the CPU temperature, which is normally 60-85 °C
+    add("temp", d.temp == null ? "–" : el("span", `color:${sev(d.temp, lim[0], lim[1], false)}`, d.temp.toFixed(1) + "°C"));
     const bleState = this._sw(d.ble_switch);
     if (bleState === null) add("ble", "–");
     else {
@@ -1039,7 +1040,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
         seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "–", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "–", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };
       const lvl = d.battery != null ? d.battery : d.battery_low != null ? (d.battery_low ? 0 : 100) : null;
-      const tint = { battery: lvl == null ? null : lvl <= 20 ? R : lvl <= 40 ? O : G, signal: d.rssi == null ? null : sev(d.rssi, -60, -75, true), temp: d.temp == null ? null : sev(d.temp, 55, 65, false), home: d.ble && d.ble.home != null ? (d.ble.home ? G : R) : null };
+      const tint = { battery: lvl == null ? null : lvl <= 20 ? R : lvl <= 40 ? O : G, signal: d.rssi == null ? null : sev(d.rssi, -60, -75, true), temp: d.temp == null ? null : sev(d.temp, ...(d.classes && d.classes.includes("fritz") ? [85, 95] : [55, 65]), false), home: d.ble && d.ble.home != null ? (d.ble.home ? G : R) : null };
       html += "<tr>" + cols.map((c) => c === "photos"
         ? `<td${wst(c)}>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
         : c === "conn" && d.mesh && d.mesh.type ? `<td${wst(c)}><span${C ? ` style="color:${/lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type) ? "#1b66d1" : "#7a4fd1"}"` : ""} title="${E(cells[c])}">${ico(/lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type) ? "lan" : "wifi", 15)}</span></td>`

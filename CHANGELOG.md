@@ -2,6 +2,12 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.5 – 2026-11-15
+- Printout in colour (PDF) with a colour / black-and-white switch in the print button group
+- New Router Mesh tab: how each client is connected (LAN / WLAN + SSID) and to which router / repeater, as expandable tree per node (optional cards view)
+- Symbol of the tab in front of the heading
+- New columns are inserted behind their predecessor in saved column layouts
+
 ## 1.18.4 – 2026-11-14
 - Panel: no more blank page – loads the card itself if Home Assistant did not and shows a diagnostic message (with HA version and browser) when it cannot be loaded
 

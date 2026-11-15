@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.8 – 2026-11-15
+- Release after the HACS and hassfest validation runs passed (for the HACS default list); no functional change
+
 ## 1.18.7 – 2026-11-15
 - HACS and hassfest validation workflows, manifest category and after_dependencies (bluetooth), brand icons; groundwork for the Marketplace catalog
 

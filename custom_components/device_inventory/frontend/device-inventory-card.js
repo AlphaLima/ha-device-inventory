@@ -409,9 +409,9 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     mvb.innerHTML = ico("cards", 20); mvb.title = this._meshView ? t.meshTable : t.meshCards;
     if (this._meshView) mvb.style.background = "var(--primary-color)", mvb.style.color = "var(--text-primary-color,#fff)";
     mvb.onclick = () => { this._meshView = !this._meshView; try { localStorage.setItem("diMeshCards", this._meshView ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-    pb.style.borderRadius = "8px 0 0 8px"; seg.style.borderRadius = "0"; seg.style.marginLeft = "-1px";
-    pcl.style.borderRadius = "0 8px 8px 0"; pcl.style.marginLeft = "-1px";
-    printPair.append(pb, seg, pcl);
+    pb.style.borderRadius = "8px 0 0 8px"; pcl.style.borderRadius = "0"; pcl.style.marginLeft = "-1px";
+    seg.style.borderRadius = "0 8px 8px 0"; seg.style.marginLeft = "-1px";
+    printPair.append(pb, pcl, seg);
     const bl = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
     bl.innerHTML = ico(this._blur ? "eyeoff" : "eye", 20); bl.title = this._blur ? t.blurOff : t.blurOn;
     if (this._blur) bl.style.background = "var(--primary-color)", bl.style.color = "var(--text-primary-color,#fff)";

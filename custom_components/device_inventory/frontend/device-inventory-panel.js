@@ -159,7 +159,7 @@ class DeviceInventoryPanel extends HTMLElement {
     if (!keys.includes(this._active)) this._select("all");
     this._tabs.innerHTML = "";
     keys.forEach((k) => {
-      const b = document.createElement("button"); b.className = "tab" + (k === this._active ? " on" : "");
+      const b = document.createElement("button"); b.className = "tab" + (k === this._active ? " on" : ""); b.dataset.k = k;
       b.title = `${this._lbl[k] || NAMES[k] || k} (${this._badges ? stats[k].n : stats[k].on})`;
       if (SVG[k]) {
         const ns = "http://www.w3.org/2000/svg", s = document.createElementNS(ns, "svg"), p = document.createElementNS(ns, "path");

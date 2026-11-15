@@ -930,8 +930,10 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     try {
       // the card sits in the shadow root of the panel (document.querySelector does not reach into shadow roots)
       const root = this.getRootNode();
-      let tab = root && root.querySelector ? root.querySelector(".tab.on") : null;
-      if (!tab) { const panel = document.querySelector("device-inventory-panel"); tab = panel && panel.shadowRoot && panel.shadowRoot.querySelector(".tab.on"); }
+      // the tab of THIS card's class (the "on" marker is set a moment later than the class change and would give the previous tab's symbol)
+      const sel = `.tab[data-k="${this._config.class}"]`;
+      let tab = root && root.querySelector ? root.querySelector(sel) : null;
+      if (!tab) { const panel = document.querySelector("device-inventory-panel"); tab = panel && panel.shadowRoot && panel.shadowRoot.querySelector(sel); }
       if (!tab) return "";
       let svg = tab.querySelector("svg");
       if (!svg) {

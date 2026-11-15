@@ -457,6 +457,27 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
             }
         )
+    # FRITZ!Box / mesh: which mesh node (router, repeater) and how (LAN, WLAN + SSID) each client is connected to
+    mesh_by_mac: dict[str, dict[str, Any]] = {}
+    mesh_by_ip: dict[str, dict[str, Any]] = {}
+    for state in hass.states.async_all("device_tracker"):
+        attrs = state.attributes
+        if not (attrs.get("connected_to") or attrs.get("connection_type")):
+            continue
+        reg = ent_reg.async_get(state.entity_id)
+        if reg is not None and reg.platform != "fritz":
+            continue
+        info = {"to": attrs.get("connected_to") or None, "type": attrs.get("connection_type") or None, "ssid": attrs.get("ssid") or None}
+        if attrs.get("mac"):
+            mesh_by_mac[str(attrs["mac"]).upper()] = info
+        ip = _valid_ip(attrs.get("ip"))
+        if ip:
+            mesh_by_ip[ip] = info
+    for d in result:
+        info = mesh_by_mac.get(d.get("mac") or "") or mesh_by_ip.get(d.get("ip") or "")
+        d["mesh"] = info
+        if info:
+            d["classes"] = sorted(set(d["classes"]) | {"mesh"})
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

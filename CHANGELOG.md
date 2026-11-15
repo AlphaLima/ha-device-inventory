@@ -2,6 +2,15 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.6 – 2026-11-15
+- New FRITZ! tab (box, repeaters, DECT) with the mesh nodes as expandable tree, own logo and default layout
+- Router Mesh tab: connection (LAN / WiFi symbols) and node per client, LAN / WiFi client counts in own columns
+- Connected-to column between IP and MAC (off by default)
+- Printout in colour (PDF) with a colour / black-and-white switch
+- Tooltip with the complete text on every cut-off cell, columns fit their content by default, Auto button
+- Row spacing switch, symbol of the tab in front of the heading, panel shows a diagnostic instead of a blank page
+- FRITZ! boxes: CPU temperature limits, one row per box
+
 ## 1.18.5 – 2026-11-15
 - Printout in colour (PDF) with a colour / black-and-white switch in the print button group
 - New Router Mesh tab: how each client is connected (LAN / WLAN + SSID) and to which router / repeater, as expandable tree per node (optional cards view)

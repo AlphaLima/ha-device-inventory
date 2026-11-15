@@ -502,16 +502,34 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
     # a node that is a device of its own (FRITZ!Box / Repeater set up in the FRITZ!Box Tools integration): match by the MAC of its tracker
     fritz_devs = [d for d in result if "fritz" in d["classes"] and "~" not in d["id"] and ":" not in d["id"]]
     node_dev: dict[str, dict[str, Any]] = {}
+
+    def _free(dev: dict[str, Any]) -> bool:
+        return all(dev is not v for v in node_dev.values())
+
+    # (1) by the tracker that carries the node name (also an unavailable one: its entity id / unique id holds the MAC)
     for state in hass.states.async_all("device_tracker"):
         hn = str(state.attributes.get("host_name") or state.attributes.get("friendly_name") or "")
-        mac = str(state.attributes.get("mac") or "").upper()
-        if hn in node_clients and hn not in node_dev and mac:
-            dev_hit = next((d for d in fritz_devs if (d.get("mac") or "").upper() == mac), None)
-            if dev_hit is not None and all(dev_hit is not v for v in node_dev.values()):
-                node_dev[hn] = dev_hit
-    # the one node and the one box that are left over belong together (the master: it is no client of itself)
+        if hn not in node_clients or hn in node_dev:
+            continue
+        reg = ent_reg.async_get(state.entity_id)
+        mac = str(state.attributes.get("mac") or (reg.unique_id if reg else "") or "").upper()
+        dev_hit = next((d for d in fritz_devs if mac and (d.get("mac") or "").upper() == mac and _free(d)), None)
+        if dev_hit is not None:
+            node_dev[hn] = dev_hit
+    # (2) by the model number in the name ("RepeaterKabuff3000" -> FRITZ!Repeater 3000), when exactly one box fits
+    boxes = [d for d in fritz_devs if (d.get("model") or "").startswith(("FRITZ!Box", "FRITZ!Repeater"))]
+    for node in node_clients:
+        if node in node_dev:
+            continue
+        nums = re.findall(r"\d{4}", node)
+        cands = [d for d in boxes if _free(d) and nums and any(n in (d.get("model") or "") for n in nums)]
+        if len(cands) > 1:  # two boxes of the same model: the one at the default gateway address (.1) is the master, not this repeater
+            cands = [d for d in cands if not str(d.get("ip") or "").endswith(".1")]
+        if len(cands) == 1:
+            node_dev[node] = cands[0]
+    # (3) the one node and the one box that are left over belong together (the master: it is no client of itself)
     open_nodes = [n for n in node_clients if n not in node_dev]
-    open_devs = [d for d in fritz_devs if all(d is not v for v in node_dev.values()) and (d.get("model") or "").startswith(("FRITZ!Box", "FRITZ!Repeater"))]
+    open_devs = [d for d in boxes if _free(d)]
     if len(open_nodes) == 1 and len(open_devs) == 1:
         node_dev[open_nodes[0]] = open_devs[0]
     for node, dev_hit in node_dev.items():

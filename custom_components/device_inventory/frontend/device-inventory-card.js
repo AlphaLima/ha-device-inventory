@@ -112,7 +112,7 @@ class DeviceInventoryCard extends HTMLElement {
     try { this._thumbs = localStorage.getItem("diThumbs") !== "0"; } catch (e) { this._thumbs = true; }
     try { this._dense = localStorage.getItem("diWide") === "1"; } catch (e) { this._dense = false; }
     try { this._pcolor = localStorage.getItem("diPrintColor") !== "0"; } catch (e) { this._pcolor = true; }
-    try { this._meshTable = localStorage.getItem("diMeshTable") === "1"; } catch (e) { this._meshTable = false; }
+    try { this._meshView = localStorage.getItem("diMeshCards") === "1"; } catch (e) { this._meshView = false; }
     try { this._comments = localStorage.getItem("diComments") !== "0"; } catch (e) { this._comments = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
@@ -424,9 +424,9 @@ class DeviceInventoryCard extends HTMLElement {
     if (!this._pcolor) pcl.style.background = "var(--primary-color)", pcl.style.color = "var(--text-primary-color,#fff)";
     pcl.onclick = () => { this._pcolor = !this._pcolor; try { localStorage.setItem("diPrintColor", this._pcolor ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
 const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
-    mvb.innerHTML = ico("cards", 20); mvb.title = this._meshTable ? t.meshCards : t.meshTable;
-    if (!this._meshTable) mvb.style.background = "var(--primary-color)", mvb.style.color = "var(--text-primary-color,#fff)";
-    mvb.onclick = () => { this._meshTable = !this._meshTable; try { localStorage.setItem("diMeshTable", this._meshTable ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+    mvb.innerHTML = ico("cards", 20); mvb.title = this._meshView ? t.meshTable : t.meshCards;
+    if (this._meshView) mvb.style.background = "var(--primary-color)", mvb.style.color = "var(--text-primary-color,#fff)";
+    mvb.onclick = () => { this._meshView = !this._meshView; try { localStorage.setItem("diMeshCards", this._meshView ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
     bar.append(rb, xcb, printPair, pcl, bl, thb, cmb, dnb);
     if (this._config.class === "mesh") bar.appendChild(mvb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
@@ -886,7 +886,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     } catch (e) { return ""; }
   }
 
-  _cardsOn() { return this._config.class === "mesh" && !this._meshTable && !this._edit; }
+  _cardsOn() { return this._config.class === "mesh" && !!this._meshView && !this._edit; }
 
   // mesh overview: one card per router / repeater with the clients connected to it (like a port overview)
   _meshCards() {

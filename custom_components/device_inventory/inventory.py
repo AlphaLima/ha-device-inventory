@@ -532,9 +532,14 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
     open_devs = [d for d in boxes if _free(d)]
     if len(open_nodes) == 1 and len(open_devs) == 1:
         node_dev[open_nodes[0]] = open_devs[0]
+    def _stats(infos: list[dict[str, Any]]) -> dict[str, int]:
+        wl = sum(1 for i in infos if i.get("type") and "wlan" in str(i["type"]).lower())
+        return {"total": len(infos), "wlan": wl, "lan": len(infos) - wl}
+
     for node, dev_hit in node_dev.items():
         dev_hit["mesh_node"] = node
         dev_hit["name"] = str(node)
+        dev_hit["mesh_stats"] = _stats(node_clients[node])
     for node, infos in sorted(node_clients.items()):
         if node in node_dev:
             continue
@@ -545,7 +550,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "parent": None,
                 "name": str(node).replace("fritz.", "", 1) if str(node).startswith("fritz.") else str(node),
                 "manufacturer": "FRITZ!",
-                "model": f"Mesh: {len(infos)} Clients (LAN {len(infos) - wlan} · WLAN {wlan})",
+                "model": "Mesh",
+                "mesh_stats": _stats(infos),
                 "sw_version": None,
                 "area": None,
                 "mac": None,

@@ -623,7 +623,14 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     if (depth) nameBox.appendChild(el("span", "opacity:.5;margin-right:3px", "└"));
     nameBox.appendChild(nm);
     add("name", nameBox);
-    add("model", d.model || "–");
+    if (d.mesh_stats) { // mesh node: how many clients hang on it, split into cable and radio
+      const st = d.mesh_stats, mo = el("span", "display:inline-flex;align-items:center;gap:6px");
+      if (d.model && d.model !== "Mesh") mo.appendChild(document.createTextNode(d.model + " ·"));
+      const part = (n, icon, col, ttl) => { const x = el("span", `display:inline-flex;align-items:center;gap:2px;color:${col}`); x.innerHTML = ico(icon, 16) + `<b style="color:var(--primary-text-color)">${n}</b>`; x.title = ttl; return x; };
+      mo.title = `${st.total} Clients`;
+      mo.append(el("span", null, `${st.total} Clients`), part(st.lan, "lan", "#4a8cf0", `LAN: ${st.lan}`), part(st.wlan, "wifi", "#a07cf0", `WLAN: ${st.wlan}`));
+      add("model", mo);
+    } else add("model", d.model || "–");
     add("area", d.area || "–");
     const b = d.ble || {};
     add("distance", b.distance == null ? "–" : b.distance.toFixed(1) + " m");
@@ -876,7 +883,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     const b = d.ble || {};
     return {
       "#": i + 1, status: d.online ? t.online : t.offline, internet: inet === "on" ? t.allowed : inet === "off" ? t.blocked : "",
-      name: d.name || "", model: d.model || "", area: d.area || "", ip: d.ip || "", mac: d.mac || "", maker: d.manufacturer || "", fw: (d.sw_version || "").split(" ")[0],
+      name: d.name || "", model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WLAN " + d.mesh_stats.wlan + ")") : d.model || ""), area: d.area || "", ip: d.ip || "", mac: d.mac || "", maker: d.manufacturer || "", fw: (d.sw_version || "").split(" ")[0],
       battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "", seen: d.last_seen || "",
       distance: b.distance != null ? String(b.distance) : "", home: b.home != null ? (b.home ? t.yes : "") : "", bleaddr: b.address || "", scanner: b.scanner || "", mesh: (d.mesh && d.mesh.to) || "", conn: d.mesh && d.mesh.type ? d.mesh.type + (d.mesh.ssid ? " " + d.mesh.ssid : "") : "", scannerip: b.scanner_ip || "", irk: b.irk || "",
       signal: d.rssi == null ? "" : String(d.rssi), temp: d.temp == null ? "" : String(d.temp), ble: ble === "on" ? "on" : ble === "off" ? "off" : "",
@@ -1017,7 +1024,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       <table><thead><tr><th class="ttl" colspan="${cols.length}">${tabIcon ? `<span class="ico">${tabIcon}</span>` : ""}${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${pcfg.n[c] ? E(pcfg.n[c]) : c === "#" ? "#" : PIC[c] ? ico(PIC[c], 15) : E(t[c])}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
-        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: d.model || "–", area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
+        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WLAN " + d.mesh_stats.wlan + ")") : d.model || "–"), area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
         seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", conn: d.mesh && d.mesh.type ? d.mesh.type + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };

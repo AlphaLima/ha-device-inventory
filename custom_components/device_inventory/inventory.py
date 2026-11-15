@@ -476,11 +476,18 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         ip = _valid_ip(attrs.get("ip"))
         if ip:
             mesh_by_ip[ip] = info
-    for d in result:
-        info = mesh_by_mac.get(d.get("mac") or "") or mesh_by_ip.get(d.get("ip") or "")
-        d["mesh"] = info
-        if info:
-            d["classes"] = sorted(set(d["classes"]) | {"mesh"})
+    mesh_used: set[int] = set()  # a client is one row: sub-devices of the same device (same IP) must not count again
+    for pass_kids in (False, True):
+        for d in result:
+            if bool(d.get("parent")) != pass_kids:
+                continue
+            info = mesh_by_mac.get(d.get("mac") or "") or mesh_by_ip.get(d.get("ip") or "")
+            if info is not None and id(info) in mesh_used:
+                info = None
+            if info is not None:
+                mesh_used.add(id(info))
+                d["classes"] = sorted(set(d["classes"]) | {"mesh"})
+            d["mesh"] = info
     # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
     seen_fritz: dict[tuple[str, str], str] = {}
     drop_fritz: set[str] = set()

@@ -816,7 +816,9 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     if (!c) c = JSON.parse(JSON.stringify(DEFAULT_LAYOUT[tgt === "print" ? "print" : "view"]));
     const base = COLS.filter((k) => k !== "kids");
     const known = (c.order || []).filter((k) => base.includes(k));
-    return { order: [...known, ...base.filter((k) => !known.includes(k))], off: new Set(c.off || []), w: c.w || {}, n: c.n || {} };
+    const order = [...known]; // columns added in later versions go right behind their predecessor, not to the far end
+    base.forEach((k, i) => { if (order.includes(k)) return; let j = i - 1; while (j >= 0 && !order.includes(base[j])) j--; order.splice(j >= 0 ? order.indexOf(base[j]) + 1 : 0, 0, k); });
+    return { order, off: new Set(c.off || []), w: c.w || {}, n: c.n || {} };
   }
 
   _saveCfg(tgt, cfg) {

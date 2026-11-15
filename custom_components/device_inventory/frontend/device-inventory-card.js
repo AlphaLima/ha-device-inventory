@@ -173,6 +173,10 @@ class DeviceInventoryCard extends HTMLElement {
     const hideOff = !!this._config.hide_offline;
     s.devices = (r.devices || []).filter((d) => (!hideOff || d.online) && (cls === "all" || (cls === "battery" ? this._hasBattery(d) : d.classes.includes(cls))));
     if (cls === "mesh") this._meshTree(s);
+    if (cls === "fritz") { // mesh nodes of the FRITZ! tab get their clients as expandable sub-rows
+      const have = new Set(s.devices.map((d) => d.id));
+      (r.devices || []).forEach((d) => { if (d.mesh && d.mesh.to && !have.has(d.id)) { const n = String(d.mesh.to).replace(/^fritz\./i, ""); s.devices.push(Object.assign({}, d, { parent: `fritznode~${d.mesh.to}`, _node: n })); } });
+    }
     s.notes = r.notes || {};
     s.photos = r.photos || {};
     s.loaded = true;
@@ -493,7 +497,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       const xb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
       xb.innerHTML = TREE_SVG(this._expAll);
       xb.title = this._expAll ? t.collapse : t.expand;
-      xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem(this._config.class === "mesh" ? "diExpandMesh" : "diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+      xb.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem(this._config.class === "mesh" || this._config.class === "fritz" ? "diExpandMesh" : "diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
       const fb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
       fb.innerHTML = ico("filter", 20); fb.title = this._kidFilter ? t.kidFilterOff : t.kidFilterOn;
       if (this._kidFilter) fb.style.background = "var(--primary-color)", fb.style.color = "var(--text-primary-color,#fff)";
@@ -520,7 +524,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       if (this._widths[c]) th.style.cssText += `;width:${this._widths[c]}px;max-width:${this._widths[c]}px;min-width:${this._widths[c]}px`;
       if (c === "kids") {
         th.innerHTML = TREE_SVG(this._expAll); th.title = this._expAll ? t.collapse : t.expand; th.style.textAlign = "center";
-        th.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem(this._config.class === "mesh" ? "diExpandMesh" : "diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+        th.onclick = () => { this._expAll = !this._expAll; this._exp.clear(); try { localStorage.setItem(this._config.class === "mesh" || this._config.class === "fritz" ? "diExpandMesh" : "diExpand", this._expAll ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
         hr.appendChild(th); return;
       }
       if (edit) {
@@ -939,8 +943,8 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
   }
 
   // "expand all" is remembered separately for the Router Mesh tab (default: only the mesh nodes visible)
-  get _expAll() { return this._config.class === "mesh" ? !!this._expM : !!this._expG; }
-  set _expAll(v) { if (this._config.class === "mesh") this._expM = v; else this._expG = v; }
+  get _expAll() { return this._config.class === "mesh" || this._config.class === "fritz" ? !!this._expM : !!this._expG; }
+  set _expAll(v) { if (this._config.class === "mesh" || this._config.class === "fritz") this._expM = v; else this._expG = v; }
 
   _cardsOn() { return this._config.class === "mesh" && !!this._meshView && !this._edit; }
 

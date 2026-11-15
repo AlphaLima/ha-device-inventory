@@ -54,6 +54,7 @@ const DEFAULT_LAYOUT = {
 };
 // own default layout of the FRITZ! tab (used until the layout of that tab is changed; saved separately from the other tabs)
 const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["mesh"],"w":{},"n":{}},"print":{"order":["#","status","internet","conn","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status","mesh"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
+const HEAD_ICONS = { status: "dot", photos: "image", note: "note", battery: "battery", internet: "globe", conn: "link", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth", lanc: "lan", wific: "wifi" }; // columns whose heading is a symbol (narrow)
 const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip", "irk"]; // columns blurred by the "hide addresses" option
 const OPTIONAL =["kids", "mesh", "conn", "lanc", "wific", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
@@ -82,6 +83,8 @@ const ICONS = {
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   lan: '<rect x="6" y="3" width="12" height="10" rx="1.5"/><path d="M9 13v3M12 13v3M15 13v3M12 16v5"/>',
   wifi: '<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.6 16a5 5 0 0 1 6.8 0"/><circle cx="12" cy="19.3" r="1.1" fill="currentColor"/>',
+  dot: '<circle cx="12" cy="12" r="6"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
   imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
   palette: '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1-.9-1.4-.9-2.5 0-1 .8-1.8 1.9-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>',
@@ -492,7 +495,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
         const natural = (n) => { const rg = document.createRange(); rg.selectNodeContents(n); const cs = getComputedStyle(n); return Math.ceil(rg.getBoundingClientRect().width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)) + 2; };
         const w = {};
         tb.querySelectorAll("tbody tr").forEach((r) => [...r.children].forEach((td) => { const c = td.dataset.col; if (!c) return; const x = natural(td); if (!(w[c] >= x)) w[c] = x; }));
-        tb.querySelectorAll("thead th, tr:first-child th").forEach((th) => { const c = th.dataset.col; if (!c) return; let x; const inp = th.querySelector("input[type=text]"); if (inp) { const pr = document.createElement("span"); pr.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font-weight:700"; pr.textContent = (inp.value || inp.placeholder || "") + "▲"; th.appendChild(pr); x = Math.ceil(pr.getBoundingClientRect().width) + 12; pr.remove(); } else x = natural(th); if (!(w[c] >= x)) w[c] = x; });
+        tb.querySelectorAll("thead th, tr:first-child th").forEach((th) => { const c = th.dataset.col; if (!c) return; let x; const inp = th.querySelector("input[type=text]"); if (HEAD_ICONS[c] && !(this._cfg(tgt).n || {})[c]) x = 17 + 14; else if (inp) { const pr = document.createElement("span"); pr.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font-weight:700"; pr.textContent = (inp.value || inp.placeholder || "") + "▲"; th.appendChild(pr); x = Math.ceil(pr.getBoundingClientRect().width) + 12; pr.remove(); } else x = natural(th); if (!(w[c] >= x)) w[c] = x; });
         const act = this._cfg(tgt);
         act.w = act.w || {};
         Object.keys(w).forEach((c) => { if (c !== "kids") act.w[c] = tgt === "print" ? Math.round(w[c] / mm) : w[c]; });
@@ -523,7 +526,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     this._colOrder.forEach((c) => {
       const th = document.createElement("th");
       th.dataset.col = c;
-      const IC = { photos: "image", note: "note", battery: "battery", internet: "globe", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth", lanc: "lan", wific: "wifi" };
+      const IC = HEAD_ICONS;
       const dfltHtml = c === "#" ? "#" : IC[c] ? ico(IC[c], 17) : escH(t[c]);
       const label = (names[c] ? escH(names[c]) : dfltHtml) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
       th.innerHTML = label;
@@ -1023,7 +1026,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     const wst = (c) => (pcfg.w[c] ? ` style="width:${pcfg.w[c]}mm;max-width:${pcfg.w[c]}mm;word-break:break-word"` : "");
     const title = this._label();
     const tabIcon = this._tabIconSvg();
-    const PIC = { photos: "image", note: "note", battery: "battery", internet: "globe", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth", lanc: "lan", wific: "wifi" };
+    const PIC = HEAD_ICONS;
     const C = this._pcolor;
     const G = "#2e7d32", O = "#e65100", R = "#c62828";
     const sev = (v, good, warn, hi) => (hi ? (v >= good ? G : v >= warn ? O : R) : (v <= good ? G : v <= warn ? O : R));

@@ -41,3 +41,6 @@ WEAK_INTEGRATIONS = {"fritz", "bluetooth", "ping", "nmap_tracker", "unifi", "upn
 
 # devices of these makers/models also appear in the Sonoff tab, whatever integration they use
 SONOFF_HINTS = ("sonoff", "itead")
+
+# makers / models of AVM FRITZ! hardware (own tab)
+FRITZ_HINTS = ("fritz", "avm")

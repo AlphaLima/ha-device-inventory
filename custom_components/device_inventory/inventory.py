@@ -20,7 +20,7 @@ CHANNEL_DOMAINS = {"switch", "light", "cover", "lock", "valve", "fan"}
 # sub-devices, WLED / FRITZ!Box entities are settings and not channels
 CHANNEL_INTEGRATIONS = {"homematicip_local", "homematic", "homematicip_cloud", "mqtt", "esphome", "tasmota", "zha", "deconz", "matter", "zwave_js", "hue", "tuya", "sonoff"}
 
-from .const import CLASS_MAP, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
+from .const import CLASS_MAP, FRITZ_HINTS, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
 
 UNAVAILABLE = ("unavailable", "unknown")
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
@@ -161,6 +161,9 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         maker_model = f"{dev.manufacturer or ''} {dev.model or ''}".lower()
         if any(h in maker_model for h in SONOFF_HINTS):
             class_set.add("sonoff")
+        # AVM / FRITZ! hardware (box, repeaters, DECT devices) – not the "FRITZ!Box Tracked device" mirrors of every network client
+        if "tracked" not in maker_model and (any(h in maker_model for h in FRITZ_HINTS) or domains & {"fritzbox", "fritz_callmonitor"}):
+            class_set.add("fritz")
         classes = sorted(class_set) or [OTHER]
 
         ip = None
@@ -478,6 +481,19 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         d["mesh"] = info
         if info:
             d["classes"] = sorted(set(d["classes"]) | {"mesh"})
+    # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
+    seen_fritz: dict[tuple[str, str], str] = {}
+    drop_fritz: set[str] = set()
+    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x["name"])):
+        if "fritz" not in d["classes"] or ":" in d["id"] or "~" in d["id"]:
+            continue
+        key = ((d["name"] or "").strip().lower().replace("internetgatewaydevicev2 - ", ""), (d.get("model") or "").lower())
+        if key in seen_fritz:
+            drop_fritz.add(d["id"])
+        else:
+            seen_fritz[key] = d["id"]
+    if drop_fritz:
+        result = [d for d in result if d["id"] not in drop_fritz]
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

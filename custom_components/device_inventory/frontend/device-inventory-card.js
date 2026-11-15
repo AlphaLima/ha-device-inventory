@@ -20,7 +20,7 @@ window.customIcons.deviceinventory = {
 const T = {
   en: { all: "All devices", other: "Other", status: "Status", name: "Device", model: "Model", area: "Area", ip: "IP", mac: "MAC",
     maker: "Manufacturer", fw: "Firmware", seen: "Seen", battery: "Batt.", photos: "Photos", note: "Note",
-    denseOn: "Wider row spacing", denseOff: "Tighter row spacing", commentsOff: "Hide the comment text in the list", commentsOn: "Show the comment text in the list",
+    printColorOn: "Printout in colour (click for black and white)", printColorOff: "Printout in black and white (click for colour)", denseOn: "Wider row spacing", denseOff: "Tighter row spacing", commentsOff: "Hide the comment text in the list", commentsOn: "Show the comment text in the list",
     thumbsOff: "Hide the thumbnails in the list", thumbsOn: "Show thumbnails in the list",
     kidFilterOn: "Unfold only sub-rows with a comment or photo", kidFilterOff: "Unfold all sub-rows",
     blurOn: "Blur IP / MAC addresses (e.g. for screenshots)", blurOff: "Show IP / MAC addresses",
@@ -30,7 +30,7 @@ const T = {
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
-    denseOn: "Weiterer Zeilenabstand", denseOff: "Engerer Zeilenabstand", commentsOff: "Kommentartext in der Liste ausblenden", commentsOn: "Kommentartext in der Liste anzeigen",
+    printColorOn: "Ausdruck in Farbe (Klick: schwarz-weiß)", printColorOff: "Ausdruck schwarz-weiß (Klick: Farbe)", denseOn: "Weiterer Zeilenabstand", denseOff: "Engerer Zeilenabstand", commentsOff: "Kommentartext in der Liste ausblenden", commentsOn: "Kommentartext in der Liste anzeigen",
     thumbsOff: "Miniaturbilder in der Liste ausblenden", thumbsOn: "Miniaturbilder in der Liste anzeigen",
     kidFilterOn: "Beim Ausklappen nur Unterelemente mit Kommentar oder Bild", kidFilterOff: "Alle Unterelemente ausklappen",
     blurOn: "IP- / MAC-Adressen verwischen (z. B. für Screenshots)", blurOff: "IP- / MAC-Adressen anzeigen",
@@ -76,6 +76,7 @@ const ICONS = {
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
   imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
+  palette: '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1-.9-1.4-.9-2.5 0-1 .8-1.8 1.9-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>',
   dense: '<path d="M4 5h16M4 9.5h16M4 14h16M4 18.5h16"/>',
   noteoff: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M3 3l18 18"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
@@ -105,6 +106,7 @@ class DeviceInventoryCard extends HTMLElement {
     try { this._kidFilter = localStorage.getItem("diKidFilter") === "1"; } catch (e) { this._kidFilter = false; }
     try { this._thumbs = localStorage.getItem("diThumbs") !== "0"; } catch (e) { this._thumbs = true; }
     try { this._dense = localStorage.getItem("diWide") === "1"; } catch (e) { this._dense = false; }
+    try { this._pcolor = localStorage.getItem("diPrintColor") !== "0"; } catch (e) { this._pcolor = true; }
     try { this._comments = localStorage.getItem("diComments") !== "0"; } catch (e) { this._comments = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
@@ -406,7 +408,11 @@ class DeviceInventoryCard extends HTMLElement {
     dnb.innerHTML = ico("dense", 20); dnb.title = this._dense ? t.denseOff : t.denseOn;
     if (this._dense) dnb.style.background = "var(--primary-color)", dnb.style.color = "var(--text-primary-color,#fff)";
     dnb.onclick = () => { this._dense = !this._dense; try { localStorage.setItem("diWide", this._dense ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-    bar.append(rb, xcb, printPair, bl, thb, cmb, dnb);
+    const pcl = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    pcl.innerHTML = ico("palette", 20); pcl.title = this._pcolor ? t.printColorOn : t.printColorOff;
+    if (!this._pcolor) pcl.style.background = "var(--primary-color)", pcl.style.color = "var(--text-primary-color,#fff)";
+    pcl.onclick = () => { this._pcolor = !this._pcolor; try { localStorage.setItem("diPrintColor", this._pcolor ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+    bar.append(rb, xcb, printPair, pcl, bl, thb, cmb, dnb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {
@@ -872,10 +878,13 @@ class DeviceInventoryCard extends HTMLElement {
     const title = this._label();
     const tabIcon = this._tabIconSvg();
     const PIC = { photos: "image", note: "note", battery: "battery", internet: "globe", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth" };
+    const C = this._pcolor;
+    const G = "#2e7d32", O = "#e65100", R = "#c62828";
+    const sev = (v, good, warn, hi) => (hi ? (v >= good ? G : v >= warn ? O : R) : (v <= good ? G : v <= warn ? O : R));
     const small = this._ori === "portrait" || cols.length > 11;
     let html = `<!doctype html><html><head><meta charset="utf-8"><title>${E(title)}</title><style>@page{size:A4 ${this._ori};margin:8mm 8mm 12mm;@bottom-right{content:counter(page) "/" counter(pages);font:8pt Arial,sans-serif;color:#444}}
       body{font-family:Arial,sans-serif;font-size:${small ? 7.5 : 9}pt;color:#000;margin:0}th.ttl{background:#fff;border:none;border-bottom:.5pt solid #999;padding:0 0 2mm;font-size:13pt}th.ttl .ico{display:inline-block;vertical-align:middle;margin-right:2.5mm}th.ttl .ico svg{width:8mm;height:8mm;display:block}th.ttl .ico svg,th.ttl .ico svg path{fill:#000}th.ttl small{font-size:8pt;font-weight:normal;color:#444;margin-left:3mm}
-      table{border-collapse:collapse;width:100%}th,td{border:.5pt solid #999;padding:1mm 1.4mm;text-align:left;vertical-align:top}td.bl{color:transparent;text-shadow:0 0 5px #000;-webkit-print-color-adjust:exact;print-color-adjust:exact}th{background:#e8e8e8}th svg{display:block;stroke:#000}
+      table{border-collapse:collapse;width:100%}th,td{border:.5pt solid #999;padding:1mm 1.4mm;text-align:left;vertical-align:top}td.bl{color:transparent;text-shadow:0 0 5px #000;-webkit-print-color-adjust:exact;print-color-adjust:exact}th{background:${C ? "#dce8f6" : "#e8e8e8"}}th svg{display:block;stroke:${C ? "#1b4f8a" : "#000"}}${C ? "body{-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even) td{background:#f5f7fa}th.ttl{background:#fff;color:#1b4f8a}th.ttl .ico svg,th.ttl .ico svg path{fill:#1b4f8a;stroke:none}" : ""}
       thead{display:table-header-group}tr{page-break-inside:avoid}img{width:${small ? 48 : 64}px;height:${small ? 48 : 64}px;object-fit:cover;margin:1px}</style></head><body>
       <table><thead><tr><th class="ttl" colspan="${cols.length}">${tabIcon ? `<span class="ico">${tabIcon}</span>` : ""}${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${pcfg.n[c] ? E(pcfg.n[c]) : c === "#" ? "#" : PIC[c] ? ico(PIC[c], 15) : E(t[c])}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
@@ -884,10 +893,12 @@ class DeviceInventoryCard extends HTMLElement {
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
         seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };
+      const lvl = d.battery != null ? d.battery : d.battery_low != null ? (d.battery_low ? 0 : 100) : null;
+      const tint = { battery: lvl == null ? null : lvl <= 20 ? R : lvl <= 40 ? O : G, signal: d.rssi == null ? null : sev(d.rssi, -60, -75, true), temp: d.temp == null ? null : sev(d.temp, 55, 65, false), home: d.ble && d.ble.home != null ? (d.ble.home ? G : R) : null };
       html += "<tr>" + cols.map((c) => c === "photos"
         ? `<td${wst(c)}>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
-        : c === "internet" && cells[c].startsWith("<svg") ? `<td${wst(c)}>${cells[c]}</td>`
-        : `<td${wst(c)}${this._blur && BLURCOLS.includes(c) ? ' class="bl"' : ""}>${E(this._blur && BLURCOLS.includes(c) ? String(cells[c]).replace(/[0-9a-fA-F]/g, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]) : cells[c]).replace(/\n/g, "<br>")}</td>`).join("") + "</tr>";
+        : c === "internet" && cells[c].startsWith("<svg") ? `<td${wst(c)}>${C ? `<span style="color:${this._inet(d) === "on" ? G : R}">${cells[c]}</span>` : cells[c]}</td>`
+        : `<td${wst(c)}${this._blur && BLURCOLS.includes(c) ? ' class="bl"' : ""}>${E(this._blur && BLURCOLS.includes(c) ? String(cells[c]).replace(/[0-9a-fA-F]/g, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]) : cells[c]).replace(/\n/g, "<br>")}</td>`).map((h, k) => { const col = C && tint[cols[k]]; return col ? h.replace(/>([^<]*)<\/td>$/, `><b style="color:${col}">$1</b></td>`) : h; }).join("") + "</tr>";
     });
     html += "</tbody></table></body></html>";
     const f = document.createElement("iframe");

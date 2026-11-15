@@ -80,6 +80,8 @@ const ICONS = {
   clipboard: '<rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/>',
   import: '<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  lan: '<rect x="6" y="3" width="12" height="10" rx="1.5"/><path d="M9 13v3M12 13v3M15 13v3M12 16v5"/>',
+  wifi: '<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.6 16a5 5 0 0 1 6.8 0"/><circle cx="12" cy="19.3" r="1.1" fill="currentColor"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
   imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
   palette: '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1-.9-1.4-.9-2.5 0-1 .8-1.8 1.9-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>',
@@ -639,7 +641,11 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     add("bleaddr", b.address ? copyable(String(b.address).toUpperCase()) : "–");
     const ms = d.mesh || {};
     add("mesh", ms.to ? String(ms.to).replace(/^fritz\./i, "") : "–");
-    add("conn", ms.type ? ms.type + (ms.ssid ? ` · ${ms.ssid}` : "") : "–");
+    if (ms.type) { // symbol: cable (LAN) or radio waves (WLAN); the text is the tooltip
+      const isLan = /lan/i.test(ms.type) && !/wlan|wifi/i.test(ms.type);
+      const cn = el("span", `display:inline-flex;color:${isLan ? "#4a8cf0" : "#a07cf0"}`); cn.innerHTML = ico(isLan ? "lan" : "wifi", 19);
+      cn.title = ms.type + (ms.ssid ? ` · ${ms.ssid}` : ""); add("conn", cn);
+    } else add("conn", "–");
     add("scanner", b.scanner ? (() => { const sc = el("span", null, String(b.scanner).split(" (")[0]); sc.title = b.scanner; return sc; })() : "–");
     if (b.scanner_ip) { const a2 = el("a", "color:var(--primary-color)", b.scanner_ip); a2.href = `http://${b.scanner_ip}`; a2.target = "_blank"; a2.rel = "noopener"; add("scannerip", a2); } else add("scannerip", "–");
     add("irk", b.irk ? copyable(String(b.irk).slice(0, 8) + "…", false, String(b.irk)) : "–");
@@ -1019,6 +1025,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       const tint = { battery: lvl == null ? null : lvl <= 20 ? R : lvl <= 40 ? O : G, signal: d.rssi == null ? null : sev(d.rssi, -60, -75, true), temp: d.temp == null ? null : sev(d.temp, 55, 65, false), home: d.ble && d.ble.home != null ? (d.ble.home ? G : R) : null };
       html += "<tr>" + cols.map((c) => c === "photos"
         ? `<td${wst(c)}>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
+        : c === "conn" && d.mesh && d.mesh.type ? `<td${wst(c)}><span${C ? ` style="color:${/lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type) ? "#1b66d1" : "#7a4fd1"}"` : ""} title="${E(cells[c])}">${ico(/lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type) ? "lan" : "wifi", 15)}</span></td>`
         : c === "internet" && cells[c].startsWith("<svg") ? `<td${wst(c)}>${C ? `<span style="color:${this._inet(d) === "on" ? G : R}">${cells[c]}</span>` : cells[c]}</td>`
         : `<td${wst(c)}${this._blur && BLURCOLS.includes(c) ? ' class="bl"' : ""}>${E(this._blur && BLURCOLS.includes(c) ? String(cells[c]).replace(/[0-9a-fA-F]/g, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]) : cells[c]).replace(/\n/g, "<br>")}</td>`).map((h, k) => { const col = C && tint[cols[k]]; return col ? h.replace(/>([^<]*)<\/td>$/, `><b style="color:${col}">$1</b></td>`) : h; }).join("") + "</tr>";
     });

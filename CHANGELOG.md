@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.7 – 2026-11-15
+- HACS and hassfest validation workflows, manifest category and after_dependencies (bluetooth), brand icons; groundwork for the Marketplace catalog
+
 ## 1.18.6 – 2026-11-15
 - New FRITZ! tab (box, repeaters, DECT) with the mesh nodes as expandable tree, own logo and default layout
 - Router Mesh tab: connection (LAN / WiFi symbols) and node per client, LAN / WiFi client counts in own columns

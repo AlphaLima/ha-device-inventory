@@ -481,12 +481,45 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         d["mesh"] = info
         if info:
             d["classes"] = sorted(set(d["classes"]) | {"mesh"})
+    # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
+    seen_fritz: dict[tuple[str, str], str] = {}
+    drop_fritz: set[str] = set()
+    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x["name"])):
+        if "fritz" not in d["classes"] or ":" in d["id"] or "~" in d["id"]:
+            continue
+        key = ((d["name"] or "").strip().lower().replace("internetgatewaydevicev2 - ", ""), (d.get("model") or "").lower(), (d.get("mac") or "").upper())
+        if key in seen_fritz:
+            drop_fritz.add(d["id"])
+        else:
+            seen_fritz[key] = d["id"]
+    if drop_fritz:
+        result = [d for d in result if d["id"] not in drop_fritz]
     # the mesh nodes themselves (master, repeaters) are no devices of Home Assistant: one row each in the FRITZ! tab
     node_clients: dict[str, list[dict[str, Any]]] = {}
     for info in {id(v): v for v in list(mesh_by_mac.values()) + list(mesh_by_ip.values())}.values():
         if info.get("to"):
             node_clients.setdefault(str(info["to"]), []).append(info)
+    # a node that is a device of its own (FRITZ!Box / Repeater set up in the FRITZ!Box Tools integration): match by the MAC of its tracker
+    fritz_devs = [d for d in result if "fritz" in d["classes"] and "~" not in d["id"] and ":" not in d["id"]]
+    node_dev: dict[str, dict[str, Any]] = {}
+    for state in hass.states.async_all("device_tracker"):
+        hn = str(state.attributes.get("host_name") or state.attributes.get("friendly_name") or "")
+        mac = str(state.attributes.get("mac") or "").upper()
+        if hn in node_clients and hn not in node_dev and mac:
+            dev_hit = next((d for d in fritz_devs if (d.get("mac") or "").upper() == mac), None)
+            if dev_hit is not None and all(dev_hit is not v for v in node_dev.values()):
+                node_dev[hn] = dev_hit
+    # the one node and the one box that are left over belong together (the master: it is no client of itself)
+    open_nodes = [n for n in node_clients if n not in node_dev]
+    open_devs = [d for d in fritz_devs if all(d is not v for v in node_dev.values()) and (d.get("model") or "").startswith(("FRITZ!Box", "FRITZ!Repeater"))]
+    if len(open_nodes) == 1 and len(open_devs) == 1:
+        node_dev[open_nodes[0]] = open_devs[0]
+    for node, dev_hit in node_dev.items():
+        dev_hit["mesh_node"] = node
+        dev_hit["name"] = str(node)
     for node, infos in sorted(node_clients.items()):
+        if node in node_dev:
+            continue
         wlan = sum(1 for i in infos if i.get("type") and "lan" in str(i["type"]).lower() and "wlan" in str(i["type"]).lower())
         result.append(
             {
@@ -514,19 +547,6 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "mesh": None,
             }
         )
-    # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
-    seen_fritz: dict[tuple[str, str], str] = {}
-    drop_fritz: set[str] = set()
-    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x["name"])):
-        if "fritz" not in d["classes"] or ":" in d["id"] or "~" in d["id"]:
-            continue
-        key = ((d["name"] or "").strip().lower().replace("internetgatewaydevicev2 - ", ""), (d.get("model") or "").lower())
-        if key in seen_fritz:
-            drop_fritz.add(d["id"])
-        else:
-            seen_fritz[key] = d["id"]
-    if drop_fritz:
-        result = [d for d in result if d["id"] not in drop_fritz]
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

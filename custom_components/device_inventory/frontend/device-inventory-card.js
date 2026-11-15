@@ -174,8 +174,9 @@ class DeviceInventoryCard extends HTMLElement {
     s.devices = (r.devices || []).filter((d) => (!hideOff || d.online) && (cls === "all" || (cls === "battery" ? this._hasBattery(d) : d.classes.includes(cls))));
     if (cls === "mesh") this._meshTree(s);
     if (cls === "fritz") { // mesh nodes of the FRITZ! tab get their clients as expandable sub-rows
-      const have = new Set(s.devices.map((d) => d.id));
-      (r.devices || []).forEach((d) => { if (d.mesh && d.mesh.to && !have.has(d.id)) { const n = String(d.mesh.to).replace(/^fritz\./i, ""); s.devices.push(Object.assign({}, d, { parent: `fritznode~${d.mesh.to}`, _node: n })); } });
+      const have = new Set(s.devices.map((d) => d.id)), nodeId = {};
+      s.devices.forEach((d) => { if (d.mesh_node) nodeId[d.mesh_node] = d.id; }); // a node that is a device of its own (box / repeater) carries its clients
+      (r.devices || []).forEach((d) => { if (d.mesh && d.mesh.to && !have.has(d.id)) s.devices.push(Object.assign({}, d, { parent: nodeId[d.mesh.to] || `fritznode~${d.mesh.to}` })); });
     }
     s.notes = r.notes || {};
     s.photos = r.photos || {};

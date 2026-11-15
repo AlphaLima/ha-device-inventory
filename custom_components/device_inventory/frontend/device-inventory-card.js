@@ -52,6 +52,8 @@ const DEFAULT_LAYOUT = {
   view: { order: [], off: [], w: { note: 240 }, n: {} },
   print: { order: [], off: ["seen", "status"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
 };
+// own default layout of the FRITZ! tab (used until the layout of that tab is changed; saved separately from the other tabs)
+const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","mesh","conn","distance","home","ip","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":[],"w":{"fw":65,"name":127,"internet":67,"status":59,"#":32,"model":148,"area":97,"mac":107,"maker":83,"signal":58,"temp":55,"ble":77,"battery":50,"note":720,"photos":61,"home":71,"seen":99,"distance":84,"ip":101,"bleaddr":110,"scanner":84,"scannerip":101,"irk":72,"mesh":104,"conn":87},"n":{}},"print":{"order":["#","status","internet","mesh","conn","name","model","area","distance","home","ip","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
 const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip", "irk"]; // columns blurred by the "hide addresses" option
 const OPTIONAL =["kids", "mesh", "conn", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
@@ -459,7 +461,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     editGroup.appendChild(pcb);
     if (edit) {
       const mk = (id, lbl, ttl) => { const b = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); b.innerHTML = lbl; b.title = ttl; if (tgt === id) { b.style.background = "var(--primary-color)"; b.style.color = "#fff"; b.style.borderColor = "transparent"; } b.onclick = () => { this._tgt = id; try { localStorage.setItem("diTgt", id); } catch (e) { /* ignore */ } this._render(); }; return b; };
-      const rs = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); rs.innerHTML = ico("reset"); rs.title = t.reset; rs.onclick = () => { if (!confirm(`${tgt === "print" ? t.tgtPrint : t.tgtView}: ${t.resetAsk}`)) return; try { localStorage.removeItem(tgt === "print" ? "diPrint" : "diView"); } catch (e) { /* ignore */ } this._render(); };
+      const rs = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); rs.innerHTML = ico("reset"); rs.title = t.reset; rs.onclick = () => { if (!confirm(`${tgt === "print" ? t.tgtPrint : t.tgtView}: ${t.resetAsk}`)) return; try { localStorage.removeItem(this._layoutKey(tgt)); } catch (e) { /* ignore */ } this._render(); };
       const dn = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); dn.innerHTML = ico("check"); dn.title = t.done; dn.onclick = () => { this._edit = false; this._render(); };
       const cp = el("button", "padding:4px 9px;display:inline-flex;align-items:center"); cp.innerHTML = ico("clipboard"); cp.title = t.copyLayout;
       cp.onclick = async () => {
@@ -835,9 +837,10 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
 
   // ---------- print
   _cfg(tgt) {
-    const key = tgt === "print" ? "diPrint" : "diView";
+    const key = this._layoutKey(tgt);
     let c = null;
     try { c = JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { c = null; }
+    if (!c && this._config.class === "fritz") c = JSON.parse(JSON.stringify(FRITZ_LAYOUT[tgt === "print" ? "print" : "view"]));
     if (!c) c = JSON.parse(JSON.stringify(DEFAULT_LAYOUT[tgt === "print" ? "print" : "view"]));
     const base = COLS.filter((k) => k !== "kids");
     const known = (c.order || []).filter((k) => base.includes(k));
@@ -846,8 +849,10 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     return { order, off: new Set(c.off || []), w: c.w || {}, n: c.n || {} };
   }
 
+  _layoutKey(tgt) { return (tgt === "print" ? "diPrint" : "diView") + (this._config.class === "fritz" ? "_fritz" : ""); }
+
   _saveCfg(tgt, cfg) {
-    try { localStorage.setItem(tgt === "print" ? "diPrint" : "diView", JSON.stringify({ order: cfg.order, off: [...cfg.off], w: cfg.w, n: cfg.n || {} })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(this._layoutKey(tgt), JSON.stringify({ order: cfg.order, off: [...cfg.off], w: cfg.w, n: cfg.n || {} })); } catch (e) { /* ignore */ }
   }
 
   _printCfg() { return this._cfg("print"); }

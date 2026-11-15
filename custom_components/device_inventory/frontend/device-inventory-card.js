@@ -899,7 +899,12 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
   // symbol of the active tab in front of the heading (the panel calls this again once the tab bar is built)
   _headIcon() {
     const h = this._hico; if (!h) return;
-    const svg = this._tabIconSvg();
+    this._iconCache = this._iconCache || {};
+    const key = this._config.class;
+    let svg = this._tabIconSvg();
+    if (svg) this._iconCache[key] = svg; else svg = this._iconCache[key] || ""; // the tab bar is rebuilt now and then: keep the last symbol
+    if (!svg && (this._iconTry = (this._iconTry || 0) + 1) <= 6) setTimeout(() => { if (this._hico === h) this._headIcon(); }, 700);
+    else if (svg) this._iconTry = 0;
     h.innerHTML = svg;
     h.style.display = svg ? "inline-flex" : "none";
     const sv = h.querySelector("svg");

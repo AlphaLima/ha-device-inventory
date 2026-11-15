@@ -170,10 +170,30 @@ class DeviceInventoryCard extends HTMLElement {
     const s = this._state;
     const hideOff = !!this._config.hide_offline;
     s.devices = (r.devices || []).filter((d) => (!hideOff || d.online) && (cls === "all" || (cls === "battery" ? this._hasBattery(d) : d.classes.includes(cls))));
+    if (cls === "mesh") this._meshTree(s);
     s.notes = r.notes || {};
     s.photos = r.photos || {};
     s.loaded = true;
     this._render();
+  }
+
+  // FRITZ!Mesh: one expandable row per mesh node (router / repeater) with the connected clients below it
+  _meshTree(s) {
+    const nodes = {};
+    s.devices = s.devices.map((d) => {
+      const n = d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : null;
+      if (!n) return d;
+      (nodes[n] = nodes[n] || []).push(d);
+      return Object.assign({}, d, { parent: `meshnode~${n}` });
+    });
+    Object.keys(nodes).forEach((n) => {
+      const cl = nodes[n], lan = cl.filter((d) => d.mesh.type && /lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type)).length;
+      s.devices.push({
+        id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: `LAN ${lan} · WLAN ${cl.length - lan}`, sw_version: null, area: null, mac: null, ip: null,
+        classes: ["mesh"], integrations: ["fritz"], online: cl.some((d) => d.online), battery: null, battery_low: null, last_seen: null, entity: null,
+        internet_switch: null, ble_switch: null, temp: null, rssi: null, ble: { home: null, distance: null, address: null, scanner: null, irk: null }, mesh: null,
+      });
+    });
   }
 
   _label() {

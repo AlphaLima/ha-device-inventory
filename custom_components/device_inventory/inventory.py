@@ -476,6 +476,28 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         ip = _valid_ip(attrs.get("ip"))
         if ip:
             mesh_by_ip[ip] = info
+    # the same FRITZ! box shows up once per integration (fritz, upnp, ...) and as mirror devices: one row each, missing values are filled from the copies
+    seen_fritz: dict[tuple[str, ...], str] = {}
+    drop_fritz: set[str] = set()
+    by_id = {d["id"]: d for d in result}
+    for d in sorted(result, key=lambda x: (x["id"] not in (prefer or set()), x.get("sw_version") is None, x.get("ip") is None, x["name"])):
+        if "fritz" not in d["classes"] or ":" in d["id"] or "~" in d["id"]:
+            continue
+        if d.get("mac") and (d.get("model") or "").startswith(("FRITZ!Box", "FRITZ!Repeater")):
+            key: tuple[str, ...] = ("box", str(d["mac"]).upper())  # one physical box = one MAC
+        else:
+            key = ((d["name"] or "").strip().lower(), (d.get("model") or "").lower(), (d.get("mac") or "").upper())
+        if key in seen_fritz:
+            drop_fritz.add(d["id"])
+            kept = by_id[seen_fritz[key]]
+            for field in ("sw_version", "ip", "temp", "rssi", "area", "last_seen", "entity", "internet_switch"):
+                if kept.get(field) in (None, "") and d.get(field) not in (None, ""):
+                    kept[field] = d[field]
+            kept["online"] = bool(kept.get("online") or d.get("online"))
+        else:
+            seen_fritz[key] = d["id"]
+    if drop_fritz:
+        result = [d for d in result if d["id"] not in drop_fritz]
     # a client is one row: devices with a real class first, sub-devices (same IP) and registry shells ("other") last, so each client is counted once
     mesh_used: set[int] = set()
     for d in result:

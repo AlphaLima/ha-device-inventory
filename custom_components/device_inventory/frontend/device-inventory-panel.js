@@ -170,6 +170,7 @@ class DeviceInventoryPanel extends HTMLElement {
       b.onclick = () => this._select(k);
       this._tabs.appendChild(b);
     });
+    if (this._card && this._card._headIcon) this._card._headIcon();
   }
 
   _select(k) {

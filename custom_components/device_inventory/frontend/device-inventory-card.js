@@ -376,7 +376,12 @@ class DeviceInventoryCard extends HTMLElement {
       .bar{display:flex;gap:6px;align-items:center;margin:0 0 4px}.dim{opacity:.65;font-size:12px}`;
     root.appendChild(st);
     const card = document.createElement("ha-card");
-    card.appendChild(el("div", "font-size:16px;font-weight:600;margin:2px 2px 4px", this._label()));
+    const head = el("div", "font-size:16px;font-weight:600;margin:2px 2px 4px;display:flex;align-items:center;gap:8px");
+    const hico = el("span", "display:inline-flex;width:22px;height:22px;flex:none"); hico.className = "hico";
+    head.append(hico, document.createTextNode(this._label()));
+    card.appendChild(head);
+    this._hico = hico;
+    this._headIcon();
     root.appendChild(card);
 
     const bar = el("div"); bar.className = "bar";
@@ -889,6 +894,16 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     a.download = `device-inventory-${this._config.class || "all"}-${day}.csv`;
     document.body.appendChild(a); a.click();
     setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
+  // symbol of the active tab in front of the heading (the panel calls this again once the tab bar is built)
+  _headIcon() {
+    const h = this._hico; if (!h) return;
+    const svg = this._tabIconSvg();
+    h.innerHTML = svg;
+    h.style.display = svg ? "inline-flex" : "none";
+    const sv = h.querySelector("svg");
+    if (sv) { sv.setAttribute("width", "22"); sv.setAttribute("height", "22"); sv.style.cssText = "width:22px;height:22px;display:block;fill:currentColor"; sv.querySelectorAll("path").forEach((q) => { if (!q.getAttribute("fill")) q.setAttribute("fill", "currentColor"); }); }
   }
 
   _tabIconSvg() {

@@ -247,7 +247,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                     except ValueError:
                         pass
 
-        if ip is None and dev.configuration_url:
+        if ip is None and dev.configuration_url and not ("fritzbox" in domains and not (dev.model or "").startswith("FRITZ!Box")):
             host = urlparse(str(dev.configuration_url)).hostname
             ip = _valid_ip(host)
         mac = next((v for k, v in dev.connections if k == "mac"), None) or next(
@@ -481,6 +481,39 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         d["mesh"] = info
         if info:
             d["classes"] = sorted(set(d["classes"]) | {"mesh"})
+    # the mesh nodes themselves (master, repeaters) are no devices of Home Assistant: one row each in the FRITZ! tab
+    node_clients: dict[str, list[dict[str, Any]]] = {}
+    for info in {id(v): v for v in list(mesh_by_mac.values()) + list(mesh_by_ip.values())}.values():
+        if info.get("to"):
+            node_clients.setdefault(str(info["to"]), []).append(info)
+    for node, infos in sorted(node_clients.items()):
+        wlan = sum(1 for i in infos if i.get("type") and "lan" in str(i["type"]).lower() and "wlan" in str(i["type"]).lower())
+        result.append(
+            {
+                "id": f"fritznode~{node}",
+                "parent": None,
+                "name": str(node).replace("fritz.", "", 1) if str(node).startswith("fritz.") else str(node),
+                "manufacturer": "FRITZ!",
+                "model": f"Mesh: {len(infos)} Clients (LAN {len(infos) - wlan} · WLAN {wlan})",
+                "sw_version": None,
+                "area": None,
+                "mac": None,
+                "ip": None,
+                "classes": ["fritz"],
+                "integrations": ["fritz"],
+                "online": True,
+                "battery": None,
+                "battery_low": None,
+                "last_seen": None,
+                "entity": None,
+                "internet_switch": None,
+                "ble_switch": None,
+                "temp": None,
+                "rssi": None,
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+                "mesh": None,
+            }
+        )
     # the same FRITZ! box shows up once per integration (fritz, upnp, ...): one row each
     seen_fritz: dict[tuple[str, str], str] = {}
     drop_fritz: set[str] = set()

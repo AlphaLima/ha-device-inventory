@@ -401,8 +401,17 @@ class DeviceInventoryCard extends HTMLElement {
     xcb.title = t.exportCsv; xcb.onclick = () => this._exportCsv();
     // refresh + export on the left, a gap, then print and page format directly next to each other as one segmented pair
     const printPair = el("span", "display:inline-flex;margin-left:14px");
-    pb.style.borderRadius = "8px 0 0 8px"; seg.style.borderRadius = "0 8px 8px 0"; seg.style.marginLeft = "-1px";
-    printPair.append(pb, seg);
+    const pcl = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    pcl.innerHTML = ico("palette", 20); pcl.title = this._pcolor ? t.printColorOn : t.printColorOff;
+    if (!this._pcolor) pcl.style.background = "var(--primary-color)", pcl.style.color = "var(--text-primary-color,#fff)";
+    pcl.onclick = () => { this._pcolor = !this._pcolor; try { localStorage.setItem("diPrintColor", this._pcolor ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+    mvb.innerHTML = ico("cards", 20); mvb.title = this._meshView ? t.meshTable : t.meshCards;
+    if (this._meshView) mvb.style.background = "var(--primary-color)", mvb.style.color = "var(--text-primary-color,#fff)";
+    mvb.onclick = () => { this._meshView = !this._meshView; try { localStorage.setItem("diMeshCards", this._meshView ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
+    pb.style.borderRadius = "8px 0 0 8px"; seg.style.borderRadius = "0"; seg.style.marginLeft = "-1px";
+    pcl.style.borderRadius = "0 8px 8px 0"; pcl.style.marginLeft = "-1px";
+    printPair.append(pb, seg, pcl);
     const bl = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
     bl.innerHTML = ico(this._blur ? "eyeoff" : "eye", 20); bl.title = this._blur ? t.blurOff : t.blurOn;
     if (this._blur) bl.style.background = "var(--primary-color)", bl.style.color = "var(--text-primary-color,#fff)";
@@ -419,15 +428,7 @@ class DeviceInventoryCard extends HTMLElement {
     dnb.innerHTML = ico("dense", 20); dnb.title = this._dense ? t.denseOff : t.denseOn;
     if (this._dense) dnb.style.background = "var(--primary-color)", dnb.style.color = "var(--text-primary-color,#fff)";
     dnb.onclick = () => { this._dense = !this._dense; try { localStorage.setItem("diWide", this._dense ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-    const pcl = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
-    pcl.innerHTML = ico("palette", 20); pcl.title = this._pcolor ? t.printColorOn : t.printColorOff;
-    if (!this._pcolor) pcl.style.background = "var(--primary-color)", pcl.style.color = "var(--text-primary-color,#fff)";
-    pcl.onclick = () => { this._pcolor = !this._pcolor; try { localStorage.setItem("diPrintColor", this._pcolor ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
-    mvb.innerHTML = ico("cards", 20); mvb.title = this._meshView ? t.meshTable : t.meshCards;
-    if (this._meshView) mvb.style.background = "var(--primary-color)", mvb.style.color = "var(--text-primary-color,#fff)";
-    mvb.onclick = () => { this._meshView = !this._meshView; try { localStorage.setItem("diMeshCards", this._meshView ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-    bar.append(rb, xcb, printPair, pcl, bl, thb, cmb, dnb);
+        bar.append(rb, xcb, printPair, bl, thb, cmb, dnb);
     if (this._config.class === "mesh") bar.appendChild(mvb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);

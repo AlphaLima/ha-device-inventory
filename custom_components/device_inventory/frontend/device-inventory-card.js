@@ -908,7 +908,11 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     h.innerHTML = svg;
     h.style.display = svg ? "inline-flex" : "none";
     const sv = h.querySelector("svg");
-    if (sv) { sv.setAttribute("width", "22"); sv.setAttribute("height", "22"); sv.style.cssText = "width:22px;height:22px;display:block;fill:currentColor"; sv.querySelectorAll("path").forEach((q) => { if (!q.getAttribute("fill")) q.setAttribute("fill", "currentColor"); }); }
+    if (sv) {
+      // logos that are drawn smaller in the tab bar (explicit width there) are shown proportionally smaller here too
+      const tw = parseFloat(sv.style.width) || 24, th = parseFloat(sv.style.height) || tw, k = tw < 24 ? tw / 24 : 1;
+      const W = Math.round(22 * k), H = Math.round(22 * k * (th / tw));
+      sv.setAttribute("width", W); sv.setAttribute("height", H); sv.style.cssText = `width:${W}px;height:${H}px;display:block;fill:currentColor`; sv.querySelectorAll("path").forEach((q) => { if (!q.getAttribute("fill")) q.setAttribute("fill", "currentColor"); }); }
   }
 
   _tabIconSvg() {

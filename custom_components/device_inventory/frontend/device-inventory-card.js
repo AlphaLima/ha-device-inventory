@@ -198,7 +198,7 @@ class DeviceInventoryCard extends HTMLElement {
     Object.keys(nodes).forEach((n) => {
       const cl = nodes[n], lan = cl.filter((d) => d.mesh.type && /lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type)).length;
       s.devices.push({
-        id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: `LAN ${lan} · WLAN ${cl.length - lan}`, sw_version: null, area: null, mac: null, ip: null,
+        id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: `LAN ${lan} · WiFi ${cl.length - lan}`, sw_version: null, area: null, mac: null, ip: null,
         classes: ["mesh"], integrations: ["fritz"], online: cl.some((d) => d.online), battery: null, battery_low: null, last_seen: null, entity: null,
         internet_switch: null, ble_switch: null, temp: null, rssi: null, ble: { home: null, distance: null, address: null, scanner: null, irk: null }, mesh: null,
       });
@@ -525,6 +525,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       const label = (names[c] ? escH(names[c]) : dfltHtml) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
       th.innerHTML = label;
       if (["photos", "note", "battery", "internet", "signal", "temp", "ble", "distance", "home"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
+      else if (!edit) th.title = names[c] || t[c] || "";
       if (this._widths[c]) th.style.cssText += `;width:${this._widths[c]}px;max-width:${this._widths[c]}px;min-width:${this._widths[c]}px`;
       if (c === "kids") {
         th.innerHTML = TREE_SVG(this._expAll); th.title = this._expAll ? t.collapse : t.expand; th.style.textAlign = "center";
@@ -589,7 +590,16 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
   _row(d, n, hide) {
     const t = this._t, s = this._state;
     const tr = document.createElement("tr");
-    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); td.dataset.col = col; if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); if (this._dimCols && this._dimCols.has(col)) td.style.opacity = ".35"; if (this._blur && BLURCOLS.includes(col)) { td.style.filter = "blur(5px)"; td.style.userSelect = "none"; td.style.pointerEvents = "none"; } const w = this._widths && this._widths[col]; if (w) td.style.cssText += `;width:${w}px;max-width:${w}px;min-width:${w}px`; td.addEventListener("mouseenter", () => { if (td.scrollWidth > td.clientWidth + 1) { if (!td.title) td.title = td.textContent.trim(); } else if (td.title && td.title === td.textContent.trim()) td.removeAttribute("title"); }); tr.appendChild(td); return td; };
+    const add = (col, node) => { if (hide.has(col)) return; const td = document.createElement("td"); td.dataset.col = col; if (typeof node === "string") { td.textContent = node; if (node.length > 24) td.title = node; } else if (node) td.appendChild(node); if (this._dimCols && this._dimCols.has(col)) td.style.opacity = ".35"; if (this._blur && BLURCOLS.includes(col)) { td.style.filter = "blur(5px)"; td.style.userSelect = "none"; td.style.pointerEvents = "none"; } const w = this._widths && this._widths[col]; if (w) td.style.cssText += `;width:${w}px;max-width:${w}px;min-width:${w}px`; td.addEventListener("mouseenter", () => { // cut-off text: every element under the pointer shows the complete text (children with a title of their own, e.g. "copy", keep it as a second line)
+        const full = (td.dataset.full || td.textContent).trim(), cut = td.scrollWidth > td.clientWidth + 1;
+        [td, ...td.querySelectorAll("[title]")].forEach((e) => {
+          if (e.dataset.t0 === undefined) e.dataset.t0 = e.getAttribute("title") || "";
+          const t0 = e.dataset.t0;
+          if (cut && full) e.title = !t0 ? full : t0.includes(full) ? t0 : `${full}
+(${t0})`;
+          else if (t0) e.title = t0; else e.removeAttribute("title");
+        });
+      }); tr.appendChild(td); return td; };
     add("#", String(n));
     const led = el("span", null, d.online ? "🟢" : "🔴"); led.title = d.online ? t.online : t.offline;
     add("status", led);
@@ -628,8 +638,10 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       if (d.model && d.model !== "Mesh") mo.appendChild(document.createTextNode(d.model + " ·"));
       const part = (n, icon, col, ttl) => { const x = el("span", `display:inline-flex;align-items:center;gap:2px;color:${col}`); x.innerHTML = ico(icon, 16) + `<b style="color:var(--primary-text-color)">${n}</b>`; x.title = ttl; return x; };
       mo.title = `${st.total} Clients`;
-      mo.append(el("span", null, `${st.total} Clients`), part(st.lan, "lan", "#4a8cf0", `LAN: ${st.lan}`), part(st.wlan, "wifi", "#a07cf0", `WLAN: ${st.wlan}`));
-      add("model", mo);
+      mo.append(el("span", null, `${st.total} Clients`), part(st.lan, "lan", "#4a8cf0", `LAN: ${st.lan}`), part(st.wlan, "wifi", "#a07cf0", `WiFi: ${st.wlan}`));
+      const tdm = add("model", mo);
+      if (tdm) tdm.dataset.full = (d.model && d.model !== "Mesh" ? d.model + " · " : "") + `${st.total} Clients (LAN ${st.lan} · WiFi ${st.wlan})`;
+      mo.title = tdm ? tdm.dataset.full : mo.title;
     } else add("model", d.model || "–");
     add("area", d.area || "–");
     const b = d.ble || {};
@@ -651,7 +663,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     if (ms.type) { // symbol: cable (LAN) or radio waves (WLAN); the text is the tooltip
       const isLan = /lan/i.test(ms.type) && !/wlan|wifi/i.test(ms.type);
       const cn = el("span", `display:inline-flex;color:${isLan ? "#4a8cf0" : "#a07cf0"}`); cn.innerHTML = ico(isLan ? "lan" : "wifi", 19);
-      cn.title = ms.type + (ms.ssid ? ` · ${ms.ssid}` : ""); add("conn", cn);
+      cn.title = String(ms.type).replace(/WLAN/gi, "WiFi") + (ms.ssid ? ` · ${ms.ssid}` : ""); add("conn", cn);
     } else add("conn", "–");
     add("scanner", b.scanner ? (() => { const sc = el("span", null, String(b.scanner).split(" (")[0]); sc.title = b.scanner; return sc; })() : "–");
     if (b.scanner_ip) { const a2 = el("a", "color:var(--primary-color)", b.scanner_ip); a2.href = `http://${b.scanner_ip}`; a2.target = "_blank"; a2.rel = "noopener"; add("scannerip", a2); } else add("scannerip", "–");
@@ -883,9 +895,9 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     const b = d.ble || {};
     return {
       "#": i + 1, status: d.online ? t.online : t.offline, internet: inet === "on" ? t.allowed : inet === "off" ? t.blocked : "",
-      name: d.name || "", model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WLAN " + d.mesh_stats.wlan + ")") : d.model || ""), area: d.area || "", ip: d.ip || "", mac: d.mac || "", maker: d.manufacturer || "", fw: (d.sw_version || "").split(" ")[0],
+      name: d.name || "", model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WiFi " + d.mesh_stats.wlan + ")") : d.model || ""), area: d.area || "", ip: d.ip || "", mac: d.mac || "", maker: d.manufacturer || "", fw: (d.sw_version || "").split(" ")[0],
       battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "", seen: d.last_seen || "",
-      distance: b.distance != null ? String(b.distance) : "", home: b.home != null ? (b.home ? t.yes : "") : "", bleaddr: b.address || "", scanner: b.scanner || "", mesh: (d.mesh && d.mesh.to) || "", conn: d.mesh && d.mesh.type ? d.mesh.type + (d.mesh.ssid ? " " + d.mesh.ssid : "") : "", scannerip: b.scanner_ip || "", irk: b.irk || "",
+      distance: b.distance != null ? String(b.distance) : "", home: b.home != null ? (b.home ? t.yes : "") : "", bleaddr: b.address || "", scanner: b.scanner || "", mesh: (d.mesh && d.mesh.to) || "", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " " + d.mesh.ssid : "") : "", scannerip: b.scanner_ip || "", irk: b.irk || "",
       signal: d.rssi == null ? "" : String(d.rssi), temp: d.temp == null ? "" : String(d.temp), ble: ble === "on" ? "on" : ble === "off" ? "off" : "",
       photos: String((s.photos[d.id] || []).length || ""), note: (s.notes[d.id] || {}).t || "",
     };
@@ -971,7 +983,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     const list = this._sorted().filter((d) => d.mesh && d.mesh.to);
     const nodes = {};
     list.forEach((d) => { const n = String(d.mesh.to).replace(/^fritz\./i, "") || "?"; (nodes[n] = nodes[n] || []).push(d); });
-    const COL = { LAN: "#4a8cf0", WLAN: "#a07cf0", "WLAN 5": "#a07cf0", other: "#e0b050" };
+    const COL = { LAN: "#4a8cf0", WLAN: "#a07cf0", other: "#e0b050" };
     const colOf = (m) => (m.type && /lan/i.test(m.type) && !/wlan|wifi/i.test(m.type)) ? COL.LAN : (m.type ? COL.WLAN : COL.other);
     const root = el("div", "display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;padding:10px;align-items:start");
     Object.keys(nodes).sort((a, b) => nodes[b].length - nodes[a].length || a.localeCompare(b, undefined, { numeric: true })).forEach((n) => {
@@ -981,14 +993,14 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       hd.appendChild(el("div", "font-size:18px;font-weight:700", n));
       hd.appendChild(el("div", "font-size:12px;opacity:.75", `${on}/${cl.length} ${t.meshClients}`));
       card.appendChild(hd);
-      card.appendChild(el("div", "font-size:12px;opacity:.7;margin:2px 0 10px", `LAN ${lan} · WLAN ${wl}`));
+      card.appendChild(el("div", "font-size:12px;opacity:.7;margin:2px 0 10px", `LAN ${lan} · WiFi ${wl}`));
       cl.forEach((d) => {
         const m = d.mesh, c = colOf(m);
         const row = el("div", `display:flex;align-items:center;gap:8px;margin:0 0 5px;background:#e9e6dc;color:#1b1d22;border-radius:7px;overflow:hidden;opacity:${d.online ? 1 : .5}`);
         const nm = el("div", "flex:1;min-width:0;padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600", d.name || "");
         nm.title = [d.name, d.ip, d.mac].filter(Boolean).join(" · ");
         if (this._blur) nm.title = d.name || "";
-        const info = el("div", "padding:0 4px;font-size:12px;white-space:nowrap;color:#444", (m.type || "–") + (m.ssid ? ` · ${m.ssid}` : ""));
+        const info = el("div", "padding:0 4px;font-size:12px;white-space:nowrap;color:#444", String(m.type || "–").replace(/WLAN/gi, "WiFi") + (m.ssid ? ` · ${m.ssid}` : ""));
         const tag = el("div", `align-self:stretch;min-width:8px;background:${c}`, "");
         row.append(nm, info, tag);
         card.appendChild(row);
@@ -997,7 +1009,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     });
     if (!Object.keys(nodes).length) root.appendChild(el("div", "padding:20px;opacity:.7", "–"));
     const lg = el("div", "grid-column:1/-1;display:flex;gap:14px;font-size:12px;opacity:.8;padding:0 4px");
-    [["LAN", COL.LAN], ["WLAN", COL.WLAN]].forEach(([l, c]) => { const x = el("span", "display:inline-flex;align-items:center;gap:5px"); const b = el("span", `display:inline-block;width:16px;height:5px;border-radius:3px;background:${c}`); x.append(b, document.createTextNode(l)); lg.appendChild(x); });
+    [["LAN", COL.LAN], ["WiFi", COL.WLAN]].forEach(([l, c]) => { const x = el("span", "display:inline-flex;align-items:center;gap:5px"); const b = el("span", `display:inline-block;width:16px;height:5px;border-radius:3px;background:${c}`); x.append(b, document.createTextNode(l)); lg.appendChild(x); });
     root.appendChild(lg);
     return root;
   }
@@ -1024,9 +1036,9 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
       <table><thead><tr><th class="ttl" colspan="${cols.length}">${tabIcon ? `<span class="ico">${tabIcon}</span>` : ""}${E(title)}<small>${E(t.stand)}: ${E(new Date().toLocaleString(this._hass.language || "en"))} | ${s.devices.length} ${E(t.count)}</small></th></tr><tr>${cols.map((c) => `<th${wst(c)}>${pcfg.n[c] ? E(pcfg.n[c]) : c === "#" ? "#" : PIC[c] ? ico(PIC[c], 15) : E(t[c])}</th>`).join("")}</tr></thead><tbody>`;
     this._sorted().forEach((d, i) => {
       const cells = {
-        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WLAN " + d.mesh_stats.wlan + ")") : d.model || "–"), area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
+        "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WiFi " + d.mesh_stats.wlan + ")") : d.model || "–"), area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
-        seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", conn: d.mesh && d.mesh.type ? d.mesh.type + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
+        seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };
       const lvl = d.battery != null ? d.battery : d.battery_low != null ? (d.battery_low ? 0 : 100) : null;
       const tint = { battery: lvl == null ? null : lvl <= 20 ? R : lvl <= 40 ? O : G, signal: d.rssi == null ? null : sev(d.rssi, -60, -75, true), temp: d.temp == null ? null : sev(d.temp, 55, 65, false), home: d.ble && d.ble.home != null ? (d.ble.home ? G : R) : null };

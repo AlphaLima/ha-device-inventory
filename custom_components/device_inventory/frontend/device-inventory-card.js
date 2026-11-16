@@ -27,8 +27,7 @@ const T = {
     print: "Print / PDF", land: "Landscape", port: "Portrait", count: "devices", online: "Online", offline: "Offline",
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
-    mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients", meshCards: "Show as cards per mesh node", meshTable: "Show as table",
-    meshClients: "clients", meshLegend: "Connection",
+    mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
@@ -39,8 +38,7 @@ const T = {
     print: "Drucken / PDF", land: "Querformat", port: "Hochformat", count: "Geräte", online: "Online", offline: "Offline",
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
-    mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte", meshCards: "Als Karten pro Mesh-Knoten anzeigen", meshTable: "Als Tabelle anzeigen",
-    meshClients: "Clients", meshLegend: "Verbindung",
+    mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
     uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
@@ -88,7 +86,6 @@ const ICONS = {
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
   imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
   palette: '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1-.9-1.4-.9-2.5 0-1 .8-1.8 1.9-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>',
-  cards: '<rect x="3" y="3" width="18" height="8" rx="2"/><rect x="3" y="13" width="18" height="8" rx="2"/><path d="M7 7h6M7 17h6"/>',
   dense: '<path d="M4 5h16M4 9.5h16M4 14h16M4 18.5h16"/>',
   noteoff: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M3 3l18 18"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
@@ -119,7 +116,6 @@ class DeviceInventoryCard extends HTMLElement {
     try { this._thumbs = localStorage.getItem("diThumbs") !== "0"; } catch (e) { this._thumbs = true; }
     try { this._dense = localStorage.getItem("diWide") === "1"; } catch (e) { this._dense = false; }
     try { this._pcolor = localStorage.getItem("diPrintColor") !== "0"; } catch (e) { this._pcolor = true; }
-    try { this._meshView = localStorage.getItem("diMeshCards") === "1"; } catch (e) { this._meshView = false; }
     try { this._comments = localStorage.getItem("diComments") !== "0"; } catch (e) { this._comments = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
@@ -424,7 +420,6 @@ class DeviceInventoryCard extends HTMLElement {
     qi.oninput = () => {
       this._q = qi.value; upd();
       this._sorted();
-      if (this._cardsOn()) { this._render(); return; }
       if (Object.keys(this._kids || {}).some((k) => this._kids[k] > 0) !== this._treeShown) { this._render(); return; } // the tree column appears / disappears
       const body = this._tbody; body.innerHTML = "";
       this._sorted().forEach((d, i) => body.appendChild(this._row(d, i + 1, hide)));
@@ -446,10 +441,6 @@ class DeviceInventoryCard extends HTMLElement {
     pcl.innerHTML = ico("palette", 20); pcl.title = this._pcolor ? t.printColorOn : t.printColorOff;
     if (!this._pcolor) pcl.style.background = "var(--primary-color)", pcl.style.color = "var(--text-primary-color,#fff)";
     pcl.onclick = () => { this._pcolor = !this._pcolor; try { localStorage.setItem("diPrintColor", this._pcolor ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
-    mvb.innerHTML = ico("cards", 20); mvb.title = this._meshView ? t.meshTable : t.meshCards;
-    if (this._meshView) mvb.style.background = "var(--primary-color)", mvb.style.color = "var(--text-primary-color,#fff)";
-    mvb.onclick = () => { this._meshView = !this._meshView; try { localStorage.setItem("diMeshCards", this._meshView ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
     pb.style.borderRadius = "8px 0 0 8px"; pcl.style.borderRadius = "0"; pcl.style.marginLeft = "-1px";
     seg.style.borderRadius = "0 8px 8px 0"; seg.style.marginLeft = "-1px";
     printPair.append(pb, pcl, seg);
@@ -470,7 +461,6 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     if (this._dense) dnb.style.background = "var(--primary-color)", dnb.style.color = "var(--text-primary-color,#fff)";
     dnb.onclick = () => { this._dense = !this._dense; try { localStorage.setItem("diWide", this._dense ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
         bar.append(rb, xcb, printPair, bl, thb, cmb, dnb);
-    if (this._config.class === "mesh") bar.appendChild(mvb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {
@@ -575,7 +565,7 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
     this._tbody = tb;
     this._sorted().forEach((d, i) => tb.appendChild(this._row(d, i + 1, hide)));
     tbl.appendChild(tb);
-    const wrap = el("div"); wrap.className = "wrap"; wrap.appendChild(this._cardsOn() ? this._meshCards() : tbl);
+    const wrap = el("div"); wrap.className = "wrap"; wrap.appendChild(tbl);
     if (edit) {
       // make the edited side unmistakable: watermark + coloured frame (blue = display, orange = printout)
       const rgb = tgt === "print" ? "251,140,0" : "30,136,229";
@@ -976,45 +966,6 @@ const mvb = el("button", "padding:4px 9px;display:inline-flex;align-items:center
   // "expand all" is remembered separately for the Router Mesh tab (default: only the mesh nodes visible)
   get _expAll() { return this._config.class === "mesh" || this._config.class === "fritz" ? !!this._expM : !!this._expG; }
   set _expAll(v) { if (this._config.class === "mesh" || this._config.class === "fritz") this._expM = v; else this._expG = v; }
-
-  _cardsOn() { return this._config.class === "mesh" && !!this._meshView && !this._edit; }
-
-  // mesh overview: one card per router / repeater with the clients connected to it (like a port overview)
-  _meshCards() {
-    const t = this._t, s = this._state;
-    const list = this._sorted().filter((d) => d.mesh && d.mesh.to);
-    const nodes = {};
-    list.forEach((d) => { const n = String(d.mesh.to).replace(/^fritz\./i, "") || "?"; (nodes[n] = nodes[n] || []).push(d); });
-    const COL = { LAN: "#4a8cf0", WLAN: "#a07cf0", other: "#e0b050" };
-    const colOf = (m) => (m.type && /lan/i.test(m.type) && !/wlan|wifi/i.test(m.type)) ? COL.LAN : (m.type ? COL.WLAN : COL.other);
-    const root = el("div", "display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;padding:10px;align-items:start");
-    Object.keys(nodes).sort((a, b) => nodes[b].length - nodes[a].length || a.localeCompare(b, undefined, { numeric: true })).forEach((n) => {
-      const cl = nodes[n], lan = cl.filter((d) => colOf(d.mesh) === COL.LAN).length, wl = cl.length - lan, on = cl.filter((d) => d.online).length;
-      const card = el("div", "background:#1c1f27;color:#e8eaf0;border-radius:16px;padding:14px 14px 10px;box-shadow:0 2px 10px rgba(0,0,0,.25)");
-      const hd = el("div", "display:flex;justify-content:space-between;align-items:baseline;gap:8px");
-      hd.appendChild(el("div", "font-size:18px;font-weight:700", n));
-      hd.appendChild(el("div", "font-size:12px;opacity:.75", `${on}/${cl.length} ${t.meshClients}`));
-      card.appendChild(hd);
-      card.appendChild(el("div", "font-size:12px;opacity:.7;margin:2px 0 10px", `LAN ${lan} · WiFi ${wl}`));
-      cl.forEach((d) => {
-        const m = d.mesh, c = colOf(m);
-        const row = el("div", `display:flex;align-items:center;gap:8px;margin:0 0 5px;background:#e9e6dc;color:#1b1d22;border-radius:7px;overflow:hidden;opacity:${d.online ? 1 : .5}`);
-        const nm = el("div", "flex:1;min-width:0;padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600", d.name || "");
-        nm.title = [d.name, d.ip, d.mac].filter(Boolean).join(" · ");
-        if (this._blur) nm.title = d.name || "";
-        const info = el("div", "padding:0 4px;font-size:12px;white-space:nowrap;color:#444", String(m.type || "–").replace(/WLAN/gi, "WiFi") + (m.ssid ? ` · ${m.ssid}` : ""));
-        const tag = el("div", `align-self:stretch;min-width:8px;background:${c}`, "");
-        row.append(nm, info, tag);
-        card.appendChild(row);
-      });
-      root.appendChild(card);
-    });
-    if (!Object.keys(nodes).length) root.appendChild(el("div", "padding:20px;opacity:.7", "–"));
-    const lg = el("div", "grid-column:1/-1;display:flex;gap:14px;font-size:12px;opacity:.8;padding:0 4px");
-    [["LAN", COL.LAN], ["WiFi", COL.WLAN]].forEach(([l, c]) => { const x = el("span", "display:inline-flex;align-items:center;gap:5px"); const b = el("span", `display:inline-block;width:16px;height:5px;border-radius:3px;background:${c}`); x.append(b, document.createTextNode(l)); lg.appendChild(x); });
-    root.appendChild(lg);
-    return root;
-  }
 
   _print() {
     const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

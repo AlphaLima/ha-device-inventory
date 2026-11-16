@@ -78,6 +78,12 @@ def _lan_ip(value: Any) -> str | None:
     return None
 
 
+def _apple_model(word: str) -> str:
+    """Product family from a device name that mentions it ("Ulli iPhone (BLE)" -> "iPhone")."""
+    w = word.lower().replace(" ", "")
+    return {"iphone": "iPhone", "ipad": "iPad", "ipod": "iPod", "macbook": "MacBook", "imac": "iMac", "homepod": "HomePod", "airpods": "AirPods", "macmini": "Mac mini", "macstudio": "Mac Studio", "apple": "Apple"}.get(w, word)
+
+
 def _server_ip(hass: HomeAssistant) -> str | None:
     """IP address of the machine Home Assistant runs on (the server itself is no device in the registry)."""
     try:
@@ -161,7 +167,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         maker_model = f"{dev.manufacturer or ''} {dev.model or ''}".lower()
         if any(h in maker_model for h in SONOFF_HINTS):
             class_set.add("sonoff")
-        if APPLE_RE.search(f"{dev.manufacturer or ''} {dev.model or ''} {dev.name_by_user or dev.name or ''}"):
+        apple_name = APPLE_RE.search(dev.name_by_user or dev.name or "")
+        if apple_name or APPLE_RE.search(f"{dev.manufacturer or ''} {dev.model or ''}"):
             class_set.add("apple")
         # AVM / FRITZ! hardware (box, repeaters, DECT devices) – not the "FRITZ!Box Tracked device" mirrors of every network client
         if "tracked" not in maker_model and (any(h in maker_model for h in FRITZ_HINTS) or domains & {"fritzbox", "fritz_callmonitor"}):
@@ -290,8 +297,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "id": dev.id,
                 "parent": dev.via_device_id,
                 "name": dev.name_by_user or dev.name or dev.id,
-                "manufacturer": dev.manufacturer,
-                "model": dev.model,
+                "manufacturer": "Apple" if apple_name and ("tracked" in maker_model or not dev.manufacturer) else dev.manufacturer,  # mirrors of an iPhone (FRITZ!Box, Bluetooth) are still Apple devices
+                "model": _apple_model(apple_name.group(1)) if apple_name and ("tracked" in maker_model or not dev.model) else dev.model,
                 "sw_version": dev.sw_version,
                 "area": area.name if area else (ble_area if isinstance(ble_area, str) else None),
                 "mac": mac.upper() if mac else None,

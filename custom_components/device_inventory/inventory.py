@@ -20,7 +20,7 @@ CHANNEL_DOMAINS = {"switch", "light", "cover", "lock", "valve", "fan"}
 # sub-devices, WLED / FRITZ!Box entities are settings and not channels
 CHANNEL_INTEGRATIONS = {"homematicip_local", "homematic", "homematicip_cloud", "mqtt", "esphome", "tasmota", "zha", "deconz", "matter", "zwave_js", "hue", "tuya", "sonoff"}
 
-from .const import CLASS_MAP, FRITZ_HINTS, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
+from .const import APPLE_RE, CLASS_MAP, FRITZ_HINTS, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
 
 UNAVAILABLE = ("unavailable", "unknown")
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
@@ -161,6 +161,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         maker_model = f"{dev.manufacturer or ''} {dev.model or ''}".lower()
         if any(h in maker_model for h in SONOFF_HINTS):
             class_set.add("sonoff")
+        if APPLE_RE.search(f"{dev.manufacturer or ''} {dev.model or ''} {dev.name_by_user or dev.name or ''}"):
+            class_set.add("apple")
         # AVM / FRITZ! hardware (box, repeaters, DECT devices) – not the "FRITZ!Box Tracked device" mirrors of every network client
         if "tracked" not in maker_model and (any(h in maker_model for h in FRITZ_HINTS) or domains & {"fritzbox", "fritz_callmonitor"}):
             class_set.add("fritz")

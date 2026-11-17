@@ -161,6 +161,8 @@ class DeviceInventoryCard extends HTMLElement {
     try { this._comments = localStorage.getItem("diComments") !== "0"; } catch (e) { this._comments = true; }
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
+      const guard = (ev) => { const o = ev.composedPath()[0]; if (o && o.matches && o.matches("input,textarea,select")) ev.stopPropagation(); };
+      ["keydown", "keyup", "keypress"].forEach((n) => this.addEventListener(n, guard)); // fields in the table, the toolbar and the editors
     }
     if (cached) this._apply(cached); else this._render();
     if (this._hass) this._load();
@@ -485,17 +487,21 @@ class DeviceInventoryCard extends HTMLElement {
     if (this._pauseH) window.removeEventListener("di-pause", this._pauseH);
     this._pauseH = () => { if (pausB.isConnected) pdraw(); }; window.addEventListener("di-pause", this._pauseH);
     const cnt = el("span", null, ""); cnt.className = "dim"; cnt.title = t.count;
-    const upd = () => { cnt.textContent = !s.loaded ? "…" : this._q ? (() => { this._sorted(); return `Σ ${this._matchCount}/${s.devices.length}`; })() : `Σ ${s.devices.length}`; };
+    const upd = () => { cnt.textContent = !s.loaded ? "…" : this._q ? `Σ ${this._filtered().length}/${s.devices.length}` : `Σ ${s.devices.length}`; };
     upd();
     const qi = document.createElement("input");
     qi.className = "q"; qi.type = "search"; qi.placeholder = ""; qi.title = t.search; qi.value = this._q || "";
     qi.style.cssText = "padding:4px 8px 4px 28px;width:150px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px";
     qi.oninput = () => {
-      this._q = qi.value; upd();
-      this._sorted();
-      if (Object.keys(this._kids || {}).some((k) => this._kids[k] > 0) !== this._treeShown) { this._render(); return; } // the tree column appears / disappears
-      const body = this._tbody; body.innerHTML = "";
-      this._sorted().forEach((d, i) => body.appendChild(this._row(d, i + 1, hide)));
+      this._q = qi.value; upd(); // the count follows every key, the table a moment later (large lists stay responsive)
+      clearTimeout(this._qt);
+      this._qt = setTimeout(() => {
+        const rows = this._sorted();
+        if (Object.keys(this._kids || {}).some((k) => this._kids[k] > 0) !== this._treeShown) { this._render(); return; } // the tree column appears / disappears
+        const body = this._tbody, frag = document.createDocumentFragment();
+        rows.forEach((d, i) => frag.appendChild(this._row(d, i + 1, hide)));
+        body.innerHTML = ""; body.appendChild(frag);
+      }, 160);
     };
     qi.onkeydown = (ev) => { ev.stopPropagation(); if (ev.key === "Escape" && qi.value) { qi.value = ""; qi.oninput(); } };
     const withKids = s.devices.some((d) => d.parent && s.devices.some((p) => p.id === d.parent));
@@ -850,6 +856,7 @@ class DeviceInventoryCard extends HTMLElement {
     const ov = el("div", "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center");
     const bx = el("div", "background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:12px;padding:16px;width:min(760px,94vw);max-height:90vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);font-family:var(--ha-font-family-body,Roboto,sans-serif)");
     ov.appendChild(bx);
+    ["keydown", "keyup", "keypress"].forEach((n) => ov.addEventListener(n, (ev) => { const o = ev.composedPath()[0]; if (o && o.matches && o.matches("input,textarea,select")) ev.stopPropagation(); })); // dialogs are outside of the card
     const kd = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); close(); } };
     const close = () => { ov.remove(); document.removeEventListener("keydown", kd, true); };
     document.addEventListener("keydown", kd, true);

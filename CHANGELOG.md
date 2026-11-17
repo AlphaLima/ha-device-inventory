@@ -2,6 +2,12 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.18.9 – 2026-11-17
+- Security: photos are only served to logged-in users; the list returns signed, expiring photo URLs (async_sign_path)
+- Security: the IRK of Private BLE devices is no longer read from other integrations' config entries; the IRK column is gone
+- README: installation leads with the HACS / Marketplace catalog
+- New Apple tab; Router Mesh without the cards view; FRITZ! mirror devices of iPhones show Apple
+
 ## 1.18.8 – 2026-11-15
 - Release after the HACS and hassfest validation runs passed (for the HACS default list); no functional change
 

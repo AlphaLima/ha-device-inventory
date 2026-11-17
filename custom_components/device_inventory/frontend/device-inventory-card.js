@@ -784,7 +784,7 @@ class DeviceInventoryCard extends HTMLElement {
       const ma = el("span", `display:inline-flex;align-items:center;gap:2px;cursor:pointer;color:${color};opacity:${mdocs.length ? 1 : .4}`);
       ma.innerHTML = ico("manual", 22) + (mdocs.length > 1 ? `<small>${mdocs.length}</small>` : "");
       ma.title = !mdocs.length ? this._t.manualAdd : mdocs.length === 1 ? mdocs[0].title : `${mdocs.length} ${this._t.manualDocs}`;
-      ma.onclick = () => { if (mdocs.length === 1) window.open(mdocs[0].href, "_blank", "noopener"); else this._manualDialog(d); };
+      ma.onclick = (ev) => { if (mdocs.length === 1) window.open(mdocs[0].href, "_blank", "noopener"); else this._manualMenu(ma, mdocs, ev); };
       const me = el("span", "display:inline-flex;cursor:pointer;opacity:.7"); me.innerHTML = ico("pencil", 14); me.title = this._t.manualOf;
       me.onclick = () => this._manualDialog(d);
       wrap.append(ma, me);
@@ -978,6 +978,32 @@ class DeviceInventoryCard extends HTMLElement {
     (m.links || []).forEach((x) => { let h = x.url; try { h = new URL(x.url).hostname; } catch (e) { /* keep */ } out.push({ href: x.url, kind: "link", name: x.title || h, linkId: x.id, title: `${t.manualLinkWeb}: ${x.title || h}` }); });
     (m.docs || []).forEach((x) => out.push({ href: x.url, kind: "own", name: x.name || "PDF", id: x.id, title: `${t.manualOwn}: ${x.name || "PDF"}${x.ts ? ` (${t.manualUploaded} ${this._date(x.ts)})` : ""}` }));
     return out;
+  }
+
+  // small selection box next to the book icon: click an entry to open that document (the pencil opens the editor)
+  _manualMenu(anchor, docs, ev) {
+    if (ev) ev.stopPropagation();
+    document.querySelectorAll(".di-mmenu").forEach((n) => n.remove());
+    const r = anchor.getBoundingClientRect();
+    const box = el("div", `position:fixed;z-index:10000;min-width:240px;max-width:min(520px,92vw);background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.4);padding:6px;font-family:var(--ha-font-family-body,Roboto,sans-serif);font-size:13px`);
+    box.className = "di-mmenu";
+    docs.forEach((x) => {
+      const a = el("a", "display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:inherit;text-decoration:none;cursor:pointer");
+      a.href = x.href; a.target = "_blank"; a.rel = "noopener";
+      const ic = el("span", `display:inline-flex;flex:none;color:${x.kind === "local" ? "var(--success-color,#43a047)" : x.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`); ic.innerHTML = ico(x.kind === "link" ? "globe" : "manual", 20);
+      a.append(ic, el("span", "overflow:hidden;text-overflow:ellipsis;white-space:nowrap", x.title));
+      a.onmouseenter = () => { a.style.background = "var(--secondary-background-color,#eee)"; }; a.onmouseleave = () => { a.style.background = ""; };
+      a.onclick = () => close();
+      box.appendChild(a);
+    });
+    const close = () => { box.remove(); document.removeEventListener("mousedown", off, true); document.removeEventListener("keydown", key, true); };
+    const off = (e) => { if (!e.composedPath().includes(box)) close(); };
+    const key = (e) => { if (e.key === "Escape") close(); };
+    document.body.appendChild(box);
+    const w = box.offsetWidth, h = box.offsetHeight;
+    box.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - w - 8))}px`;
+    box.style.top = `${r.bottom + h + 8 > window.innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4}px`;
+    setTimeout(() => { document.addEventListener("mousedown", off, true); document.addEventListener("keydown", key, true); }, 0);
   }
 
   _manualDialog(d) {

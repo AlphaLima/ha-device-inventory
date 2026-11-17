@@ -334,6 +334,12 @@ class DeviceInventoryCard extends HTMLElement {
     this._render();
   }
 
+  // the devices that match the search field (all devices of the tab when it is empty): AI search and PDF copy only work on these
+  _filtered() {
+    const q = (this._q || "").trim().toLowerCase();
+    return q ? this._state.devices.filter((d) => this._hay(d).includes(q)) : this._state.devices;
+  }
+
   _hay(d) {
     return [d.name, d.model, d.area, d.ip, d.mac, d.manufacturer, d.sw_version, (this._state.notes[d.id] || {}).t, d.online ? "online" : "offline"]
       .filter(Boolean).join(" ").toLowerCase();
@@ -950,7 +956,7 @@ class DeviceInventoryCard extends HTMLElement {
   async _aiAll(btn) {
     const t = this._t, s = this._state;
     if (!s.ai) { alert(t.manualAiNone); return; }
-    const ids = s.devices.filter((d) => { const m = (s.manuals || {})[d.id] || {}; return (!this._manualDocs(d).length || (m.ai && m.link && !m.pdf && !m.file && !(m.docs || []).length)) && d.model && !String(d.id).includes("~") && !/^mesh$/i.test(String(d.model)); }).map((d) => d.id);
+    const ids = this._filtered().filter((d) => { const m = (s.manuals || {})[d.id] || {}; return (!this._manualDocs(d).length || (m.ai && m.link && !m.pdf && !m.file && !(m.docs || []).length)) && d.model && !String(d.id).includes("~") && !/^mesh$/i.test(String(d.model)); }).map((d) => d.id);
     if (!ids.length) { alert(t.manualAiNothing); return; }
     if (!confirm(t.manualAiAsk.replace("{n}", ids.length))) return;
     btn.disabled = true;
@@ -962,7 +968,7 @@ class DeviceInventoryCard extends HTMLElement {
   // copy the PDFs behind the manual links of this tab into Home Assistant
   async _copyAll(btn) {
     const t = this._t, s = this._state;
-    const ids = s.devices.filter((d) => { const m = (s.manuals || {})[d.id] || {}; return m.link && !m.file && m.pdf !== false; }).map((d) => d.id);
+    const ids = this._filtered().filter((d) => { const m = (s.manuals || {})[d.id] || {}; return m.link && !m.file && m.pdf !== false; }).map((d) => d.id);
     if (!ids.length) { alert(t.manualCopyNothing); return; }
     if (!confirm(t.manualCopyAsk.replace("{n}", ids.length))) return;
     btn.disabled = true; let copied = 0, failed = 0, last = null;

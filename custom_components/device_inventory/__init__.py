@@ -14,7 +14,7 @@ import time
 from typing import Any
 from urllib.parse import unquote, urljoin, urlparse
 
-from aiohttp import ClientTimeout, web
+from aiohttp import ClientError, ClientTimeout, web
 import voluptuous as vol
 
 from homeassistant.components import frontend, panel_custom, websocket_api
@@ -375,7 +375,7 @@ async def _try_copy(hass: HomeAssistant, manager: InventoryManager, device_id: s
     stored = manager.data["manual_files"].get(link)
     try:
         data = b"" if stored else await _download_pdf(hass, link)
-    except (ValueError, OSError, asyncio.TimeoutError):
+    except (ValueError, OSError, asyncio.TimeoutError, ClientError):
         return False
     await _store_manual(hass, manager, device_id, data, urlparse(link).path.rsplit("/", 1)[-1] or "manual.pdf", link)
     return True
@@ -398,7 +398,7 @@ async def ws_fetch_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         return
     try:
         data = await _download_pdf(hass, link)
-    except (ValueError, OSError, asyncio.TimeoutError) as err:
+    except (ValueError, OSError, asyncio.TimeoutError, ClientError) as err:
         connection.send_error(msg["id"], "download_failed", str(err))
         return
     await _store_manual(hass, manager, msg["device_id"], data, urlparse(link).path.rsplit("/", 1)[-1] or "manual.pdf", link)
@@ -479,7 +479,7 @@ async def ws_add_manual_link(hass: HomeAssistant, connection, msg: dict[str, Any
     if await _verify_manual_url(hass, url) == "pdf":
         try:
             data = await _download_pdf(hass, url)
-        except (ValueError, OSError, asyncio.TimeoutError):
+        except (ValueError, OSError, asyncio.TimeoutError, ClientError):
             data = None
         if data:
             doc_id = secrets.token_urlsafe(16)
@@ -579,7 +579,7 @@ async def _verify_manual_url(hass: HomeAssistant, url: str) -> str | None:
                 if head.startswith(b"%PDF"):
                     return "pdf"
                 return "page" if "html" in resp.headers.get("Content-Type", "").lower() else None
-        except (OSError, asyncio.TimeoutError):
+        except (OSError, asyncio.TimeoutError, ClientError):
             return None
     return None
 
@@ -621,7 +621,7 @@ async def _download_image(hass: HomeAssistant, url: str) -> bytes | None:
                     if len(data) > MAX_UPLOAD_BYTES:
                         return None
                 return bytes(data) if _is_image(bytes(data)) else None
-        except (OSError, asyncio.TimeoutError):
+        except (OSError, asyncio.TimeoutError, ClientError):
             return None
     return None
 
@@ -650,7 +650,7 @@ async def _fetch_html(hass: HomeAssistant, url: str) -> tuple[str, str] | None:
                 if resp.status != 200 or "html" not in resp.headers.get("Content-Type", "").lower():
                     return None
                 return url, (await _read_limited(resp, 2 * 1024 * 1024)).decode("utf-8", errors="ignore")
-        except (OSError, asyncio.TimeoutError):
+        except (OSError, asyncio.TimeoutError, ClientError):
             return None
     return None
 
@@ -698,7 +698,7 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
                     return None
                 html = await _read_limited(resp, 2 * 1024 * 1024)
                 break
-        except (OSError, asyncio.TimeoutError):
+        except (OSError, asyncio.TimeoutError, ClientError):
             return None
     text = html.decode("utf-8", errors="ignore")
     seen: list[str] = []
@@ -840,15 +840,18 @@ async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str, make
     """Check the candidates one by one: a real PDF wins; a page is searched for a PDF link; otherwise the first page that names the model is kept: (address, "pdf" / "page", page the PDF was found on)."""
     fallback: str | None = None
     for url in urls:
-        kind = await _verify_manual_url(hass, url)
-        if kind == "pdf":
-            return url, "pdf", None
-        if kind == "page":
-            pdf = await _find_pdf_on_page(hass, url, model)
-            if pdf:
-                return pdf, "pdf", url
-            if not fallback and await _page_is_about(hass, url, model, maker):
-                fallback = url
+        try:
+            kind = await _verify_manual_url(hass, url)
+            if kind == "pdf":
+                return url, "pdf", None
+            if kind == "page":
+                pdf = await _find_pdf_on_page(hass, url, model)
+                if pdf:
+                    return pdf, "pdf", url
+                if not fallback and await _page_is_about(hass, url, model, maker):
+                    fallback = url
+        except Exception as err:  # noqa: BLE001 - one broken address must never stop the whole search
+            _LOGGER.debug("Manual candidate %s failed: %s", url, err)
     return (fallback, "page", None) if fallback else (None, None, None)
 
 

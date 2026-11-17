@@ -558,6 +558,16 @@ async def _download_image(hass: HomeAssistant, url: str) -> bytes | None:
     return None
 
 
+async def _read_limited(resp: Any, limit: int) -> bytes:
+    """Read a response completely up to a size limit (StreamReader.read(n) may return only the first chunk)."""
+    data = bytearray()
+    async for chunk in resp.content.iter_chunked(65536):
+        data.extend(chunk)
+        if len(data) >= limit:
+            break
+    return bytes(data)
+
+
 async def _fetch_html(hass: HomeAssistant, url: str) -> tuple[str, str] | None:
     """Fetch a public web page (redirects checked by hand, size limited): (final address, text)."""
     session = async_get_clientsession(hass)
@@ -571,7 +581,7 @@ async def _fetch_html(hass: HomeAssistant, url: str) -> tuple[str, str] | None:
                     continue
                 if resp.status != 200 or "html" not in resp.headers.get("Content-Type", "").lower():
                     return None
-                return url, (await resp.content.read(1024 * 1024)).decode("utf-8", errors="ignore")
+                return url, (await _read_limited(resp, 2 * 1024 * 1024)).decode("utf-8", errors="ignore")
         except (OSError, asyncio.TimeoutError):
             return None
     return None
@@ -618,7 +628,7 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
                     continue
                 if resp.status != 200:
                     return None
-                html = await resp.content.read(1024 * 1024)
+                html = await _read_limited(resp, 2 * 1024 * 1024)
                 break
         except (OSError, asyncio.TimeoutError):
             return None
@@ -639,7 +649,7 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
         low = link.lower()
         return sum(word in low for word in words) * 2 - sum(word in low for word in bad) * 3
 
-    exact = sorted((link for link in seen if key and len(key) >= 3 and key in _norm(name_of(link))), key=lambda link: -score(link))
+    exact = sorted((link for link in seen if key and len(key) >= 3 and key in _norm(name_of(link))), key=lambda link: (-score(link), len(name_of(link))))
     for link in exact[:6]:
         if await _verify_manual_url(hass, link) == "pdf":
             return link

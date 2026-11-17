@@ -851,6 +851,12 @@ class DeviceInventoryCard extends HTMLElement {
     return { bx, close };
   }
 
+  // button with symbol and text
+  _ibtn(icon, label, primary) {
+    const b = el("button", `display:inline-flex;align-items:center;gap:8px;padding:9px 16px;font-size:14px;border-radius:8px;cursor:pointer;${primary ? "background:var(--primary-color,#03a9f4);color:#fff;border-color:transparent" : ""}`);
+    b.innerHTML = `${ico(icon, 20)}<span></span>`; b.lbl = b.querySelector("span"); b.lbl.textContent = label; return b;
+  }
+
   _btn(label, primary) {
     return el("button", primary ? "background:var(--primary-color);color:#fff;border-color:transparent" : "", label);
   }
@@ -1019,10 +1025,7 @@ class DeviceInventoryCard extends HTMLElement {
     const hd = el("div", "display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;margin-bottom:14px");
     const hi = el("span", "display:inline-flex;color:var(--primary-color)"); hi.innerHTML = ico("manual", 26);
     hd.append(hi, el("span", "", `${t.manualOf}: ${d.name}`)); o.bx.appendChild(hd);
-    const ib = (icon, label, primary) => { // button with symbol and text
-      const b = el("button", `display:inline-flex;align-items:center;gap:8px;padding:9px 16px;font-size:14px;border-radius:8px;cursor:pointer;${primary ? "background:var(--primary-color,#03a9f4);color:#fff;border-color:transparent" : ""}`);
-      b.innerHTML = `${ico(icon, 20)}<span></span>`; b.lbl = b.querySelector("span"); b.lbl.textContent = label; return b;
-    };
+    const ib = (icon, label, primary) => this._ibtn(icon, label, primary);
     // list of the documents
     const docs = this._manualDocs(d), list = el("div", "display:flex;flex-direction:column;gap:8px;margin-bottom:16px");
     if (!docs.length) list.appendChild(el("div", "opacity:.7;font-size:13px", t.manualNone));
@@ -1114,7 +1117,7 @@ class DeviceInventoryCard extends HTMLElement {
     ta.rows = 8; ta.value = old;
     const ft = el("div", "display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:10px;flex-wrap:wrap");
     ft.appendChild(el("span", "margin-right:auto;font-size:12px;opacity:.6", t.hint));
-    const bD = this._btn(t.del), bC = this._btn(t.cancel), bS = this._btn(t.save, true);
+    const bD = this._ibtn("trash", t.del), bC = this._ibtn("close", t.cancel), bS = this._ibtn("check", t.save, true);
     const save = async (text) => {
       bS.disabled = true;
       try { this._freeze = true; this._apply(await this._hass.callWS({ type: "device_inventory/set_note", device_id: d.id, text })); o.close(); } catch (e) { bS.disabled = false; alert(`${t.saveFail}: ${e.message || e.code}`); }

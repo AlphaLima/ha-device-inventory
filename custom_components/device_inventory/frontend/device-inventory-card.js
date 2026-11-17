@@ -30,6 +30,7 @@ const T = {
     addedTip: "Registered in Home Assistant on", addedUnknown: "Older than the registry date field (before Oct 2024) – unknown",
     manual: "Manual", manualOf: "Manual", manualLink: "Open the manual", manualLocal: "Open the local copy (PDF)", manualUrlHint: "Link to the manual (empty = automatic search)", manualSave: "Save link", manualFetch: "Copy the PDF to Home Assistant", manualUpload: "Upload PDF", manualRemove: "Remove manual", manualNone: "No local copy", manualLocalCopy: "Local copy", manualFail: "Manual failed",
     manualAiBtn: "Find manuals with AI (for this tab)", manualAiFind: "Find with AI", manualAiLink: "Manual (found by AI) – please check it", manualAiAsk: "Ask the AI for the manuals of {n} devices of this tab? Only manufacturer and model are sent to your configured AI service; every address is checked before it is saved.", manualAiNone: "No AI is set up. Add an AI provider in Home Assistant (Settings → Devices & services, e.g. Google Generative AI, OpenAI or Anthropic), then choose its AI task entity in the options of Device Inventory.", manualAiNothing: "Nothing to do: every device of this tab with a model already has a manual.", manualAiDone: "{found} manuals found, {none} not found",
+    manualAiQuota: "The AI quota or rate limit is used up. {found} manuals were found before it stopped. Please try again later (free quotas renew daily or per minute).", manualAiError: "The AI service reported an error: {error}", manualAiNoneFound: "No manuals were found for these devices. Many devices have no public manual – you can enter your own link or upload a PDF in the editor of the device.", manualCopyBtn: "Copy the manual PDFs of this tab to Home Assistant", manualCopyAsk: "Copy the PDFs of {n} manuals to Home Assistant (stored locally, work without internet)?", manualCopyNothing: "Nothing to copy: every manual link of this tab is already stored locally or is not a PDF.", manualCopyDone: "{copied} PDFs copied, {failed} failed (not a PDF or not reachable)",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
@@ -44,6 +45,7 @@ const T = {
     addedTip: "In Home Assistant eingetragen am", addedUnknown: "Älter als das Datumsfeld der Registry (vor Okt. 2024) – unbekannt",
     manual: "Anleitung", manualOf: "Bedienungsanleitung", manualLink: "Anleitung öffnen", manualLocal: "Lokale Kopie (PDF) öffnen", manualUrlHint: "Link zur Anleitung (leer = automatische Suche)", manualSave: "Link speichern", manualFetch: "PDF nach Home Assistant kopieren", manualUpload: "PDF hochladen", manualRemove: "Anleitung entfernen", manualNone: "Keine lokale Kopie", manualLocalCopy: "Lokale Kopie", manualFail: "Anleitung fehlgeschlagen",
     manualAiBtn: "Anleitungen per KI finden (für diesen Tab)", manualAiFind: "Per KI finden", manualAiLink: "Anleitung (von der KI gefunden) – bitte prüfen", manualAiAsk: "Die KI nach den Anleitungen von {n} Geräten dieses Tabs fragen? An deinen eingerichteten KI-Dienst gehen nur Hersteller und Modell; jede Adresse wird vor dem Speichern geprüft.", manualAiNone: "Es ist keine KI eingerichtet. Richte in Home Assistant einen KI-Anbieter ein (Einstellungen → Geräte & Dienste, z. B. Google Generative AI, OpenAI oder Anthropic) und wähle dann dessen KI-Task-Entität in den Optionen von Device Inventory.", manualAiNothing: "Nichts zu tun: Jedes Gerät dieses Tabs mit Modell hat schon eine Anleitung.", manualAiDone: "{found} Anleitungen gefunden, {none} nicht gefunden",
+    manualAiQuota: "Das Kontingent oder die Anfragegrenze der KI ist aufgebraucht. Bis dahin wurden {found} Anleitungen gefunden. Bitte später noch einmal versuchen (kostenlose Kontingente erneuern sich täglich oder pro Minute).", manualAiError: "Der KI-Dienst meldet einen Fehler: {error}", manualAiNoneFound: "Für diese Geräte wurden keine Anleitungen gefunden. Viele Geräte haben keine öffentliche Anleitung – im Editor des Geräts kannst du einen eigenen Link eintragen oder ein PDF hochladen.", manualCopyBtn: "Die Anleitungs-PDFs dieses Tabs nach Home Assistant kopieren", manualCopyAsk: "Die PDFs von {n} Anleitungen nach Home Assistant kopieren (lokal gespeichert, funktionieren ohne Internet)?", manualCopyNothing: "Nichts zu kopieren: Jeder Anleitungs-Link dieses Tabs ist schon lokal gespeichert oder kein PDF.", manualCopyDone: "{copied} PDFs kopiert, {failed} fehlgeschlagen (kein PDF oder nicht erreichbar)",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
     uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
   fr: { all: "Tous les appareils", other: "Autres", status: "État", name: "Appareil", model: "Modèle", area: "Pièce", ip: "IP", mac: "MAC", maker: "Fabricant", fw: "Firmware", added: "Ajouté", seen: "Vu", battery: "Batt.", photos: "Photos", note: "Note", printColorOn: "Impression en couleur (cliquer pour noir et blanc)", printColorOff: "Impression en noir et blanc (cliquer pour la couleur)", denseOn: "Espacement des lignes plus large", denseOff: "Espacement des lignes plus serré", commentsOff: "Masquer le texte des commentaires dans la liste", commentsOn: "Afficher le texte des commentaires dans la liste", thumbsOff: "Masquer les miniatures dans la liste", thumbsOn: "Afficher les miniatures dans la liste", kidFilterOn: "Déplier uniquement les sous-lignes avec commentaire ou photo", kidFilterOff: "Déplier toutes les sous-lignes", blurOn: "Flouter les adresses IP / MAC (p. ex. pour des captures d'écran)", blurOff: "Afficher les adresses IP / MAC", print: "Imprimer / PDF", land: "Paysage", port: "Portrait", count: "appareils", online: "En ligne", offline: "Hors ligne", addPhoto: "Ajouter des photos", close: "Fermer", del: "Supprimer", save: "Enregistrer", cancel: "Annuler", hint: "Ctrl+Entrée = enregistrer, Échap = annuler", delPhoto: "Supprimer cette photo ?", delNote: "Supprimer la note ?", noPhotos: "Aucune photo pour l'instant.", noteOf: "Note", photosOf: "Photos", addedTip: "Enregistré dans Home Assistant le", addedUnknown: "Plus ancien que le champ de date du registre (avant oct. 2024) – inconnu", mesh: "Connecté à", conn: "Connexion", lanc: "Clients LAN", wific: "Clients WiFi", uploadFail: "Échec du téléversement", saveFail: "Échec de l'enregistrement", printFail: "Échec de l'impression", stand: "État au", printCols: "Modifier les colonnes (affichage et impression)", exportCsv: "Exporter en CSV", copyLayout: "Copier la disposition des colonnes (JSON)", layoutCopied: "Disposition des colonnes copiée dans le presse-papiers.", importLayout: "Importer une disposition de colonnes : collez le JSON ici", resetAsk: "Réinitialiser la configuration du tableau ? Tous les réglages de ce côté (colonnes affichées, ordre, largeurs, noms de colonnes) seront perdus.", parent: "Appareil principal", yes: "oui", rename: "Nom de la colonne (vide = par défaut)", tgtView: "Affichage", tgtPrint: "Impression", done: "Terminé", reset: "Réinitialiser", expand: "Afficher les canaux", collapse: "Masquer les canaux", channels: "canaux", distance: "Distance", home: "Présent", bleaddr: "MAC BLE", scanner: "Scanner", scannerip: "IP du scanner", signal: "Signal", temp: "Temp.", ble: "Bluetooth", importDone: "Importé depuis l'ancien tableau de bord réseau", importNotes: "notes", importPhotos: "photos", internet: "Internet", allowed: "Autorisé", blocked: "Bloqué", blockAsk: "Bloquer l'accès à Internet pour cet appareil ?", allowAsk: "Autoriser l'accès à Internet pour cet appareil ?", search: "Rechercher", copy: "Copier", refresh: "Actualiser", low: "Faible", ok: "OK", batteries: "Piles", adminOnly: "Droits d'administrateur requis" },
@@ -103,6 +105,7 @@ const ICONS = {
   dot: '<circle cx="12" cy="12" r="6"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   manual: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H19v-5"/><path d="M9 8h6M9 12h6"/>',
+  pdfdown: '<path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M12 11v6M9.5 14.5L12 17l2.5-2.5"/>',
   sparkles: '<path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
   imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
@@ -496,7 +499,9 @@ class DeviceInventoryCard extends HTMLElement {
     dnb.onclick = () => { this._dense = !this._dense; try { localStorage.setItem("diWide", this._dense ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
         const aib = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
         aib.innerHTML = ico("sparkles", 20); aib.title = t.manualAiBtn; aib.onclick = () => this._aiAll(aib);
-        bar.append(rb, xcb, printPair, bl, thb, cmb, dnb, aib);
+        const cpb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
+        cpb.innerHTML = ico("pdfdown", 20); cpb.title = t.manualCopyBtn; cpb.onclick = () => this._copyAll(cpb);
+        bar.append(rb, xcb, printPair, bl, thb, cmb, dnb, aib, cpb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {
@@ -854,14 +859,21 @@ class DeviceInventoryCard extends HTMLElement {
 
   // ask the AI (the AI task entity chosen in the options) for the manuals of the given devices, in chunks; only manufacturer and model leave Home Assistant
   async _aiFind(ids, overwrite, onProgress) {
-    const t = this._t; let found = 0, missing = 0, last = null;
-    for (let i = 0; i < ids.length; i += 5) {
+    const t = this._t, tot = { found: 0, missing: 0, copied: 0, quota: false, error: null }; let last = null;
+    for (let i = 0; i < ids.length && !tot.quota; i += 5) {
       if (onProgress) onProgress(Math.min(i + 5, ids.length), ids.length);
       last = await this._hass.callWS({ type: "device_inventory/find_manuals", device_ids: ids.slice(i, i + 5), overwrite: !!overwrite });
-      found += last.stats.found; missing += last.stats.missing;
+      const st = last.stats;
+      tot.found += st.found; tot.missing += st.missing; tot.copied += st.copied || 0;
+      tot.quota = tot.quota || !!st.quota; tot.error = tot.error || st.error;
     }
     if (last) { this._freeze = true; this._apply(last); }
-    return { found, missing, text: t.manualAiDone.replace("{found}", found).replace("{none}", missing) };
+    const lines = [];
+    if (tot.quota) lines.push(t.manualAiQuota.replace("{found}", tot.found));
+    else if (tot.error && !tot.found) lines.push(t.manualAiError.replace("{error}", String(tot.error).slice(0, 300)));
+    if (!tot.quota) lines.push(tot.found ? t.manualAiDone.replace("{found}", tot.found).replace("{none}", tot.missing) : t.manualAiNoneFound);
+    if (tot.copied) lines.push(t.manualCopyDone.replace("{copied}", tot.copied).replace("{failed}", 0));
+    return Object.assign(tot, { text: lines.join("\n\n") });
   }
 
   async _aiAll(btn) {
@@ -873,6 +885,25 @@ class DeviceInventoryCard extends HTMLElement {
     btn.disabled = true;
     try { const r = await this._aiFind(ids, false, (n, m) => { btn.textContent = `${n}/${m}`; }); alert(r.text); }
     catch (e) { alert(`${t.manualFail}: ${e.message || e.code || e}`); }
+    this._render();
+  }
+
+  // copy the PDFs behind the manual links of this tab into Home Assistant
+  async _copyAll(btn) {
+    const t = this._t, s = this._state;
+    const ids = s.devices.filter((d) => { const m = (s.manuals || {})[d.id] || {}; return m.link && !m.file && m.pdf !== false; }).map((d) => d.id);
+    if (!ids.length) { alert(t.manualCopyNothing); return; }
+    if (!confirm(t.manualCopyAsk.replace("{n}", ids.length))) return;
+    btn.disabled = true; let copied = 0, failed = 0, last = null;
+    try {
+      for (let i = 0; i < ids.length; i += 5) {
+        btn.textContent = `${Math.min(i + 5, ids.length)}/${ids.length}`;
+        last = await this._hass.callWS({ type: "device_inventory/copy_manuals", device_ids: ids.slice(i, i + 5) });
+        copied += last.stats.copied; failed += last.stats.failed;
+      }
+      if (last) { this._freeze = true; this._apply(last); }
+      alert(t.manualCopyDone.replace("{copied}", copied).replace("{failed}", failed));
+    } catch (e) { alert(`${t.manualFail}: ${e.message || e.code || e}`); }
     this._render();
   }
 

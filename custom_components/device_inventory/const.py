@@ -15,6 +15,7 @@ SCAN_INTERVAL_SECONDS = 120
 MAX_UPLOAD_BYTES = 12 * 1024 * 1024
 MAX_MANUAL_BYTES = 25 * 1024 * 1024
 CONF_AI_TASK = "ai_task_entity"  # option: AI task entity that finds manuals
+CONF_AI_COPY = "ai_copy_local"  # option: copy the PDFs found by the AI into Home Assistant
 
 CARD_URL = f"/{DOMAIN}_static/device-inventory-card.js"
 

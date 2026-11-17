@@ -32,6 +32,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CARD_URL,
+    CONF_AI_COPY,
     CONF_AI_TASK,
     DOMAIN,
     PANEL_PATH,
@@ -56,7 +57,7 @@ class InventoryManager:
         self._signed: dict[tuple[str, str | None], tuple[float, str]] = {}
         self.hass = hass
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
-        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}, "ai_cache": {}}
+        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}, "ai_cache": {}, "manual_files": {}}
         self.last_refresh = 0.0
         self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
@@ -91,6 +92,7 @@ class InventoryManager:
             self.data["photos"] = stored.get("photos", {})
             self.data["manuals"] = stored.get("manuals", {})
             self.data["ai_cache"] = stored.get("ai_cache", {})
+            self.data["manual_files"] = stored.get("manual_files", {})
         await self.hass.async_add_executor_job(
             lambda: (self.photo_dir.mkdir(parents=True, exist_ok=True), self.manual_dir.mkdir(parents=True, exist_ok=True))
         )
@@ -171,6 +173,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     websocket_api.async_register_command(hass, ws_fetch_manual)
     websocket_api.async_register_command(hass, ws_delete_manual)
     websocket_api.async_register_command(hass, ws_find_manuals)
+    websocket_api.async_register_command(hass, ws_copy_manuals)
     websocket_api.async_register_command(hass, ws_import_legacy)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -315,6 +318,56 @@ def ws_set_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
 
+def _options(hass: HomeAssistant) -> dict[str, Any]:
+    entries = hass.config_entries.async_entries(DOMAIN)
+    return dict(entries[0].options) if entries else {}
+
+
+def _file_in_use(manager: InventoryManager, file_id: str, except_device: str) -> bool:
+    return any(entry.get("file") == file_id for device_id, entry in manager.data["manuals"].items() if device_id != except_device)
+
+
+async def _remove_manual_file(hass: HomeAssistant, manager: InventoryManager, device_id: str, file_id: str | None) -> None:
+    """Delete a stored PDF unless another device still uses the same file."""
+    if not file_id or _file_in_use(manager, file_id, device_id):
+        return
+    path = manager.manual_dir / f"{file_id}.pdf"
+    await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
+    for url, stored_id in list(manager.data["manual_files"].items()):
+        if stored_id == file_id:
+            manager.data["manual_files"].pop(url, None)
+
+
+async def _store_manual(hass: HomeAssistant, manager: InventoryManager, device_id: str, data: bytes, name: str, url: str | None = None) -> None:
+    """Store a PDF for a device; a PDF that is already stored for the same address is shared instead of copied again."""
+    files = manager.data["manual_files"]
+    manual_id = files.get(url) if url else None
+    if manual_id is None:
+        manual_id = secrets.token_urlsafe(16)
+        path = manager.manual_dir / f"{manual_id}.pdf"
+        await hass.async_add_executor_job(path.write_bytes, data)
+        if url:
+            files[url] = manual_id
+    entry = manager.data["manuals"].setdefault(device_id, {})
+    old = entry.get("file")
+    entry["file"] = manual_id
+    entry["name"] = "".join(ch for ch in name if ch.isalnum() or ch in "._- ")[:80] or "manual.pdf"
+    if old and old != manual_id:
+        await _remove_manual_file(hass, manager, device_id, old)
+    manager.save()
+
+
+async def _try_copy(hass: HomeAssistant, manager: InventoryManager, device_id: str, link: str) -> bool:
+    """Copy the PDF behind a link into Home Assistant; False when it cannot be fetched."""
+    stored = manager.data["manual_files"].get(link)
+    try:
+        data = b"" if stored else await _download_pdf(hass, link)
+    except (ValueError, OSError, asyncio.TimeoutError):
+        return False
+    await _store_manual(hass, manager, device_id, data, urlparse(link).path.rsplit("/", 1)[-1] or "manual.pdf", link)
+    return True
+
+
 @websocket_api.websocket_command(
     {
         vol.Required("type"): f"{DOMAIN}/fetch_manual",
@@ -326,8 +379,7 @@ def ws_set_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
 async def ws_fetch_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     """Copy the PDF behind the manual link of a device into Home Assistant (admin only, public addresses only)."""
     manager: InventoryManager = hass.data[DOMAIN]
-    entry = manager.data["manuals"].get(msg["device_id"], {})
-    link = entry.get("link")
+    link = manager.data["manuals"].get(msg["device_id"], {}).get("link")
     if not link:
         connection.send_error(msg["id"], "no_link", "Set a manual link first")
         return
@@ -336,8 +388,33 @@ async def ws_fetch_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) 
     except (ValueError, OSError, asyncio.TimeoutError) as err:
         connection.send_error(msg["id"], "download_failed", str(err))
         return
-    await _store_manual(hass, manager, msg["device_id"], data, urlparse(link).path.rsplit("/", 1)[-1] or "manual.pdf")
+    await _store_manual(hass, manager, msg["device_id"], data, urlparse(link).path.rsplit("/", 1)[-1] or "manual.pdf", link)
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/copy_manuals",
+        vol.Required("device_ids"): vol.All([str], vol.Length(max=10)),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_copy_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Copy the PDFs behind the manual links of several devices into Home Assistant."""
+    manager: InventoryManager = hass.data[DOMAIN]
+    copied = failed = 0
+    for device_id in msg["device_ids"]:
+        entry = manager.data["manuals"].get(device_id, {})
+        if not entry.get("link") or entry.get("file"):
+            continue
+        if await _try_copy(hass, manager, device_id, entry["link"]):
+            copied += 1
+        else:
+            failed += 1
+    result = manager.payload(connection.refresh_token_id)
+    result["stats"] = {"copied": copied, "failed": failed}
+    connection.send_result(msg["id"], result)
 
 
 @websocket_api.websocket_command(
@@ -352,20 +429,26 @@ async def ws_delete_manual(hass: HomeAssistant, connection, msg: dict[str, Any])
     """Remove the local copy and the own link of a device."""
     manager: InventoryManager = hass.data[DOMAIN]
     entry = manager.data["manuals"].pop(msg["device_id"], None)
-    if entry and entry.get("file"):
-        path = manager.manual_dir / f"{entry['file']}.pdf"
-        await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
+    if entry:
+        await _remove_manual_file(hass, manager, msg["device_id"], entry.get("file"))
     manager.save()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
 
 def _ai_entity(hass: HomeAssistant) -> str | None:
     """The AI task entity chosen in the options (None = no AI set up, nothing is ever sent)."""
-    entries = hass.config_entries.async_entries(DOMAIN)
-    entity = entries[0].options.get(CONF_AI_TASK) if entries else None
+    entity = _options(hass).get(CONF_AI_TASK)
     if entity and hass.states.get(entity) is not None and hass.services.has_service("ai_task", "generate_data"):
         return entity
     return None
+
+
+QUOTA_HINTS = ("quota", "429", "resource_exhausted", "resource exhausted", "rate limit", "rate_limit", "too many requests", "billing", "insufficient")
+
+
+def _is_quota_error(text: str) -> bool:
+    lower = text.lower()
+    return any(hint in lower for hint in QUOTA_HINTS)
 
 
 async def _verify_manual_url(hass: HomeAssistant, url: str) -> str | None:
@@ -390,8 +473,8 @@ async def _verify_manual_url(hass: HomeAssistant, url: str) -> str | None:
     return None
 
 
-async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str) -> str | None:
-    """Ask the AI task for the official manual of one device model; only manufacturer and model are sent."""
+async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str) -> tuple[str | None, str | None]:
+    """Ask the AI task for the official manual of one device model (only manufacturer and model are sent): (address, error text)."""
     instructions = (
         f"Find the official user manual (a PDF is preferred) for this device: manufacturer '{maker}', model '{model}'. "
         f"The manual language should be '{hass.config.language}' if the manufacturer offers it, otherwise English. "
@@ -411,12 +494,12 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str) -> 
             blocking=True,
             return_response=True,
         )
-    except HomeAssistantError as err:
+    except (HomeAssistantError, asyncio.TimeoutError, OSError) as err:
         _LOGGER.warning("AI task failed for %s %s: %s", maker, model, err)
-        return None
+        return None, str(err) or err.__class__.__name__
     data = (resp or {}).get("data") or {}
     url = str(data.get("url") or "").strip()
-    return url if _http_url_ok(url) else None
+    return (url if _http_url_ok(url) else None), None
 
 
 @websocket_api.websocket_command(
@@ -435,8 +518,11 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
     if entity is None:
         connection.send_error(msg["id"], "no_ai", "No AI task entity is set up")
         return
+    copy_local = bool(_options(hass).get(CONF_AI_COPY))
     devices = {dev["id"]: dev for dev in (manager.coordinator.data or [])}
-    found = missing = 0
+    found = missing = copied = 0
+    quota = False
+    error: str | None = None
     for device_id in msg["device_ids"]:
         dev = devices.get(device_id)
         entry = manager.data["manuals"].get(device_id, {})
@@ -448,33 +534,29 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         key = f"{maker.lower()}|{model.lower()}"
         cache: dict[str, Any] = manager.data["ai_cache"]
         if key not in cache or msg["overwrite"]:
-            url = await _ai_find(hass, entity, maker, model)
+            url, err = await _ai_find(hass, entity, maker, model)
+            if err:
+                if _is_quota_error(err):
+                    quota = True
+                    error = err
+                    break
+                error = error or err
+                missing += 1
+                continue  # not cached: a later run asks again
             kind = await _verify_manual_url(hass, url) if url else None
             cache[key] = {"url": url, "pdf": kind == "pdf"} if kind else {"url": "", "pdf": False}
         hit = cache[key]
         if hit["url"]:
             manager.data["manuals"].setdefault(device_id, {}).update({"link": hit["url"], "ai": True, "pdf": hit["pdf"]})
             found += 1
+            if copy_local and hit["pdf"] and await _try_copy(hass, manager, device_id, hit["url"]):
+                copied += 1
         else:
             missing += 1
     manager.save()
     result = manager.payload(connection.refresh_token_id)
-    result["stats"] = {"found": found, "missing": missing}
+    result["stats"] = {"found": found, "missing": missing, "copied": copied, "quota": quota, "error": error}
     connection.send_result(msg["id"], result)
-
-
-async def _store_manual(hass: HomeAssistant, manager: InventoryManager, device_id: str, data: bytes, name: str) -> None:
-    manual_id = secrets.token_urlsafe(16)
-    path = manager.manual_dir / f"{manual_id}.pdf"
-    await hass.async_add_executor_job(path.write_bytes, data)
-    entry = manager.data["manuals"].setdefault(device_id, {})
-    old = entry.get("file")
-    entry["file"] = manual_id
-    entry["name"] = "".join(ch for ch in name if ch.isalnum() or ch in "._- ")[:80] or "manual.pdf"
-    if old:
-        old_path = manager.manual_dir / f"{old}.pdf"
-        await hass.async_add_executor_job(lambda: old_path.unlink(missing_ok=True))
-    manager.save()
 
 
 @websocket_api.websocket_command(

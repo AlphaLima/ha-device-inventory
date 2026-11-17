@@ -516,6 +516,8 @@ async def _verify_manual_url(hass: HomeAssistant, url: str) -> str | None:
     return None
 
 
+AI_MIN_GAP = 4.5  # seconds between two AI requests
+AI_LAST_KEY = "device_inventory_ai_last"
 SHOP_HOSTS = ("amazon", "ebay", "aliexpress", "alibaba", "idealo", "pinterest", "wikipedia", "wikimedia", "google", "bing", "shutterstock", "getty", "alamy", "etsy", "facebook", "instagram", "geizhals", "otto.", "conrad", "reichelt", "mediamarkt", "saturn.", "bol.com", "walmart")
 
 
@@ -626,13 +628,34 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
         link = urljoin(url, match.group(1))
         if link not in seen:
             seen.append(link)
-    tokens = [tok for tok in re.split(r"[^a-z0-9]+", model.lower()) if len(tok) > 2]
-    words = ("manual", "anleitung", "handbuch", "guide", "instruction", "bedien", "user")
-    seen.sort(key=lambda link: -(sum(tok in link.lower() for tok in tokens) * 2 + sum(word in link.lower() for word in words)))
-    seen = [link for link in seen if any(tok in link.lower() for tok in tokens) or any(word in link.lower() for word in words)]
-    for link in seen[:6]:
+    key = _norm(model)
+    words = ("manual", "anleitung", "handbuch", "guide", "instruction", "bedien", "user", "_um", "bda")
+    bad = ("_ce_", "/ce/", "datenblatt", "datasheet", "/pdb/", "produktdatenblatt", "quick", "declaration", "konformit")
+
+    def name_of(link: str) -> str:
+        return urlparse(link).path.rsplit("/", 1)[-1]
+
+    def score(link: str) -> int:
+        low = link.lower()
+        return sum(word in low for word in words) * 2 - sum(word in low for word in bad) * 3
+
+    exact = sorted((link for link in seen if key and len(key) >= 3 and key in _norm(name_of(link))), key=lambda link: -score(link))
+    for link in exact[:6]:
         if await _verify_manual_url(hass, link) == "pdf":
             return link
+    # many manufacturers name every file after the model: a sibling link (other model, same pattern) shows the address scheme
+    guesses: list[str] = []
+    for link in sorted(seen, key=lambda link: -score(link)):
+        name = name_of(link)
+        match = re.match(r"([A-Za-z0-9\-]{3,}?)(_[^/]*\.pdf)$", name, re.IGNORECASE)
+        if not match or _norm(match.group(1)) == key or score(link) < 2 or not (model[:3].lower() == match.group(1)[:3].lower()):
+            continue
+        guess = link[: len(link) - len(name)] + model + match.group(2)
+        if guess not in guesses:
+            guesses.append(guess)
+    for guess in guesses[:8]:
+        if await _verify_manual_url(hass, guess) == "pdf":
+            return guess
     return None
 
 
@@ -647,8 +670,8 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
         "Work out which company really makes the device and use its official website. "
         "Task: list up to 5 addresses (URLs), best first, where the official user manual / operating instructions / installation guide of exactly this device can be found. "
         "Order: 1. direct links to a PDF file of the manual (usually ending in .pdf) from the manufacturer's own site; "
-        "2. the manufacturer's official download, support or documentation page for this exact product; 3. the official product page. "
-        "Do not use shops, forums, video sites, manual-aggregator sites, search result pages or general download overview pages; every address must be specific to this exact product. "
+        "2. the official product page; 3. the manufacturer's official download or documentation overview page (a program reads the PDF links from it). "
+        "Do not use shops, forums, video sites, manual-aggregator sites or search result pages. "
         f"Prefer the language '{hass.config.language}' if the manufacturer offers it, otherwise English. "
     )
     if avoid:
@@ -663,17 +686,29 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
         structure["image_url"] = {"description": "Direct address of an original manufacturer product photo (JPG or PNG), empty if unknown", "required": False, "selector": {"text": {}}}
         structure["manufacturer_domain"] = {"description": "Official internet domain of the manufacturer, empty if unknown", "required": False, "selector": {"text": {}}}
     instructions += "Only give addresses you know or found; never invent a path. A real page of the right site is better than a guessed PDF name."
-    try:
-        resp = await hass.services.async_call(
-            "ai_task",
-            "generate_data",
-            {"entity_id": entity, "task_name": "device manual", "instructions": instructions, "structure": structure},
-            blocking=True,
-            return_response=True,
-        )
-    except (HomeAssistantError, asyncio.TimeoutError, OSError) as err:
-        _LOGGER.warning("AI task failed for %s %s: %s", maker, model, err)
-        return [], None, None, str(err) or err.__class__.__name__
+    resp = None
+    for attempt in (0, 1):
+        wait = AI_MIN_GAP - (time.monotonic() - hass.data.get(AI_LAST_KEY, 0.0))  # stay below the free per-minute limit (15 requests)
+        if wait > 0:
+            await asyncio.sleep(wait)
+        hass.data[AI_LAST_KEY] = time.monotonic()
+        try:
+            resp = await hass.services.async_call(
+                "ai_task",
+                "generate_data",
+                {"entity_id": entity, "task_name": "device manual", "instructions": instructions, "structure": structure},
+                blocking=True,
+                return_response=True,
+            )
+            break
+        except (HomeAssistantError, asyncio.TimeoutError, OSError) as err:
+            text = str(err) or err.__class__.__name__
+            retry = re.search(r"retry in (\d+(?:\.\d+)?)s", text, re.IGNORECASE)
+            if attempt == 0 and retry and "perday" not in text.lower().replace(" ", ""):  # per-minute limit: wait as told and try once more
+                await asyncio.sleep(min(float(retry.group(1)) + 1, 30))
+                continue
+            _LOGGER.warning("AI task failed for %s %s: %s", maker, model, err)
+            return [], None, None, text
     data = (resp or {}).get("data") or {}
     urls: list[str] = []
     for token in re.split(r"[\s,;]+", str(data.get("urls") or data.get("url") or "")):

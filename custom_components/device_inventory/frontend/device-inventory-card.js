@@ -904,7 +904,10 @@ class DeviceInventoryCard extends HTMLElement {
     const ft = el("div", "display:flex;justify-content:flex-end;margin-top:12px"); ft.appendChild(bc);
     bx.append(title, track, cur, cnt, ft); ov.appendChild(bx); document.body.appendChild(ov);
     const names = new Map((this._state.devices || []).map((d) => [d.id, d.name]));
+    let t0 = Date.now(), cur_i = 0;
+    const tick = setInterval(() => { cnt.textContent = `${Math.min(cur_i + 1, ids.length)} / ${ids.length} – ${t.aiFoundN.replace("{n}", tot.found)} – ${Math.round((Date.now() - t0) / 1000)} s`; fill.style.opacity = Date.now() % 1200 < 600 ? "1" : ".6"; }, 500);
     const show = (i) => {
+      cur_i = i; t0 = Date.now();
       fill.style.width = `${Math.round(i / ids.length * 100)}%`;
       cur.textContent = i < ids.length ? names.get(ids[i]) || "" : "";
       cnt.textContent = `${Math.min(i + 1, ids.length)} / ${ids.length} – ${t.aiFoundN.replace("{n}", tot.found)}`;
@@ -919,7 +922,7 @@ class DeviceInventoryCard extends HTMLElement {
         tot.quota = tot.quota || !!st.quota; tot.error = tot.error || st.error;
         if (last) { this._freeze = true; this._apply(last); }
       }
-    } finally { ov.remove(); }
+    } finally { clearInterval(tick); ov.remove(); }
     const lines = [];
     if (tot.cancelled) lines.push(t.aiStopped);
     if (tot.quota) lines.push(t.manualAiQuota.replace("{found}", tot.found));

@@ -4,16 +4,13 @@ from __future__ import annotations
 
 from datetime import timedelta
 import asyncio
-import ipaddress
 import logging
 from pathlib import Path
 import secrets
-import socket
 import time
 from typing import Any
-from urllib.parse import urljoin, urlparse
 
-from aiohttp import ClientTimeout, web
+from aiohttp import web
 import voluptuous as vol
 
 from homeassistant.components import frontend, panel_custom, websocket_api
@@ -23,7 +20,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.storage import Store
 from homeassistant.loader import async_get_integration
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -34,7 +30,6 @@ from .const import (
     DOMAIN,
     PANEL_PATH,
     PANEL_URL,
-    MAX_MANUAL_BYTES,
     MAX_UPLOAD_BYTES,
     SCAN_INTERVAL_SECONDS,
     STORAGE_VERSION,
@@ -54,11 +49,10 @@ class InventoryManager:
         self._signed: dict[tuple[str, str | None], tuple[float, str]] = {}
         self.hass = hass
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
-        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}}
+        self.data: dict[str, Any] = {"notes": {}, "photos": {}}
         self.last_refresh = 0.0
         self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
-        self.manual_dir = Path(hass.config.path(DOMAIN, "manuals"))
         self.coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
@@ -87,9 +81,8 @@ class InventoryManager:
         if stored:
             self.data["notes"] = stored.get("notes", {})
             self.data["photos"] = stored.get("photos", {})
-            self.data["manuals"] = stored.get("manuals", {})
         await self.hass.async_add_executor_job(
-            lambda: (self.photo_dir.mkdir(parents=True, exist_ok=True), self.manual_dir.mkdir(parents=True, exist_ok=True))
+            lambda: self.photo_dir.mkdir(parents=True, exist_ok=True)
         )
 
     @callback
@@ -97,31 +90,28 @@ class InventoryManager:
         self.store.async_delay_save(lambda: self.data, 1)
 
     def payload(self, refresh_token_id: str | None = None) -> dict[str, Any]:
-        """Inventory for the card; photos and manuals carry signed, expiring URLs (the views need authentication)."""
+        """Inventory for the card; every photo carries a signed, expiring URL (the photo view needs authentication)."""
         now = time.monotonic()
         photos: dict[str, list[dict[str, Any]]] = {}
         for device_id, items in self.data["photos"].items():
-            photos[device_id] = [{**item, "url": self._signed_url(f"/api/{DOMAIN}/photo/{item['id']}", refresh_token_id, now)} for item in items]
-        manuals: dict[str, dict[str, Any]] = {}
-        for device_id, entry in self.data["manuals"].items():
-            manuals[device_id] = {
-                "link": entry.get("link"),
-                "name": entry.get("name"),
-                "file": self._signed_url(f"/api/{DOMAIN}/manual/{entry['file']}", refresh_token_id, now) if entry.get("file") else None,
-            }
+            photos[device_id] = [{**item, "url": self._signed_photo_url(item["id"], refresh_token_id, now)} for item in items]
         return {
             "devices": self.coordinator.data or [],
             "notes": self.data["notes"],
             "photos": photos,
-            "manuals": manuals,
         }
 
-    def _signed_url(self, path: str, refresh_token_id: str | None, now: float) -> str:
-        """Signed path valid for one hour; re-signed every ten minutes so the browser can cache the file in between."""
-        key = (path, refresh_token_id)
+    def _signed_photo_url(self, photo_id: str, refresh_token_id: str | None, now: float) -> str:
+        """Signed path valid for one hour; re-signed every ten minutes so the browser can cache the image in between."""
+        key = (photo_id, refresh_token_id)
         cached = self._signed.get(key)
         if cached is None or now - cached[0] > 600:
-            url = async_sign_path(self.hass, path, timedelta(hours=1), refresh_token_id=refresh_token_id)
+            url = async_sign_path(
+                self.hass,
+                f"/api/{DOMAIN}/photo/{photo_id}",
+                timedelta(hours=1),
+                refresh_token_id=refresh_token_id,
+            )
             cached = (now, url)
             self._signed[key] = cached
             if len(self._signed) > 5000:
@@ -156,14 +146,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.http.register_view(PhotoUploadView)
     hass.http.register_view(PhotoServeView)
-    hass.http.register_view(ManualUploadView)
-    hass.http.register_view(ManualServeView)
     websocket_api.async_register_command(hass, ws_list)
     websocket_api.async_register_command(hass, ws_set_note)
     websocket_api.async_register_command(hass, ws_delete_photo)
-    websocket_api.async_register_command(hass, ws_set_manual)
-    websocket_api.async_register_command(hass, ws_fetch_manual)
-    websocket_api.async_register_command(hass, ws_delete_manual)
     websocket_api.async_register_command(hass, ws_import_legacy)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -236,132 +221,6 @@ async def ws_delete_photo(hass: HomeAssistant, connection, msg: dict[str, Any]) 
             manager.data["photos"].pop(msg["device_id"], None)
         manager.save()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
-
-
-def _http_url_ok(url: str) -> bool:
-    parts = urlparse(url)
-    return parts.scheme in ("http", "https") and bool(parts.hostname) and len(url) <= 2000
-
-
-async def _is_public_host(hass: HomeAssistant, host: str) -> bool:
-    """Only public addresses may be fetched (no localhost, LAN, link-local ...)."""
-    try:
-        infos = await hass.loop.getaddrinfo(host, None, type=socket.SOCK_STREAM)
-    except OSError:
-        return False
-    for info in infos:
-        addr = ipaddress.ip_address(info[4][0])
-        if addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_multicast or addr.is_reserved or addr.is_unspecified:
-            return False
-    return bool(infos)
-
-
-async def _download_pdf(hass: HomeAssistant, url: str) -> bytes:
-    """Download a PDF from a public address (redirects are followed by hand and checked at every step)."""
-    session = async_get_clientsession(hass)
-    for _ in range(5):
-        if not _http_url_ok(url) or not await _is_public_host(hass, urlparse(url).hostname or ""):
-            raise ValueError("Address is not allowed (only public http/https addresses)")
-        async with session.get(url, allow_redirects=False, timeout=ClientTimeout(total=60), headers={"User-Agent": "HomeAssistant-DeviceInventory"}) as resp:
-            if resp.status in (301, 302, 303, 307, 308) and resp.headers.get("Location"):
-                url = urljoin(url, resp.headers["Location"])
-                continue
-            if resp.status != 200:
-                raise ValueError(f"HTTP {resp.status}")
-            data = bytearray()
-            async for chunk in resp.content.iter_chunked(65536):
-                data.extend(chunk)
-                if len(data) > MAX_MANUAL_BYTES:
-                    raise ValueError("File too large")
-            if not data.startswith(b"%PDF"):
-                raise ValueError("Not a PDF file")
-            return bytes(data)
-    raise ValueError("Too many redirects")
-
-
-@websocket_api.websocket_command(
-    {
-        vol.Required("type"): f"{DOMAIN}/set_manual",
-        vol.Required("device_id"): str,
-        vol.Required("link"): str,
-    }
-)
-@websocket_api.require_admin
-@callback
-def ws_set_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    """Own manual link of a device (empty = back to the automatic search link)."""
-    manager: InventoryManager = hass.data[DOMAIN]
-    link = msg["link"].strip()
-    if link and not _http_url_ok(link):
-        connection.send_error(msg["id"], "invalid_url", "Only http(s) addresses are allowed")
-        return
-    entry = manager.data["manuals"].setdefault(msg["device_id"], {})
-    if link:
-        entry["link"] = link
-    else:
-        entry.pop("link", None)
-    if not entry:
-        manager.data["manuals"].pop(msg["device_id"], None)
-    manager.save()
-    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
-
-
-@websocket_api.websocket_command(
-    {
-        vol.Required("type"): f"{DOMAIN}/fetch_manual",
-        vol.Required("device_id"): str,
-    }
-)
-@websocket_api.require_admin
-@websocket_api.async_response
-async def ws_fetch_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    """Copy the PDF behind the manual link of a device into Home Assistant (admin only, public addresses only)."""
-    manager: InventoryManager = hass.data[DOMAIN]
-    entry = manager.data["manuals"].get(msg["device_id"], {})
-    link = entry.get("link")
-    if not link:
-        connection.send_error(msg["id"], "no_link", "Set a manual link first")
-        return
-    try:
-        data = await _download_pdf(hass, link)
-    except (ValueError, OSError, asyncio.TimeoutError) as err:
-        connection.send_error(msg["id"], "download_failed", str(err))
-        return
-    await _store_manual(hass, manager, msg["device_id"], data, urlparse(link).path.rsplit("/", 1)[-1] or "manual.pdf")
-    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
-
-
-@websocket_api.websocket_command(
-    {
-        vol.Required("type"): f"{DOMAIN}/delete_manual",
-        vol.Required("device_id"): str,
-    }
-)
-@websocket_api.require_admin
-@websocket_api.async_response
-async def ws_delete_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    """Remove the local copy and the own link of a device."""
-    manager: InventoryManager = hass.data[DOMAIN]
-    entry = manager.data["manuals"].pop(msg["device_id"], None)
-    if entry and entry.get("file"):
-        path = manager.manual_dir / f"{entry['file']}.pdf"
-        await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
-    manager.save()
-    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
-
-
-async def _store_manual(hass: HomeAssistant, manager: InventoryManager, device_id: str, data: bytes, name: str) -> None:
-    manual_id = secrets.token_urlsafe(16)
-    path = manager.manual_dir / f"{manual_id}.pdf"
-    await hass.async_add_executor_job(path.write_bytes, data)
-    entry = manager.data["manuals"].setdefault(device_id, {})
-    old = entry.get("file")
-    entry["file"] = manual_id
-    entry["name"] = "".join(ch for ch in name if ch.isalnum() or ch in "._- ")[:80] or "manual.pdf"
-    if old:
-        old_path = manager.manual_dir / f"{old}.pdf"
-        await hass.async_add_executor_job(lambda: old_path.unlink(missing_ok=True))
-    manager.save()
 
 
 @websocket_api.websocket_command(
@@ -500,63 +359,6 @@ class PhotoUploadView(HomeAssistantView):
         )
         manager.save()
         return self.json({"id": photo_id})
-
-
-class ManualUploadView(HomeAssistantView):
-    """POST /api/device_inventory/manual_upload/<device_id> (admin only, PDF)."""
-
-    url = f"/api/{DOMAIN}/manual_upload/{{device_id}}"
-    name = f"api:{DOMAIN}:manual_upload"
-    requires_auth = True
-
-    async def post(self, request: web.Request, device_id: str) -> web.Response:
-        user = request.get("hass_user")
-        if user is None or not user.is_admin:
-            return self.json_message("Admin required", 403)
-        hass: HomeAssistant = request.app["hass"]
-        manager: InventoryManager = hass.data[DOMAIN]
-        reader = await request.multipart()
-        field = await reader.next()
-        if field is None:
-            return self.json_message("No file", 400)
-        data = bytearray()
-        while True:
-            chunk = await field.read_chunk(1024 * 1024)
-            if not chunk:
-                break
-            data.extend(chunk)
-            if len(data) > MAX_MANUAL_BYTES:
-                return self.json_message("File too large", 413)
-        if not data.startswith(b"%PDF"):
-            return self.json_message("Only PDF files", 415)
-        await _store_manual(hass, manager, device_id, bytes(data), field.filename or "manual.pdf")
-        return self.json({"ok": True})
-
-
-class ManualServeView(HomeAssistantView):
-    """GET /api/device_inventory/manual/<manual_id> (authenticated; the card uses signed URLs)."""
-
-    url = f"/api/{DOMAIN}/manual/{{manual_id}}"
-    name = f"api:{DOMAIN}:manual"
-    requires_auth = True
-
-    async def get(self, request: web.Request, manual_id: str) -> web.StreamResponse:
-        hass: HomeAssistant = request.app["hass"]
-        manager: InventoryManager = hass.data.get(DOMAIN)
-        if manager is None or not manual_id.replace("-", "").replace("_", "").isalnum():
-            return web.Response(status=404)
-        path = manager.manual_dir / f"{manual_id}.pdf"
-        if not await hass.async_add_executor_job(path.is_file):
-            return web.Response(status=404)
-        return web.FileResponse(
-            path,
-            headers={
-                "Content-Type": "application/pdf",
-                "Content-Disposition": "inline",
-                "X-Content-Type-Options": "nosniff",
-                "Cache-Control": "private, max-age=86400",
-            },
-        )
 
 
 class PhotoServeView(HomeAssistantView):

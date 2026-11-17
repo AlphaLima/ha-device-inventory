@@ -500,9 +500,12 @@ class DeviceInventoryCard extends HTMLElement {
     pcl.innerHTML = ico("palette", 20); pcl.title = this._pcolor ? t.printColorOn : t.printColorOff;
     if (!this._pcolor) pcl.style.background = "var(--primary-color)", pcl.style.color = "var(--text-primary-color,#fff)";
     pcl.onclick = () => { this._pcolor = !this._pcolor; try { localStorage.setItem("diPrintColor", this._pcolor ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
-    pb.style.borderRadius = "8px 0 0 8px"; pcl.style.borderRadius = "0"; pcl.style.marginLeft = "-1px";
+    xcb.style.borderRadius = "8px 0 0 8px"; pb.style.borderRadius = "0"; pb.style.marginLeft = "-1px"; pcl.style.borderRadius = "0"; pcl.style.marginLeft = "-1px";
     seg.style.borderRadius = "0 8px 8px 0"; seg.style.marginLeft = "-1px";
-    printPair.append(pb, pcl, seg);
+    printPair.append(xcb, pb, pcl, seg);
+    const refPair = el("span", "display:inline-flex");
+    rb.style.borderRadius = "8px 0 0 8px"; pausB.style.borderRadius = "0 8px 8px 0"; pausB.style.marginLeft = "-1px";
+    refPair.append(rb, pausB);
     const bl = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
     bl.innerHTML = ico(this._blur ? "eyeoff" : "eye", 20); bl.title = this._blur ? t.blurOff : t.blurOn;
     if (this._blur) bl.style.background = "var(--primary-color)", bl.style.color = "var(--text-primary-color,#fff)";
@@ -523,7 +526,7 @@ class DeviceInventoryCard extends HTMLElement {
         aib.innerHTML = ico("sparkles", 20); aib.title = t.manualAiBtn; aib.onclick = () => this._aiAll(aib);
         const cpb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
         cpb.innerHTML = ico("pdfdown", 20); cpb.title = t.manualCopyBtn; cpb.onclick = () => this._copyAll(cpb);
-        bar.append(rb, pausB, xcb, printPair, bl, thb, cmb, dnb, aib, cpb);
+        bar.append(refPair, printPair, bl, thb, cmb, dnb, aib, cpb);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {

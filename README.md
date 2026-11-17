@@ -155,6 +155,12 @@ Type into the <img src="docs/icons/search.svg" height="16" alt="search"> field: 
 - <img src="docs/icons/image.svg" height="16" alt="image"> appears once a device has photos (a number = how many). **Hover** = thumbnail preview, **click** = gallery: click a photo to open it full size, **<img src="docs/icons/close.svg" height="16" alt="close">** on a photo deletes it, *Add photo(s)* adds more.
 - Adding and deleting needs an admin user.
 
+**Manual** (column with the house symbol)
+- Every device with a manufacturer or model gets the symbol by default. **Click** opens the manual in a new tab.
+- **Automatic link:** a web search for `<manufacturer> <model> <manual> PDF` (the search word follows the language of the user, e.g. "Bedienungsanleitung"). Nothing is sent from Home Assistant; the link is only opened by your browser.
+- **Own link / local copy:** open the editor of the device (pencil in the note column). There you can enter the address of the manual (the symbol turns blue), **copy the PDF into Home Assistant** (download from that address, the symbol turns green) or **upload a PDF**. The local copy is stored in `config/device_inventory/manuals`, is served only to logged-in users via signed, expiring URLs and works without internet.
+- The download is done by Home Assistant itself, only for **admin users**, only from public `http(s)` addresses (no localhost / LAN / link-local targets, redirects are checked, max 25 MB, the file must be a PDF). Entries without a model (bridges, mirror devices of a router) get no symbol.
+
 **Notes** (column <img src="docs/icons/note.svg" height="16" alt="note">)
 - <img src="docs/icons/pencil.svg" height="16" alt="pencil"> = no note yet, <img src="docs/icons/note.svg" height="16" alt="note"> = note exists. The **text of the note is shown next to the symbol** (shortened with … if the column is too narrow – widen it in the column editor); hover shows the whole text.
 - Click opens the editor: *Save* (or Ctrl+Enter), *Delete*, *Cancel* (or Esc). An empty text removes the note.

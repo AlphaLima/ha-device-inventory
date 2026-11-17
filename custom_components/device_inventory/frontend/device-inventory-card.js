@@ -28,6 +28,7 @@ const T = {
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
     addedTip: "Registered in Home Assistant on", addedUnknown: "Older than the registry date field (before Oct 2024) – unknown",
+    manual: "Manual", manualOf: "Manual", manualSearch: "Search for the manual online", manualLink: "Open the manual", manualLocal: "Open the local copy (PDF)", manualUrlHint: "Link to the manual (empty = automatic search)", manualSave: "Save link", manualFetch: "Copy the PDF to Home Assistant", manualUpload: "Upload PDF", manualRemove: "Remove manual", manualNone: "No local copy", manualLocalCopy: "Local copy", manualFail: "Manual failed",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
@@ -40,6 +41,7 @@ const T = {
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
     addedTip: "In Home Assistant eingetragen am", addedUnknown: "Älter als das Datumsfeld der Registry (vor Okt. 2024) – unbekannt",
+    manual: "Anleitung", manualOf: "Bedienungsanleitung", manualSearch: "Anleitung im Internet suchen", manualLink: "Anleitung öffnen", manualLocal: "Lokale Kopie (PDF) öffnen", manualUrlHint: "Link zur Anleitung (leer = automatische Suche)", manualSave: "Link speichern", manualFetch: "PDF nach Home Assistant kopieren", manualUpload: "PDF hochladen", manualRemove: "Anleitung entfernen", manualNone: "Keine lokale Kopie", manualLocalCopy: "Lokale Kopie", manualFail: "Anleitung fehlgeschlagen",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
     uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
   fr: { all: "Tous les appareils", other: "Autres", status: "État", name: "Appareil", model: "Modèle", area: "Pièce", ip: "IP", mac: "MAC", maker: "Fabricant", fw: "Firmware", added: "Ajouté", seen: "Vu", battery: "Batt.", photos: "Photos", note: "Note", printColorOn: "Impression en couleur (cliquer pour noir et blanc)", printColorOff: "Impression en noir et blanc (cliquer pour la couleur)", denseOn: "Espacement des lignes plus large", denseOff: "Espacement des lignes plus serré", commentsOff: "Masquer le texte des commentaires dans la liste", commentsOn: "Afficher le texte des commentaires dans la liste", thumbsOff: "Masquer les miniatures dans la liste", thumbsOn: "Afficher les miniatures dans la liste", kidFilterOn: "Déplier uniquement les sous-lignes avec commentaire ou photo", kidFilterOff: "Déplier toutes les sous-lignes", blurOn: "Flouter les adresses IP / MAC (p. ex. pour des captures d'écran)", blurOff: "Afficher les adresses IP / MAC", print: "Imprimer / PDF", land: "Paysage", port: "Portrait", count: "appareils", online: "En ligne", offline: "Hors ligne", addPhoto: "Ajouter des photos", close: "Fermer", del: "Supprimer", save: "Enregistrer", cancel: "Annuler", hint: "Ctrl+Entrée = enregistrer, Échap = annuler", delPhoto: "Supprimer cette photo ?", delNote: "Supprimer la note ?", noPhotos: "Aucune photo pour l'instant.", noteOf: "Note", photosOf: "Photos", addedTip: "Enregistré dans Home Assistant le", addedUnknown: "Plus ancien que le champ de date du registre (avant oct. 2024) – inconnu", mesh: "Connecté à", conn: "Connexion", lanc: "Clients LAN", wific: "Clients WiFi", uploadFail: "Échec du téléversement", saveFail: "Échec de l'enregistrement", printFail: "Échec de l'impression", stand: "État au", printCols: "Modifier les colonnes (affichage et impression)", exportCsv: "Exporter en CSV", copyLayout: "Copier la disposition des colonnes (JSON)", layoutCopied: "Disposition des colonnes copiée dans le presse-papiers.", importLayout: "Importer une disposition de colonnes : collez le JSON ici", resetAsk: "Réinitialiser la configuration du tableau ? Tous les réglages de ce côté (colonnes affichées, ordre, largeurs, noms de colonnes) seront perdus.", parent: "Appareil principal", yes: "oui", rename: "Nom de la colonne (vide = par défaut)", tgtView: "Affichage", tgtPrint: "Impression", done: "Terminé", reset: "Réinitialiser", expand: "Afficher les canaux", collapse: "Masquer les canaux", channels: "canaux", distance: "Distance", home: "Présent", bleaddr: "MAC BLE", scanner: "Scanner", scannerip: "IP du scanner", signal: "Signal", temp: "Temp.", ble: "Bluetooth", importDone: "Importé depuis l'ancien tableau de bord réseau", importNotes: "notes", importPhotos: "photos", internet: "Internet", allowed: "Autorisé", blocked: "Bloqué", blockAsk: "Bloquer l'accès à Internet pour cet appareil ?", allowAsk: "Autoriser l'accès à Internet pour cet appareil ?", search: "Rechercher", copy: "Copier", refresh: "Actualiser", low: "Faible", ok: "OK", batteries: "Piles", adminOnly: "Droits d'administrateur requis" },
@@ -58,18 +60,19 @@ const T = {
 T.no = T.nb; T.nn = T.nb; // Norwegian codes used by Home Assistant
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", mesh: "Router Mesh", fritz: "FRITZ!", apple: "Apple", bluetooth: "Bluetooth" };
-const COLS = ["#", "status", "internet", "conn", "kids", "name", "model", "lanc", "wific", "area", "distance", "home", "ip", "mesh", "mac", "bleaddr", "scanner", "scannerip", "maker", "fw", "signal", "temp", "ble", "battery", "added", "seen", "photos", "note"];
+const COLS = ["#", "status", "internet", "conn", "kids", "name", "model", "lanc", "wific", "area", "distance", "home", "ip", "mesh", "mac", "bleaddr", "scanner", "scannerip", "maker", "fw", "signal", "temp", "ble", "battery", "added", "seen", "manual", "photos", "note"];
 const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="${on ? "color:var(--primary-color)" : ""}"><rect x="3" y="2" width="9" height="5" rx="1.5"/><g ${on ? "" : 'stroke-dasharray="2 2.2" opacity=".55"'}><path d="M7.5 7v10a2.5 2.5 0 0 0 2.5 2.5H13M7.5 12H13"/><rect x="13" y="9.5" width="8" height="5" rx="1.5"/><rect x="13" y="17" width="8" height="5" rx="1.5"/></g></svg>`;
 // Default column layouts (used until a user saves his own): order = [] keeps the built-in order, w = widths (display: px, printout: mm), n = column names
 const DEFAULT_LAYOUT = {
   view: { order: [], off: ["mesh"], w: {}, n: {} }, // no widths = columns fit their content (auto)
-  print: { order: [], off: ["seen", "status", "mesh", "added"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
+  print: { order: [], off: ["seen", "status", "mesh", "added", "manual"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
 };
 // own default layout of the FRITZ! tab (used until the layout of that tab is changed; saved separately from the other tabs)
-const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["mesh"],"w":{},"n":{}},"print":{"order":["#","status","internet","conn","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status","mesh","added"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
-const HEAD_ICONS = { status: "dot", photos: "image", note: "note", battery: "battery", internet: "globe", conn: "link", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth", lanc: "lan", wific: "wifi" }; // columns whose heading is a symbol (narrow)
+const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["mesh"],"w":{},"n":{}},"print":{"order":["#","status","internet","conn","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status","mesh","added","manual"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
+const HEAD_ICONS = { manual: "manual", status: "dot", photos: "image", note: "note", battery: "battery", internet: "globe", conn: "link", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth", lanc: "lan", wific: "wifi" }; // columns whose heading is a symbol (narrow)
+const MANUAL_WORD = { de: "Bedienungsanleitung", fr: "mode d'emploi", es: "manual de instrucciones", nl: "handleiding", it: "manuale d'uso", pl: "instrukcja obsługi", pt: "manual de instruções", cs: "návod k použití", ru: "руководство по эксплуатации", sv: "bruksanvisning", nb: "bruksanvisning", no: "bruksanvisning", nn: "bruksanvisning", da: "brugsanvisning", af: "handleiding" };
 const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip"]; // columns blurred by the "hide addresses" option
-const OPTIONAL =["kids", "added", "mesh", "conn", "lanc", "wific", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
+const OPTIONAL =["kids", "manual", "added", "mesh", "conn", "lanc", "wific", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
 const ICONS = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>',
@@ -106,7 +109,8 @@ const ICONS = {
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
 };
-const ico = (n, size) => `<svg viewBox="0 0 24 24" width="${size || 18}" height="${size || 18}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">${ICONS[n]}</svg>`;
+const FILLED = { manual: "M48 2h1v1h-1zM68 2h16v1h-16zM45 3h6v1h-6zM66 3h19v1h-19zM44 4h8v1h-8zM65 4h21v1h-21zM43 5h4v1h-4zM50 5h3v1h-3zM65 5h3v1h-3zM84 5h2v1h-2zM42 6h4v1h-4zM51 6h3v1h-3zM65 6h3v1h-3zM84 6h2v1h-2zM41 7h4v1h-4zM52 7h3v1h-3zM65 7h3v1h-3zM84 7h2v1h-2zM40 8h4v1h-4zM53 8h3v1h-3zM65 8h3v1h-3zM84 8h2v1h-2zM39 9h4v1h-4zM54 9h3v1h-3zM65 9h3v1h-3zM83 9h3v1h-3zM38 10h4v1h-4zM55 10h3v1h-3zM65 10h21v1h-21zM37 11h4v1h-4zM47 11h2v1h-2zM56 11h3v1h-3zM66 11h19v1h-19zM36 12h4v1h-4zM46 12h4v1h-4zM57 12h3v1h-3zM35 13h4v1h-4zM45 13h6v1h-6zM58 13h3v1h-3zM34 14h4v1h-4zM44 14h8v1h-8zM59 14h3v1h-3zM81 14h1v1h-1zM33 15h4v1h-4zM43 15h4v1h-4zM49 15h4v1h-4zM60 15h3v1h-3zM69 15h2v1h-2zM80 15h2v1h-2zM32 16h4v1h-4zM42 16h4v1h-4zM50 16h4v1h-4zM61 16h3v1h-3zM69 16h2v1h-2zM80 16h2v1h-2zM31 17h4v1h-4zM41 17h4v1h-4zM51 17h4v1h-4zM62 17h3v1h-3zM69 17h2v1h-2zM80 17h2v1h-2zM30 18h4v1h-4zM40 18h4v1h-4zM52 18h4v1h-4zM63 18h3v1h-3zM69 18h2v1h-2zM80 18h2v1h-2zM29 19h4v1h-4zM39 19h4v1h-4zM53 19h4v1h-4zM64 19h3v1h-3zM80 19h2v1h-2zM28 20h4v1h-4zM38 20h4v1h-4zM54 20h4v1h-4zM65 20h3v1h-3zM80 20h2v1h-2zM27 21h4v1h-4zM37 21h4v1h-4zM55 21h4v1h-4zM66 21h3v1h-3zM80 21h2v1h-2zM26 22h4v1h-4zM36 22h4v1h-4zM56 22h4v1h-4zM67 22h3v1h-3zM80 22h2v1h-2zM25 23h4v1h-4zM35 23h4v1h-4zM57 23h4v1h-4zM68 23h3v1h-3zM80 23h2v1h-2zM24 24h4v1h-4zM34 24h4v1h-4zM58 24h4v1h-4zM69 24h3v1h-3zM80 24h2v1h-2zM23 25h4v1h-4zM33 25h4v1h-4zM45 25h6v1h-6zM59 25h4v1h-4zM70 25h3v1h-3zM80 25h2v1h-2zM22 26h4v1h-4zM32 26h4v1h-4zM44 26h8v1h-8zM60 26h4v1h-4zM71 26h3v1h-3zM80 26h2v1h-2zM21 27h4v1h-4zM31 27h4v1h-4zM43 27h4v1h-4zM49 27h3v1h-3zM61 27h4v1h-4zM72 27h3v1h-3zM80 27h2v1h-2zM20 28h4v1h-4zM30 28h4v1h-4zM43 28h3v1h-3zM50 28h3v1h-3zM62 28h4v1h-4zM73 28h3v1h-3zM80 28h2v1h-2zM19 29h4v1h-4zM29 29h4v1h-4zM43 29h2v1h-2zM50 29h3v1h-3zM63 29h4v1h-4zM74 29h3v1h-3zM80 29h2v1h-2zM18 30h4v1h-4zM28 30h4v1h-4zM43 30h3v1h-3zM50 30h3v1h-3zM64 30h4v1h-4zM75 30h3v1h-3zM17 31h4v1h-4zM27 31h4v1h-4zM43 31h3v1h-3zM49 31h3v1h-3zM65 31h4v1h-4zM76 31h3v1h-3zM16 32h4v1h-4zM26 32h4v1h-4zM35 32h3v1h-3zM44 32h8v1h-8zM66 32h4v1h-4zM77 32h3v1h-3zM15 33h4v1h-4zM25 33h4v1h-4zM34 33h5v1h-5zM45 33h6v1h-6zM67 33h4v1h-4zM78 33h3v1h-3zM14 34h4v1h-4zM24 34h4v1h-4zM34 34h6v1h-6zM47 34h2v1h-2zM68 34h4v1h-4zM79 34h3v1h-3zM13 35h4v1h-4zM23 35h4v1h-4zM34 35h2v1h-2zM37 35h3v1h-3zM47 35h2v1h-2zM69 35h4v1h-4zM80 35h3v1h-3zM12 36h4v1h-4zM22 36h4v1h-4zM34 36h6v1h-6zM47 36h2v1h-2zM70 36h4v1h-4zM81 36h3v1h-3zM11 37h4v1h-4zM21 37h4v1h-4zM35 37h4v1h-4zM47 37h2v1h-2zM71 37h4v1h-4zM82 37h3v1h-3zM10 38h4v1h-4zM20 38h4v1h-4zM36 38h2v1h-2zM47 38h2v1h-2zM72 38h4v1h-4zM83 38h3v1h-3zM9 39h4v1h-4zM19 39h4v1h-4zM36 39h3v1h-3zM47 39h2v1h-2zM73 39h4v1h-4zM84 39h3v1h-3zM8 40h4v1h-4zM18 40h4v1h-4zM36 40h9v1h-9zM47 40h2v1h-2zM74 40h4v1h-4zM85 40h3v1h-3zM7 41h4v1h-4zM17 41h4v1h-4zM37 41h7v1h-7zM47 41h2v1h-2zM75 41h4v1h-4zM86 41h3v1h-3zM6 42h4v1h-4zM16 42h4v1h-4zM47 42h2v1h-2zM76 42h4v1h-4zM87 42h3v1h-3zM5 43h4v1h-4zM15 43h4v1h-4zM47 43h2v1h-2zM77 43h4v1h-4zM88 43h3v1h-3zM4 44h4v1h-4zM14 44h4v1h-4zM47 44h2v1h-2zM78 44h4v1h-4zM89 44h3v1h-3zM3 45h4v1h-4zM13 45h4v1h-4zM79 45h4v1h-4zM90 45h3v1h-3zM3 46h3v1h-3zM12 46h4v1h-4zM80 46h4v1h-4zM90 46h3v1h-3zM3 47h3v1h-3zM11 47h4v1h-4zM31 47h34v1h-34zM81 47h4v1h-4zM90 47h3v1h-3zM4 48h3v1h-3zM10 48h4v1h-4zM29 48h37v1h-37zM82 48h4v1h-4zM89 48h3v1h-3zM5 49h3v1h-3zM9 49h4v1h-4zM29 49h3v1h-3zM64 49h3v1h-3zM83 49h4v1h-4zM88 49h3v1h-3zM6 50h6v1h-6zM28 50h3v1h-3zM65 50h2v1h-2zM84 50h6v1h-6zM7 51h4v1h-4zM28 51h3v1h-3zM32 51h32v1h-32zM65 51h3v1h-3zM75 51h5v1h-5zM85 51h4v1h-4zM28 52h3v1h-3zM32 52h32v1h-32zM65 52h3v1h-3zM75 52h5v1h-5zM28 53h3v1h-3zM32 53h2v1h-2zM62 53h2v1h-2zM65 53h3v1h-3zM74 53h3v1h-3zM78 53h3v1h-3zM10 54h2v1h-2zM28 54h3v1h-3zM32 54h2v1h-2zM47 54h2v1h-2zM62 54h2v1h-2zM65 54h3v1h-3zM75 54h5v1h-5zM84 54h2v1h-2zM10 55h2v1h-2zM28 55h3v1h-3zM32 55h2v1h-2zM45 55h6v1h-6zM62 55h2v1h-2zM65 55h3v1h-3zM75 55h5v1h-5zM84 55h2v1h-2zM10 56h2v1h-2zM28 56h3v1h-3zM32 56h2v1h-2zM44 56h7v1h-7zM62 56h2v1h-2zM65 56h3v1h-3zM76 56h3v1h-3zM84 56h2v1h-2zM10 57h2v1h-2zM28 57h3v1h-3zM32 57h2v1h-2zM43 57h4v1h-4zM49 57h3v1h-3zM62 57h2v1h-2zM65 57h3v1h-3zM76 57h3v1h-3zM84 57h2v1h-2zM10 58h2v1h-2zM28 58h3v1h-3zM32 58h2v1h-2zM41 58h5v1h-5zM50 58h5v1h-5zM62 58h2v1h-2zM65 58h3v1h-3zM76 58h3v1h-3zM84 58h2v1h-2zM10 59h2v1h-2zM28 59h3v1h-3zM32 59h2v1h-2zM40 59h5v1h-5zM51 59h5v1h-5zM62 59h2v1h-2zM65 59h3v1h-3zM76 59h3v1h-3zM84 59h2v1h-2zM10 60h2v1h-2zM16 60h4v1h-4zM28 60h3v1h-3zM32 60h2v1h-2zM39 60h3v1h-3zM53 60h3v1h-3zM62 60h2v1h-2zM65 60h3v1h-3zM76 60h3v1h-3zM84 60h2v1h-2zM10 61h2v1h-2zM16 61h5v1h-5zM28 61h3v1h-3zM32 61h2v1h-2zM39 61h3v1h-3zM54 61h3v1h-3zM62 61h2v1h-2zM65 61h3v1h-3zM76 61h3v1h-3zM84 61h2v1h-2zM10 62h2v1h-2zM15 62h3v1h-3zM19 62h7v1h-7zM28 62h3v1h-3zM32 62h2v1h-2zM39 62h3v1h-3zM54 62h3v1h-3zM62 62h2v1h-2zM65 62h3v1h-3zM70 62h8v1h-8zM84 62h2v1h-2zM10 63h2v1h-2zM15 63h11v1h-11zM28 63h3v1h-3zM32 63h2v1h-2zM40 63h3v1h-3zM53 63h3v1h-3zM62 63h2v1h-2zM65 63h3v1h-3zM70 63h8v1h-8zM84 63h2v1h-2zM10 64h2v1h-2zM16 64h5v1h-5zM28 64h3v1h-3zM32 64h2v1h-2zM40 64h3v1h-3zM52 64h4v1h-4zM62 64h2v1h-2zM65 64h3v1h-3zM84 64h2v1h-2zM10 65h2v1h-2zM17 65h3v1h-3zM28 65h3v1h-3zM32 65h2v1h-2zM41 65h3v1h-3zM52 65h3v1h-3zM62 65h2v1h-2zM65 65h3v1h-3zM84 65h2v1h-2zM10 66h2v1h-2zM23 66h2v1h-2zM28 66h3v1h-3zM32 66h2v1h-2zM41 66h3v1h-3zM52 66h3v1h-3zM62 66h2v1h-2zM65 66h3v1h-3zM73 66h2v1h-2zM84 66h2v1h-2zM10 67h2v1h-2zM23 67h2v1h-2zM28 67h3v1h-3zM32 67h2v1h-2zM41 67h2v1h-2zM52 67h3v1h-3zM62 67h2v1h-2zM65 67h3v1h-3zM73 67h2v1h-2zM84 67h2v1h-2zM10 68h2v1h-2zM23 68h2v1h-2zM28 68h3v1h-3zM32 68h2v1h-2zM41 68h3v1h-3zM46 68h4v1h-4zM52 68h3v1h-3zM62 68h2v1h-2zM65 68h3v1h-3zM73 68h2v1h-2zM84 68h2v1h-2zM10 69h2v1h-2zM23 69h2v1h-2zM28 69h3v1h-3zM32 69h2v1h-2zM42 69h12v1h-12zM62 69h2v1h-2zM65 69h3v1h-3zM72 69h4v1h-4zM84 69h2v1h-2zM10 70h2v1h-2zM23 70h2v1h-2zM28 70h3v1h-3zM32 70h2v1h-2zM42 70h11v1h-11zM62 70h2v1h-2zM65 70h3v1h-3zM70 70h7v1h-7zM84 70h2v1h-2zM10 71h2v1h-2zM16 71h4v1h-4zM23 71h2v1h-2zM28 71h3v1h-3zM32 71h2v1h-2zM62 71h2v1h-2zM65 71h3v1h-3zM70 71h8v1h-8zM84 71h2v1h-2zM10 72h2v1h-2zM16 72h5v1h-5zM22 72h3v1h-3zM28 72h3v1h-3zM32 72h2v1h-2zM61 72h3v1h-3zM65 72h3v1h-3zM69 72h3v1h-3zM76 72h3v1h-3zM84 72h2v1h-2zM10 73h2v1h-2zM15 73h10v1h-10zM28 73h3v1h-3zM32 73h32v1h-32zM65 73h3v1h-3zM69 73h2v1h-2zM76 73h3v1h-3zM84 73h2v1h-2zM10 74h2v1h-2zM15 74h3v1h-3zM19 74h5v1h-5zM28 74h3v1h-3zM32 74h32v1h-32zM65 74h3v1h-3zM69 74h2v1h-2zM76 74h3v1h-3zM84 74h2v1h-2zM10 75h2v1h-2zM16 75h5v1h-5zM28 75h3v1h-3zM65 75h3v1h-3zM69 75h3v1h-3zM76 75h3v1h-3zM84 75h2v1h-2zM10 76h2v1h-2zM16 76h4v1h-4zM28 76h3v1h-3zM65 76h3v1h-3zM70 76h8v1h-8zM84 76h2v1h-2zM10 77h2v1h-2zM28 77h3v1h-3zM65 77h3v1h-3zM70 77h7v1h-7zM84 77h2v1h-2zM10 78h2v1h-2zM28 78h3v1h-3zM65 78h3v1h-3zM72 78h4v1h-4zM84 78h2v1h-2zM10 79h2v2h-2zM28 79h3v2h-3zM65 79h3v2h-3zM84 79h2v2h-2zM10 81h2v1h-2zM28 81h3v1h-3zM43 81h2v1h-2zM47 81h2v1h-2zM51 81h2v1h-2zM65 81h3v1h-3zM84 81h2v1h-2zM10 82h2v2h-2zM28 82h3v2h-3zM43 82h2v2h-2zM47 82h2v2h-2zM50 82h3v2h-3zM65 82h3v2h-3zM84 82h2v2h-2zM10 84h16v1h-16zM28 84h3v1h-3zM43 84h2v1h-2zM47 84h2v1h-2zM50 84h3v1h-3zM65 84h3v1h-3zM70 84h16v1h-16zM11 85h15v1h-15zM28 85h3v1h-3zM65 85h3v1h-3zM70 85h15v1h-15zM28 86h3v4h-3zM65 86h3v4h-3zM28 90h3v1h-3zM64 90h3v1h-3zM29 91h38v1h-38zM30 92h36v1h-36zM31 93h33v1h-33z" }; // traced symbol (filled shape)
+const ico = (n, size) => FILLED[n] ? `<svg viewBox="0 0 96 96" width="${size || 18}" height="${size || 18}" fill="currentColor" stroke="none" style="vertical-align:middle"><path d="${FILLED[n]}"/></svg>` : `<svg viewBox="0 0 24 24" width="${size || 18}" height="${size || 18}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">${ICONS[n]}</svg>`;
 const escH = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 function el(tag, css, txt) {
@@ -154,7 +158,11 @@ class DeviceInventoryCard extends HTMLElement {
   getCardSize() { return 6; }
   static getStubConfig() { return { class: "esphome" }; }
 
-  get _t() { return T[(this._hass && this._hass.language || "en").slice(0, 2)] || T.en; }
+  get _t() {
+    const l = (this._hass && this._hass.language || "en").slice(0, 2);
+    if (!this._tc || this._tc.l !== l) this._tc = { l, o: T[l] ? Object.assign({}, T.en, T[l]) : T.en };
+    return this._tc.o;
+  }
 
   async _migrate() {
     // one-off: take over notes and photos of the old template-based network dashboard
@@ -196,6 +204,7 @@ class DeviceInventoryCard extends HTMLElement {
     }
     s.notes = r.notes || {};
     s.photos = r.photos || {};
+    s.manuals = r.manuals || {};
     s.loaded = true;
     this._render();
   }
@@ -242,6 +251,7 @@ class DeviceInventoryCard extends HTMLElement {
       case "mesh": return !!d.mesh && !!d.mesh.to;
       case "conn": return !!d.mesh && !!d.mesh.type;
       case "added": return !!d.added;
+      case "manual": return !!this._manualInfo(d);
       case "lanc": case "wific": return !!d.mesh_stats;
       case "scanner": return !!d.ble && !!d.ble.scanner;
       case "scannerip": return !!d.ble && !!d.ble.scanner_ip;
@@ -288,6 +298,7 @@ class DeviceInventoryCard extends HTMLElement {
       case "battery": return d.battery !== null && d.battery !== undefined ? d.battery : d.battery_low === true ? 0 : d.battery_low === false ? 100 : -1;
       case "seen": return d.last_seen || "";
       case "added": return d.added || "";
+      case "manual": { const k = this._manualInfo(d); return k ? { local: 0, link: 1, search: 2 }[k.kind] : 3; }
       case "photos": return (s.photos[d.id] || []).length;
       case "note": return ((s.notes[d.id] || {}).t || "").toLowerCase();
       default: return 0;
@@ -537,7 +548,7 @@ class DeviceInventoryCard extends HTMLElement {
       const th = document.createElement("th");
       th.dataset.col = c;
       const IC = HEAD_ICONS;
-      const dfltHtml = c === "#" ? "#" : IC[c] ? ico(IC[c], 17) : escH(t[c]);
+      const dfltHtml = c === "#" ? "#" : IC[c] ? ico(IC[c], c === "manual" ? 24 : 17) : escH(t[c]);
       const label = (names[c] ? escH(names[c]) : dfltHtml) + (s.sortCol === c ? (s.sortDir > 0 ? "▲" : "▼") : "");
       th.innerHTML = label;
       if (["photos", "note", "battery", "internet", "signal", "temp", "ble", "distance", "home"].includes(c)) th.title = c === "battery" ? t.batteries : t[c];
@@ -728,6 +739,12 @@ class DeviceInventoryCard extends HTMLElement {
     const ad = el("span", "display:inline-flex"); ad.innerHTML = ico("camera", 18); ad.className = "ic"; ad.title = t.addPhoto;
     ad.onclick = async () => { ad.textContent = "…"; await this._pick(d, (x) => (ad.textContent = x)); this._freeze = true; await this._load(); };
     tp.appendChild(ad);
+    const mi = this._manualInfo(d); // manual: own link / local copy / automatic search
+    if (mi) {
+      const ma = el("a", `display:inline-flex;color:${mi.kind === "local" ? "var(--success-color,#43a047)" : mi.kind === "link" ? "var(--primary-color)" : "var(--secondary-text-color,#777)"}`);
+      ma.href = mi.href; ma.target = "_blank"; ma.rel = "noopener"; ma.innerHTML = ico("manual", 24); ma.title = mi.title;
+      add("manual", ma);
+    } else add("manual", "–");
     add("photos", tp);
 
     const note = (s.notes[d.id] || {}).t || "";
@@ -820,6 +837,57 @@ class DeviceInventoryCard extends HTMLElement {
     draw();
   }
 
+  _manualInfo(d) {
+    const t = this._t, m = (this._state.manuals || {})[d.id] || {};
+    if (m.file) return { href: m.file, kind: "local", title: `${t.manualLocal}: ${m.name || "PDF"}` };
+    if (m.link) { let h = m.link; try { h = new URL(m.link).hostname; } catch (e) { /* keep the link */ } return { href: m.link, kind: "link", title: `${t.manualLink}: ${h}` }; }
+    const model = String(d.model || ""), maker = String(d.manufacturer || "");
+    if (String(d.id).includes("~") || (!model && !maker) || /tracked device|^mesh$/i.test(model)) return null;
+    const lang = (this._hass && this._hass.language || "en").slice(0, 2);
+    const q = [model.toLowerCase().startsWith(maker.toLowerCase()) ? "" : maker, model || d.name, MANUAL_WORD[lang] || "manual", "PDF"].filter(Boolean).join(" ");
+    return { href: "https://www.google.com/search?q=" + encodeURIComponent(q), kind: "search", title: `${t.manualSearch}: ${q}` };
+  }
+
+  _manualSection(d, o) {
+    const t = this._t, m = (this._state.manuals || {})[d.id] || {};
+    const box = el("div", "margin-top:14px;padding-top:10px;border-top:1px solid var(--divider-color,#888)");
+    box.appendChild(el("div", "font-weight:600;margin-bottom:6px", `${t.manualOf}: ${d.name}`));
+    const row = el("div", "display:flex;gap:6px;flex-wrap:wrap;align-items:center");
+    const inp = el("input", "flex:1;min-width:220px;padding:6px 8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font:inherit");
+    inp.type = "url"; inp.placeholder = t.manualUrlHint; inp.value = m.link || "";
+    inp.onkeydown = (ev) => ev.stopPropagation();
+    const bSave = this._btn(t.manualSave);
+    row.append(inp, bSave); box.appendChild(row);
+    box.appendChild(el("div", "margin:8px 0 4px;font-size:12px;opacity:.75", m.file ? `${t.manualLocalCopy}: ${m.name || "PDF"}` : t.manualNone));
+    const row2 = el("div", "display:flex;gap:6px;flex-wrap:wrap");
+    const bFetch = this._btn(t.manualFetch), bUp = this._btn(t.manualUpload), bDel = this._btn(t.manualRemove);
+    row2.append(bFetch, bUp); if (m.file || m.link) row2.appendChild(bDel);
+    box.appendChild(row2);
+    const call = async (btn, type, extra) => {
+      btn.disabled = true;
+      try { this._freeze = true; this._apply(await this._hass.callWS(Object.assign({ type: `device_inventory/${type}`, device_id: d.id }, extra || {}))); o.close(); }
+      catch (e) { btn.disabled = false; alert(`${t.manualFail}: ${e.message || e.code || e}`); }
+    };
+    bSave.onclick = () => call(bSave, "set_manual", { link: inp.value });
+    bFetch.onclick = async () => { if (inp.value.trim() !== (m.link || "")) { try { await this._hass.callWS({ type: "device_inventory/set_manual", device_id: d.id, link: inp.value }); } catch (e) { alert(`${t.manualFail}: ${e.message || e.code || e}`); return; } } call(bFetch, "fetch_manual"); };
+    bDel.onclick = () => call(bDel, "delete_manual");
+    bUp.onclick = () => {
+      const f = document.createElement("input"); f.type = "file"; f.accept = "application/pdf"; f.style.display = "none"; document.body.appendChild(f);
+      f.onchange = async () => {
+        const file = (f.files || [])[0]; f.remove(); if (!file) return;
+        bUp.disabled = true;
+        try {
+          const fd = new FormData(); fd.append("file", file, file.name);
+          const r = await this._hass.fetchWithAuth(`/api/device_inventory/manual_upload/${d.id}`, { method: "POST", body: fd });
+          if (!r.ok) throw new Error(`HTTP ${r.status} ${await r.text()}`);
+          this._freeze = true; await this._load(); o.close();
+        } catch (e) { bUp.disabled = false; alert(`${t.manualFail}: ${e.message || e}`); }
+      };
+      f.click();
+    };
+    return box;
+  }
+
   _editNote(d) {
     const t = this._t, o = this._overlay(), old = (this._state.notes[d.id] || {}).t || "";
     o.bx.appendChild(el("div", "font-weight:600;font-size:16px;margin-bottom:10px", `${t.noteOf}: ${d.name}`));
@@ -836,7 +904,7 @@ class DeviceInventoryCard extends HTMLElement {
     bD.onclick = () => { if (confirm(t.delNote)) save(""); };
     bC.onclick = o.close; bS.onclick = () => save(ta.value);
     if (old) ft.appendChild(bD);
-    ft.append(bC, bS); o.bx.append(ta, ft); ta.focus();
+    ft.append(bC, bS); o.bx.append(ta, ft, this._manualSection(d, o)); ta.focus();
   }
 
   // ---------- upload
@@ -909,7 +977,7 @@ class DeviceInventoryCard extends HTMLElement {
     return {
       "#": i + 1, status: d.online ? t.online : t.offline, internet: inet === "on" ? t.allowed : inet === "off" ? t.blocked : "",
       name: d.name || "", model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WiFi " + d.mesh_stats.wlan + ")") : d.model || ""), area: d.area || "", ip: d.ip || "", mac: d.mac || "", maker: d.manufacturer || "", fw: (d.sw_version || "").split(" ")[0],
-      battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "", seen: d.last_seen || "", added: d.added ? this._date(d.added) : "",
+      battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "", seen: d.last_seen || "", manual: ((this._state.manuals || {})[d.id] || {}).link || "", added: d.added ? this._date(d.added) : "",
       distance: b.distance != null ? String(b.distance) : "", home: b.home != null ? (b.home ? t.yes : "") : "", bleaddr: b.address || "", scanner: b.scanner || "", mesh: (d.mesh && d.mesh.to) || "", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " " + d.mesh.ssid : "") : "", scannerip: b.scanner_ip || "",
       signal: d.rssi == null ? "" : String(d.rssi), temp: d.temp == null ? "" : String(d.temp), ble: ble === "on" ? "on" : ble === "off" ? "off" : "",
       photos: String((s.photos[d.id] || []).length || ""), note: (s.notes[d.id] || {}).t || "",
@@ -1012,7 +1080,7 @@ class DeviceInventoryCard extends HTMLElement {
       const cells = {
         "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WiFi " + d.mesh_stats.wlan + ")") : d.model || "–"), area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
-        seen: this._ago(d.last_seen), added: d.added ? this._date(d.added) : "–", distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "–", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "–", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
+        seen: this._ago(d.last_seen), manual: "–", added: d.added ? this._date(d.added) : "–", distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "–", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "–", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };
       const lvl = d.battery != null ? d.battery : d.battery_low != null ? (d.battery_low ? 0 : 100) : null;
       const tint = { battery: lvl == null ? null : lvl <= 20 ? R : lvl <= 40 ? O : G, signal: d.rssi == null ? null : sev(d.rssi, -60, -75, true), temp: d.temp == null ? null : sev(d.temp, ...(d.classes && d.classes.includes("fritz") ? [85, 95] : [55, 65]), false), home: d.ble && d.ble.home != null ? (d.ble.home ? G : R) : null };

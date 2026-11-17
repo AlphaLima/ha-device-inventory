@@ -6,6 +6,7 @@ from datetime import timedelta
 import asyncio
 import ipaddress
 import logging
+import re
 from pathlib import Path
 import secrets
 import socket
@@ -114,6 +115,7 @@ class InventoryManager:
                 "ai": bool(entry.get("ai")),
                 "pdf": entry.get("pdf"),
                 "name": entry.get("name"),
+                "archived": entry.get("archived"),
                 "file": self._signed_url(f"/api/{DOMAIN}/manual/{entry['file']}", refresh_token_id, now) if entry.get("file") else None,
             }
         return {
@@ -351,6 +353,7 @@ async def _store_manual(hass: HomeAssistant, manager: InventoryManager, device_i
     entry = manager.data["manuals"].setdefault(device_id, {})
     old = entry.get("file")
     entry["file"] = manual_id
+    entry["archived"] = dt_util.utcnow().isoformat()  # state of the manual on this day, kept even if the address disappears
     entry["name"] = "".join(ch for ch in name if ch.isalnum() or ch in "._- ")[:80] or "manual.pdf"
     if old and old != manual_id:
         await _remove_manual_file(hass, manager, device_id, old)
@@ -473,12 +476,47 @@ async def _verify_manual_url(hass: HomeAssistant, url: str) -> str | None:
     return None
 
 
+async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> str | None:
+    """The AI sometimes returns the product page: look on that page for a PDF link that really is a PDF (no AI needed)."""
+    session = async_get_clientsession(hass)
+    url = page_url
+    html = b""
+    for _ in range(5):
+        if not _http_url_ok(url) or not await _is_public_host(hass, urlparse(url).hostname or ""):
+            return None
+        try:
+            async with session.get(url, allow_redirects=False, timeout=ClientTimeout(total=25), headers={"User-Agent": "HomeAssistant-DeviceInventory"}) as resp:
+                if resp.status in (301, 302, 303, 307, 308) and resp.headers.get("Location"):
+                    url = urljoin(url, resp.headers["Location"])
+                    continue
+                if resp.status != 200:
+                    return None
+                html = await resp.content.read(1024 * 1024)
+                break
+        except (OSError, asyncio.TimeoutError):
+            return None
+    text = html.decode("utf-8", errors="ignore")
+    seen: list[str] = []
+    for match in re.finditer(r"href=[\"']([^\"'#]+?\.pdf[^\"']*)[\"']", text, re.IGNORECASE):
+        link = urljoin(url, match.group(1))
+        if link not in seen:
+            seen.append(link)
+    tokens = [tok for tok in re.split(r"[^a-z0-9]+", model.lower()) if len(tok) > 2]
+    words = ("manual", "anleitung", "handbuch", "guide", "instruction", "bedien", "user")
+    seen.sort(key=lambda link: -(sum(tok in link.lower() for tok in tokens) * 2 + sum(word in link.lower() for word in words)))
+    for link in seen[:6]:
+        if await _verify_manual_url(hass, link) == "pdf":
+            return link
+    return None
+
+
 async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str) -> tuple[str | None, str | None]:
     """Ask the AI task for the official manual of one device model (only manufacturer and model are sent): (address, error text)."""
     instructions = (
-        f"Find the official user manual (a PDF is preferred) for this device: manufacturer '{maker}', model '{model}'. "
+        f"Find the official user manual of this device as a PDF file: manufacturer '{maker}', model '{model}'. "
+        "The address must be the direct link to the PDF file itself (it normally ends in .pdf), taken from the manufacturer's own website, "
+        "so that the file can be downloaded and archived. A product page is acceptable only if the manufacturer offers no PDF. "
         f"The manual language should be '{hass.config.language}' if the manufacturer offers it, otherwise English. "
-        "Answer only with a direct address (URL) taken from the manufacturer's own website. "
         "If you are not certain that exactly this address exists, leave the url empty. Never guess or invent an address."
     )
     try:
@@ -518,7 +556,7 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
     if entity is None:
         connection.send_error(msg["id"], "no_ai", "No AI task entity is set up")
         return
-    copy_local = bool(_options(hass).get(CONF_AI_COPY))
+    copy_local = bool(_options(hass).get(CONF_AI_COPY, True))  # archive found PDFs unless switched off
     devices = {dev["id"]: dev for dev in (manager.coordinator.data or [])}
     found = missing = copied = 0
     quota = False
@@ -544,6 +582,10 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 missing += 1
                 continue  # not cached: a later run asks again
             kind = await _verify_manual_url(hass, url) if url else None
+            if kind == "page":  # prefer a real PDF: look for one on the page the AI gave us
+                pdf = await _find_pdf_on_page(hass, url, model)
+                if pdf:
+                    url, kind = pdf, "pdf"
             cache[key] = {"url": url, "pdf": kind == "pdf"} if kind else {"url": "", "pdf": False}
         hit = cache[key]
         if hit["url"]:

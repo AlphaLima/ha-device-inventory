@@ -17,10 +17,10 @@
         "description": "Optional. Choose the AI task entity of an AI provider set up in Home Assistant (for example Google Generative AI, OpenAI or Anthropic). Device Inventory then asks it for the manuals of your devices. Only the manufacturer and the model are sent; every address is checked before it is saved. Leave empty to turn it off.",
         "data": {
           "ai_task_entity": "AI task entity",
-          "ai_copy_local": "Copy found PDFs to Home Assistant"
+          "ai_copy_local": "Archive found PDFs in Home Assistant (recommended)"
         },
         "data_description": {
-          "ai_copy_local": "Store the PDF manuals the AI found on your Home Assistant (config/device_inventory/manuals), so they work without internet."
+          "ai_copy_local": "Stores every PDF manual the AI finds on your Home Assistant (config/device_inventory/manuals). The archive keeps the state of the manual of today, works without internet and keeps the manuals of old devices even if they disappear from the website of the manufacturer."
         }
       }
     }

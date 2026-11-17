@@ -17,10 +17,10 @@
         "description": "Optional. Wähle die KI-Task-Entität eines in Home Assistant eingerichteten KI-Anbieters (z. B. Google Generative AI, OpenAI oder Anthropic). Device Inventory fragt sie dann nach den Anleitungen deiner Geräte. Gesendet werden nur Hersteller und Modell; jede Adresse wird vor dem Speichern geprüft. Leer lassen = aus.",
         "data": {
           "ai_task_entity": "KI-Task-Entität",
-          "ai_copy_local": "Gefundene PDFs nach Home Assistant kopieren"
+          "ai_copy_local": "Gefundene PDFs in Home Assistant archivieren (empfohlen)"
         },
         "data_description": {
-          "ai_copy_local": "Speichert die von der KI gefundenen PDF-Anleitungen auf deinem Home Assistant (config/device_inventory/manuals), damit sie auch ohne Internet funktionieren."
+          "ai_copy_local": "Speichert jede von der KI gefundene PDF-Anleitung auf deinem Home Assistant (config/device_inventory/manuals). Das Archiv hält den heutigen Stand der Anleitung fest, funktioniert ohne Internet und behält die Anleitungen alter Geräte, auch wenn sie von der Herstellerseite verschwinden."
         }
       }
     }

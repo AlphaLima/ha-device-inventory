@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Device Inventory",
+        "description": "Voegt geclassificeerde apparaattabellen toe (Shelly, ESPHome, ZigBee, ...) met foto's, notities en afdrukken. Niets te configureren."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Al geconfigureerd."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Device Inventory",
+        "description": "Añade tablas de dispositivos clasificados (Shelly, ESPHome, ZigBee, ...) con fotos, notas e impresión. Nada que configurar."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Ya está configurado."
+    }
+  }
+}

@@ -26,6 +26,10 @@ const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homemati
 const LABEL = {
   en: { all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show missing (offline) devices and red counters", hideBadges: "Hide missing devices and red counters" },
   de: { all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Fehlende Geräte und rote Zähler anzeigen", hideBadges: "Fehlende Geräte und rote Zähler ausblenden" },
+  fr: { all: "Tous les appareils", other: "Autres", battery: "Piles", showBadges: "Afficher les appareils manquants (hors ligne) et les compteurs rouges", hideBadges: "Masquer les appareils manquants et les compteurs rouges" },
+  es: { all: "Todos los dispositivos", other: "Otros", battery: "Baterías", showBadges: "Mostrar dispositivos ausentes (sin conexión) y contadores rojos", hideBadges: "Ocultar dispositivos ausentes y contadores rojos" },
+  nl: { all: "Alle apparaten", other: "Overig", battery: "Batterijen", showBadges: "Ontbrekende (offline) apparaten en rode tellers tonen", hideBadges: "Ontbrekende apparaten en rode tellers verbergen" },
+  it: { all: "Tutti i dispositivi", other: "Altro", battery: "Batterie", showBadges: "Mostra i dispositivi mancanti (offline) e i contatori rossi", hideBadges: "Nascondi i dispositivi mancanti e i contatori rossi" },
 };
 
 class DeviceInventoryPanel extends HTMLElement {

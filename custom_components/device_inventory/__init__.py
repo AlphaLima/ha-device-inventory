@@ -629,6 +629,7 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
     tokens = [tok for tok in re.split(r"[^a-z0-9]+", model.lower()) if len(tok) > 2]
     words = ("manual", "anleitung", "handbuch", "guide", "instruction", "bedien", "user")
     seen.sort(key=lambda link: -(sum(tok in link.lower() for tok in tokens) * 2 + sum(word in link.lower() for word in words)))
+    seen = [link for link in seen if any(tok in link.lower() for tok in tokens) or any(word in link.lower() for word in words)]
     for link in seen[:6]:
         if await _verify_manual_url(hass, link) == "pdf":
             return link
@@ -647,7 +648,7 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
         "Task: list up to 5 addresses (URLs), best first, where the official user manual / operating instructions / installation guide of exactly this device can be found. "
         "Order: 1. direct links to a PDF file of the manual (usually ending in .pdf) from the manufacturer's own site; "
         "2. the manufacturer's official download, support or documentation page for this exact product; 3. the official product page. "
-        "Do not use shops, forums, video sites, manual-aggregator sites or search result pages. "
+        "Do not use shops, forums, video sites, manual-aggregator sites, search result pages or general download overview pages; every address must be specific to this exact product. "
         f"Prefer the language '{hass.config.language}' if the manufacturer offers it, otherwise English. "
     )
     if avoid:
@@ -684,8 +685,19 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
     return urls[:5], (image if _http_url_ok(image) else None), domain, None
 
 
+def _norm(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", text.lower())
+
+
+async def _page_is_about(hass: HomeAssistant, url: str, model: str) -> bool:
+    """A page only counts as a manual link when it really names the model (no general download overview or search pages)."""
+    got = await _fetch_html(hass, url)
+    key = _norm(model)
+    return bool(got and len(key) >= 3 and key in _norm(got[1]))
+
+
 async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> tuple[str | None, str | None]:
-    """Check the candidates one by one: a real PDF wins; a page is searched for a PDF link; otherwise the first working page is kept."""
+    """Check the candidates one by one: a real PDF wins; a page is searched for a PDF link; otherwise the first page that names the model is kept."""
     fallback: str | None = None
     for url in urls:
         kind = await _verify_manual_url(hass, url)
@@ -695,7 +707,8 @@ async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> t
             pdf = await _find_pdf_on_page(hass, url, model)
             if pdf:
                 return pdf, "pdf"
-            fallback = fallback or url
+            if not fallback and await _page_is_about(hass, url, model):
+                fallback = url
     return (fallback, "page") if fallback else (None, None)
 
 

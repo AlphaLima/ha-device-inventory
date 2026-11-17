@@ -364,7 +364,7 @@ async def _store_manual(hass: HomeAssistant, manager: InventoryManager, device_i
     old = entry.get("file")
     entry["file"] = manual_id
     entry["archived"] = dt_util.utcnow().isoformat()  # state of the manual on this day, kept even if the address disappears
-    entry["name"] = "".join(ch for ch in name if ch.isalnum() or ch in "._- ")[:80] or "manual.pdf"
+    entry["name"] = "".join(ch for ch in unquote(name) if ch.isalnum() or ch in "._- ")[:80] or "manual.pdf"
     if old and old != manual_id:
         await _remove_manual_file(hass, manager, device_id, old)
     manager.save()

@@ -590,24 +590,33 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
     return None
 
 
-async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, want_image: bool) -> tuple[str | None, str | None, str | None, str | None]:
-    """Ask the AI task for the official manual (and a product photo) of one device model; only manufacturer and model are sent: (manual, photo, manufacturer domain, error text)."""
+async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, want_image: bool, avoid: list[str] | None = None) -> tuple[list[str], str | None, str | None, str | None]:
+    """Ask the AI task for candidate addresses of the official manual (and a product photo) of one device model; only manufacturer and model are sent: (candidates, photo, manufacturer domain, error text)."""
     instructions = (
-        f"Find the official user manual of this device as a PDF file: manufacturer '{maker}', model '{model}'. "
-        "The address must be the direct link to the PDF file itself (it normally ends in .pdf), taken from the manufacturer's own website, "
-        "so that the file can be downloaded and archived. A product page is acceptable only if the manufacturer offers no PDF. "
-        f"The manual language should be '{hass.config.language}' if the manufacturer offers it, otherwise English. "
+        "You are a research assistant for smart-home device documentation. "
+        f"Device: manufacturer '{maker}', model / type designation '{model}'. "
+        "Use your web search or browsing ability if you have one. Many smart-home brands are sold under a system or parent brand: "
+        "eQ-3 / ELV makes Homematic and Homematic IP (type names HmIP-..., HM-..., CCU), AVM makes FRITZ!, Signify makes Philips Hue, "
+        "Shelly is Allterco, Sonoff is ITEAD, Aqara is Lumi, Tuya devices are rebranded, and a model name starting with a known prefix identifies the brand. "
+        "Work out which company really makes the device and use its official website. "
+        "Task: list up to 5 addresses (URLs), best first, where the official user manual / operating instructions / installation guide of exactly this device can be found. "
+        "Order: 1. direct links to a PDF file of the manual (usually ending in .pdf) from the manufacturer's own site; "
+        "2. the manufacturer's official download, support or documentation page for this exact product; 3. the official product page. "
+        "Do not use shops, forums, video sites, manual-aggregator sites or search result pages. "
+        f"Prefer the language '{hass.config.language}' if the manufacturer offers it, otherwise English. "
     )
-    structure: dict[str, Any] = {"url": {"description": "Direct address of the official manual, empty if unknown", "required": True, "selector": {"text": {}}}}
+    if avoid:
+        instructions += "These addresses were already tried and did not work, so do not repeat them, give different ones (for example the download area of the product family): " + ", ".join(avoid[:8]) + ". "
+    structure: dict[str, Any] = {"urls": {"description": "Up to 5 candidate addresses, one per line, best first, empty if unknown", "required": True, "selector": {"text": {"multiline": True}}}}
     if want_image:
         instructions += (
-            "Also give the direct address of one clean product photo of exactly this device (a JPG or PNG file, not a logo or an icon), "
-            "taken from the manufacturer's own website (original manufacturer image only, never a shop, marketplace, search engine or stock photo), in image_url. "
+            "Also give the direct address of one clean product photo of exactly this device (a JPG or PNG file, not a logo or an icon) in image_url, "
+            "taken from the manufacturer's own website (original manufacturer image only, never a shop, marketplace, search engine or stock photo). "
             "Also give the official internet domain of the manufacturer (for example shelly.com) in manufacturer_domain. "
         )
         structure["image_url"] = {"description": "Direct address of an original manufacturer product photo (JPG or PNG), empty if unknown", "required": False, "selector": {"text": {}}}
         structure["manufacturer_domain"] = {"description": "Official internet domain of the manufacturer, empty if unknown", "required": False, "selector": {"text": {}}}
-    instructions += "If you are not certain that exactly an address exists, leave that field empty. Never guess or invent an address."
+    instructions += "Only give addresses you know or found; never invent a path. A real page of the right site is better than a guessed PDF name."
     try:
         resp = await hass.services.async_call(
             "ai_task",
@@ -618,12 +627,31 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
         )
     except (HomeAssistantError, asyncio.TimeoutError, OSError) as err:
         _LOGGER.warning("AI task failed for %s %s: %s", maker, model, err)
-        return None, None, None, str(err) or err.__class__.__name__
+        return [], None, None, str(err) or err.__class__.__name__
     data = (resp or {}).get("data") or {}
-    url = str(data.get("url") or "").strip()
+    urls: list[str] = []
+    for token in re.split(r"[\s,;]+", str(data.get("urls") or data.get("url") or "")):
+        token = token.strip("<>()[]\"'")
+        if token and _http_url_ok(token) and token not in urls:
+            urls.append(token)
     image = str(data.get("image_url") or "").strip()
     domain = str(data.get("manufacturer_domain") or "").strip()
-    return (url if _http_url_ok(url) else None), (image if _http_url_ok(image) else None), domain, None
+    return urls[:5], (image if _http_url_ok(image) else None), domain, None
+
+
+async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> tuple[str | None, str | None]:
+    """Check the candidates one by one: a real PDF wins; a page is searched for a PDF link; otherwise the first working page is kept."""
+    fallback: str | None = None
+    for url in urls:
+        kind = await _verify_manual_url(hass, url)
+        if kind == "pdf":
+            return url, "pdf"
+        if kind == "page":
+            pdf = await _find_pdf_on_page(hass, url, model)
+            if pdf:
+                return pdf, "pdf"
+            fallback = fallback or url
+    return (fallback, "page") if fallback else (None, None)
 
 
 @websocket_api.websocket_command(
@@ -662,7 +690,7 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         key = f"{maker.lower()}|{model.lower()}"
         cache: dict[str, Any] = manager.data["ai_cache"]
         if key not in cache or msg["overwrite"] or (need_image and "image" not in cache[key]):
-            url, image, domain, err = await _ai_find(hass, entity, maker, model, use_images)
+            urls, image, domain, err = await _ai_find(hass, entity, maker, model, use_images)
             if err:
                 if _is_quota_error(err):
                     quota = True
@@ -671,11 +699,18 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 error = error or err
                 missing += 1
                 continue  # not cached: a later run asks again
-            kind = await _verify_manual_url(hass, url) if url else None
-            if kind == "page":  # prefer a real PDF: look for one on the page the AI gave us
-                pdf = await _find_pdf_on_page(hass, url, model)
-                if pdf:
-                    url, kind = pdf, "pdf"
+            url, kind = await _resolve_manual(hass, urls, model)
+            if kind != "pdf":  # second try: ask again for different pages, only counts when it brings a real PDF or any working page
+                urls2, image2, domain2, err2 = await _ai_find(hass, entity, maker, model, use_images and not image, urls)
+                if err2 and _is_quota_error(err2):
+                    quota = True
+                    error = err2
+                if not err2:
+                    url2, kind2 = await _resolve_manual(hass, [u for u in urls2 if u not in urls], model)
+                    if kind2 and (kind != "page" or kind2 == "pdf"):
+                        url, kind = url2, kind2
+                    if not image and image2:
+                        image, domain = image2, domain2
             image = image if image and _manufacturer_image_ok(image, domain or "", maker, url) else ""  # original manufacturer images only
             cache[key] = {"url": url, "pdf": kind == "pdf", "image": image} if kind else {"url": "", "pdf": False, "image": image}
         hit = cache[key]

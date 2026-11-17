@@ -184,6 +184,19 @@ Type into the <img src="docs/icons/search.svg" height="16" alt="search"> field: 
 
 **Import from the old template dashboard:** notes (`netzwerk_bemerkungen`) and photos (`netzfoto_*`) of the author's earlier template-based dashboard are taken over once, automatically, when an admin opens the panel (only empty notes are filled). Harmless if you never had it.
 
+## Setting up the AI (example: Google Gemini, free)
+
+The manual and product photo search needs an **AI provider** in Home Assistant. Without it the sparkles button only tells you that no AI is set up; nothing else of the integration is affected. Only **manufacturer and model** of a device are sent to the AI.
+
+1. **Get a free API key:** open <https://aistudio.google.com/apikey>, sign in with a Google account and click **Create API key**. No credit card is needed for the free tier. Copy the key. Keep it private (you enter it only in Home Assistant, never in Device Inventory). Note that Google may use the content of free-tier requests to improve its products; here that is only manufacturer and model names.
+2. **Add the provider:** *Settings → Devices & services → Add integration → Google Generative AI*, paste the key. Home Assistant creates four services (conversation, speech-to-text, text-to-speech and **AI Task**). The default settings are fine: leave "Recommended settings" switched on.
+3. **Choose it in Device Inventory:** *Settings → Devices & services → Device Inventory → Configure*, select the **AI task entity** (for example `ai_task.google_ai_task`) and save.
+4. **Use it:** the **sparkles button** in the toolbar searches the whole tab, or open the pencil editor of one device and click **Find with AI**.
+
+The free tier allows about **15 requests per minute** and a daily limit. Device Inventory waits between requests and, when the minute limit hits, waits as long as the service asks. If the **daily quota** is used up it stops with a message and keeps what it found; just continue the next day. Identical models are asked only once.
+
+Other providers that offer an *AI Task* in Home Assistant (OpenAI, Anthropic, local Ollama …) work the same way: set up the integration, then pick its AI task entity in the options.
+
 ## One table in your own dashboard (optional)
 
 ```yaml

@@ -556,6 +556,51 @@ async def _download_image(hass: HomeAssistant, url: str) -> bytes | None:
     return None
 
 
+async def _fetch_html(hass: HomeAssistant, url: str) -> tuple[str, str] | None:
+    """Fetch a public web page (redirects checked by hand, size limited): (final address, text)."""
+    session = async_get_clientsession(hass)
+    for _ in range(5):
+        if not _http_url_ok(url) or not await _is_public_host(hass, urlparse(url).hostname or ""):
+            return None
+        try:
+            async with session.get(url, allow_redirects=False, timeout=ClientTimeout(total=25), headers={"User-Agent": "HomeAssistant-DeviceInventory"}) as resp:
+                if resp.status in (301, 302, 303, 307, 308) and resp.headers.get("Location"):
+                    url = urljoin(url, resp.headers["Location"])
+                    continue
+                if resp.status != 200 or "html" not in resp.headers.get("Content-Type", "").lower():
+                    return None
+                return url, (await resp.content.read(1024 * 1024)).decode("utf-8", errors="ignore")
+        except (OSError, asyncio.TimeoutError):
+            return None
+    return None
+
+
+async def _page_image(hass: HomeAssistant, page_url: str, maker: str) -> str | None:
+    """The product photo the manufacturer itself names on its product page (og:image): real, not guessed by the AI."""
+    got = await _fetch_html(hass, page_url)
+    if not got:
+        return None
+    url, text = got
+    page_host = (urlparse(url).hostname or "").lower()
+    base = ".".join(page_host.split(".")[-2:])
+    tokens = [tok for tok in re.split(r"[^a-z0-9]+", maker.lower()) if len(tok) >= 3]
+    found: list[str] = []
+    for tag in re.findall(r"<meta[^>]+>|<link[^>]+>", text, re.IGNORECASE):
+        low = tag.lower()
+        if not any(key in low for key in ('property="og:image"', "property='og:image'", 'name="twitter:image"', "name='twitter:image'", 'rel="image_src"', "rel='image_src'")):
+            continue
+        match = re.search(r"(?:content|href)=[\"']([^\"']+)[\"']", tag, re.IGNORECASE)
+        if match:
+            found.append(urljoin(url, match.group(1).replace("&amp;", "&")))
+    for link in found:
+        host = (urlparse(link).hostname or "").lower()
+        if not host or any(shop in host for shop in SHOP_HOSTS) or "logo" in link.lower():
+            continue
+        if host.endswith(base) or any(tok in host for tok in tokens):
+            return link
+    return None
+
+
 async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> str | None:
     """The AI sometimes returns the product page: look on that page for a PDF link that really is a PDF (no AI needed)."""
     session = async_get_clientsession(hass)
@@ -689,7 +734,7 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
             continue
         key = f"{maker.lower()}|{model.lower()}"
         cache: dict[str, Any] = manager.data["ai_cache"]
-        if key not in cache or msg["overwrite"] or (need_image and "image" not in cache[key]):
+        if key not in cache or msg["overwrite"]:
             urls, image, domain, err = await _ai_find(hass, entity, maker, model, use_images)
             if err:
                 if _is_quota_error(err):
@@ -712,8 +757,15 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                     if not image and image2:
                         image, domain = image2, domain2
             image = image if image and _manufacturer_image_ok(image, domain or "", maker, url) else ""  # original manufacturer images only
-            cache[key] = {"url": url, "pdf": kind == "pdf", "image": image} if kind else {"url": "", "pdf": False, "image": image}
+            pages = [u for u in ([url] if kind == "page" else []) + urls if not u.lower().split("?")[0].endswith(".pdf")]
+            cache[key] = {"url": url or "", "pdf": kind == "pdf", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
         hit = cache[key]
+        if need_image and not hit.get("image") and not hit.get("img_tried"):  # the manufacturer's own product page names its photo
+            hit["img_tried"] = True
+            for page in hit.get("pages") or ([hit["url"]] if hit.get("url") and not hit.get("pdf") else []):
+                hit["image"] = await _page_image(hass, page, maker) or ""
+                if hit["image"]:
+                    break
         if need_manual:
             if hit["url"]:
                 manager.data["manuals"].setdefault(device_id, {}).update({"link": hit["url"], "ai": True, "pdf": hit["pdf"]})
@@ -726,6 +778,15 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
             if hit["image"] not in image_data:
                 image_data[hit["image"]] = await _download_image(hass, hit["image"])
             picture = image_data[hit["image"]]
+            if not picture and not hit.get("img_tried"):  # the AI's guess failed: take the photo of the product page instead
+                hit["img_tried"] = True
+                hit["image"] = ""
+                for page in hit.get("pages") or ([hit["url"]] if hit.get("url") and not hit.get("pdf") else []):
+                    hit["image"] = await _page_image(hass, page, maker) or ""
+                    if hit["image"]:
+                        image_data.setdefault(hit["image"], await _download_image(hass, hit["image"]))
+                        picture = image_data[hit["image"]]
+                        break
             if picture:
                 photo_id = secrets.token_urlsafe(16)
                 await hass.async_add_executor_job((manager.photo_dir / f"{photo_id}.jpg").write_bytes, picture)
@@ -820,7 +881,7 @@ async def ws_import_legacy(hass: HomeAssistant, connection, msg: dict[str, Any])
 
 
 def _is_image(data: bytes) -> bool:
-    return data[:3] == b"\xff\xd8\xff" or data[:8] == b"\x89PNG\r\n\x1a\n"
+    return data[:3] == b"\xff\xd8\xff" or data[:8] == b"\x89PNG\r\n\x1a\n" or (data[:4] == b"RIFF" and data[8:12] == b"WEBP")
 
 
 class FrontendFileView(HomeAssistantView):

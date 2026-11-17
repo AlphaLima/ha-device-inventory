@@ -47,7 +47,8 @@ Hovering the photo symbol shows the photos of the device right in the table (her
 
 ## Install
 
-**HACS / Marketplace** → *Custom repositories* → add this repository as type *Integration* → install → restart Home Assistant.
+**HACS / Marketplace:** search for **Device Inventory**, install, restart Home Assistant.
+Until the integration shows up in the catalog (or if you want a version straight from GitHub): *Custom repositories* → add `AlphaLima/ha-device-inventory` as type *Integration* → install → restart Home Assistant.
 Manual: copy `custom_components/device_inventory` to your `config/custom_components/`.
 
 Then *Settings → Devices & services → Add integration → Device Inventory* (one click, nothing to configure).
@@ -74,7 +75,7 @@ After setup a **Device Inventory** entry appears in the sidebar: a complete dash
 | note symbol (right of the image symbol) | **show / hide the comment text in the list** (default: shown); like the eye it is highlighted and crossed out while the text is hidden (then only the note symbol is shown, hover still shows the whole text). Remembered in the browser |
 | palette (second print button, between printer and page orientation) | **printout in colour or black and white** (default: colour – blue heading, coloured battery / signal / temperature values, green/red internet and presence icons, striped rows; works for PDF too). Highlighted while black and white is selected, remembered in the browser |
 | four lines (right of the note symbol) | **wider row spacing** (default: tight, more rows on screen); highlighted while active, remembered in the browser |
-| eye symbol (next to the page symbol) | **blur IP / MAC addresses** (also Bluetooth address, scanner IP, IRK) for screenshots; the printout then contains scrambled, blurred values instead of the real ones; remembered in the browser; the CSV export is not affected |
+| eye symbol (next to the page symbol) | **blur IP / MAC addresses** (also Bluetooth address, scanner IP) for screenshots; the printout then contains scrambled, blurred values instead of the real ones; remembered in the browser; the CSV export is not affected |
 | columns symbol (three bars), **right end of the toolbar** | **edit the columns directly in the table** for the display *and* the printout (see *Columns: show, order, width*) |
 | <img src="docs/icons/search.svg" height="16" alt="search"> field | search (see below) |
 | tree symbol (shown only if sub-channels exist) | expand / collapse **all** sub-channels |
@@ -95,7 +96,7 @@ Click a column heading to sort. Columns without any value in the current tab are
 | <img src="docs/icons/ruler.svg" height="16" alt="ruler"> Distance, <img src="docs/icons/home.svg" height="16" alt="home"> Home | Bluetooth presence: estimated distance in m, home <img src="docs/icons/checkc.svg" height="16" alt="checkc"> / away <img src="docs/icons/block.svg" height="16" alt="block"> |
 | IP | link to `http://<IP>` (opens the web page of the device) |
 | MAC | MAC address, click copies it |
-| BLE MAC, Scanner, Scanner IP, IRK | Bluetooth presence (Private BLE Device and Bermuda): address, the scanner that sees the device (e.g. a Shelly or ESP proxy), its IP as link, the IRK (shortened, click copies the whole key) |
+| BLE MAC, Scanner, Scanner IP | Bluetooth presence (Private BLE Device and Bermuda): address, the scanner that sees the device (e.g. a Shelly or ESP proxy), its IP as link |
 | Manufacturer, Firmware | from the device registry |
 | <img src="docs/icons/signal.svg" height="16" alt="signal"> Signal | WiFi signal in dBm (green ≥ −60, orange ≥ −75, red below) |
 | <img src="docs/icons/thermo.svg" height="16" alt="thermo"> Temp | device temperature (green up to 55 °C, orange up to 65 °C, red above) |
@@ -179,7 +180,7 @@ hide_offline: true     # optional, hide offline (missing) devices
 max_cell: 170          # optional, maximum cell width in px before text is cut with "…"
 ```
 
-Column keys for `hide`: `status internet kids name model area distance home ip mac bleaddr scanner scannerip irk maker fw signal temp ble battery seen photos note`.
+Column keys for `hide`: `status internet kids name model area distance home ip mac bleaddr scanner scannerip maker fw signal temp ble battery seen photos note`.
 
 Example automation: notify when `sensor.all_devices_offline` stays above 0 for 30 minutes (the attribute `offline_devices` lists the names).
 
@@ -189,12 +190,12 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 - All texts are English by default and follow the Home Assistant language (English and German included; add a language by copying one block of the `T` table at the top of `device-inventory-card.js`).
 - The **IP address** comes from the config entry (host) of single-device integrations such as Shelly, ESPHome or WLED, otherwise from an `…_ip` sensor, an `ip_address` attribute or the configuration URL of the device. It stays empty when none of these exist.
 - Mirror entries of **network scanners** (FRITZ!Box "tracked device", generic Bluetooth entries) are hidden when a real device with the same MAC exists; its internet access switch is handed over to the real device. Devices without any entity are not listed.
-- **Bluetooth phones, tablets and trackers** are often created twice, by *Private BLE Device* (with the IRK) and by *Bermuda* (with scanner and room), both under the same name. They are **merged into one row** that carries the data of both (IRK, scanner, distance, room, last seen). The row that already has photos or a note is kept; photos and notes of the other, hidden entry are not shown.
+- **Bluetooth phones, tablets and trackers** are often created twice, by *Private BLE Device* and by *Bermuda* (with scanner and room), both under the same name. They are **merged into one row** that carries the data of both (scanner, distance, room, last seen). The row that already has photos or a note is kept; photos and notes of the other, hidden entry are not shown.
 - A device belongs to the **Sonoff** tab when manufacturer, model or an entity id contains "sonoff"/"itead", whatever integration it uses.
 - The device class comes from the integration of the device (see `const.py`, `CLASS_MAP`). Add your own domains there (pull requests welcome).
 - "Online" is a heuristic: a device is offline when *all* its entities are `unavailable`/`unknown`. Sleeping battery devices can look online for a long time.
 - Photo and note changes, the internet switch and the Bluetooth switch need an **admin** user for the write part; everyone who can open the dashboard can view photos and notes.
-- Photos are served without login (`/api/device_inventory/photo/<random 128 bit id>`) so `<img>` tags work; the id is unguessable but anyone who knows a URL can open it. Do not photograph passwords.
+- Photos are only served to **logged-in users**: the list returns **signed, expiring URLs** (valid for one hour, renewed automatically), which work in plain `<img>` tags and in the printout. A copied link stops working after that. Still, do not photograph passwords.
 - The inventory is rebuilt every 2 minutes and on request (at most every 15 s). A warning is logged if building it ever takes longer than 0.5 s.
 
 ## Deutsch (Kurzfassung)
@@ -203,7 +204,7 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 
 **Werkzeugleiste:** <img src="docs/icons/refresh.svg" height="16" alt="refresh"> (zwei kreisende Pfeile) lädt neu · <img src="docs/icons/printer.svg" height="16" alt="printer"> druckt (im Druckdialog „Als PDF speichern“) · das **Seitensymbol** zeigt das Druckformat (hochkant / quer) und schaltet beim Klick um · <img src="docs/icons/search.svg" height="16" alt="search"> filtert beim Tippen (Name, Modell, Raum, IP, MAC, Hersteller, Firmware, Bemerkung, online/offline; Esc leert) – **der Filter gilt bewusst auch für den Ausdruck** · das **Baumsymbol** klappt alle Unterkanäle auf bzw. zu · „Σ 5/105“ = Treffer/Gesamt.
 
-**Spalten:** Status 🟢/🔴 · <img src="docs/icons/globe.svg" height="16" alt="globe"> Internet (FRITZ!Box-Zugang: <img src="docs/icons/checkc.svg" height="16" alt="checkc"> erlaubt, <img src="docs/icons/block.svg" height="16" alt="block"> gesperrt; Klick schaltet, mit Rückfrage) · Pfeil-Spalte für Unterkanäle · Name · Modell · Raum · <img src="docs/icons/ruler.svg" height="16" alt="ruler"> Entfernung und <img src="docs/icons/home.svg" height="16" alt="home"> Zuhause (Bluetooth-Präsenz) · IP (Link) · MAC (Klick kopiert) · BLE-MAC, Scanner, Scanner-IP, IRK · Hersteller · Firmware · <img src="docs/icons/signal.svg" height="16" alt="signal"> WLAN-Signal · <img src="docs/icons/thermo.svg" height="16" alt="thermo"> Temperatur · ᛒ Bluetooth-Schalter der Shellys (blau = an, Klick schaltet) · <img src="docs/icons/battery.svg" height="16" alt="battery"> Batterie · Zuletzt · <img src="docs/icons/image.svg" height="16" alt="image"> Fotos · <img src="docs/icons/note.svg" height="16" alt="note"> Bemerkung. Spalten ohne Werte werden automatisch ausgeblendet. Ein Klick auf die Überschrift sortiert. Spalten (Sichtbarkeit, Reihenfolge, Breite und **Namen**) lassen sich direkt in der Tabelle einstellen, getrennt für Anzeige und Druck (siehe unten); die Einstellungen liegen im Browser.
+**Spalten:** Status 🟢/🔴 · <img src="docs/icons/globe.svg" height="16" alt="globe"> Internet (FRITZ!Box-Zugang: <img src="docs/icons/checkc.svg" height="16" alt="checkc"> erlaubt, <img src="docs/icons/block.svg" height="16" alt="block"> gesperrt; Klick schaltet, mit Rückfrage) · Pfeil-Spalte für Unterkanäle · Name · Modell · Raum · <img src="docs/icons/ruler.svg" height="16" alt="ruler"> Entfernung und <img src="docs/icons/home.svg" height="16" alt="home"> Zuhause (Bluetooth-Präsenz) · IP (Link) · MAC (Klick kopiert) · BLE-MAC, Scanner, Scanner-IP · Hersteller · Firmware · <img src="docs/icons/signal.svg" height="16" alt="signal"> WLAN-Signal · <img src="docs/icons/thermo.svg" height="16" alt="thermo"> Temperatur · ᛒ Bluetooth-Schalter der Shellys (blau = an, Klick schaltet) · <img src="docs/icons/battery.svg" height="16" alt="battery"> Batterie · Zuletzt · <img src="docs/icons/image.svg" height="16" alt="image"> Fotos · <img src="docs/icons/note.svg" height="16" alt="note"> Bemerkung. Spalten ohne Werte werden automatisch ausgeblendet. Ein Klick auf die Überschrift sortiert. Spalten (Sichtbarkeit, Reihenfolge, Breite und **Namen**) lassen sich direkt in der Tabelle einstellen, getrennt für Anzeige und Druck (siehe unten); die Einstellungen liegen im Browser.
 
 **Baumstruktur (Unterkanäle):** Mehrkanal-Geräte (z. B. Shelly 2.5, RGBW2) stehen mit ihren Kanälen **unter dem Hauptgerät**. Das Hauptgerät zeigt einen Pfeil mit der Zahl der Kanäle (**▸4**) in einer eigenen schmalen Spalte, deshalb stehen alle Gerätenamen linksbündig; nur die **Kanäle sind eingerückt** (└). Ein Klick auf den Pfeil klappt dieses Gerät auf/zu, das **Baumsymbol** (Werkzeugleiste oder Kopf der Pfeil-Spalte) klappt **alle** auf/zu. Das Symbol zeigt den Zustand: ausgeklappt = voller Baum mit drei Kästchen in Blau, eingeklappt = oberes Kästchen durchgezogen, die unteren zwei gestrichelt grau. Beim **Suchen** bleibt der Baum erhalten: nur passende Kanäle werden gezeigt; passt nur ein Kanal, wird sein Hauptgerät aufgeklappt mitgezeigt. Gedruckt wird, was gerade sichtbar ist.
 

@@ -283,13 +283,11 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                     except (TypeError, ValueError):
                         pass
             ble_area = attrs.get("area")
-            entry = entries.get(tracker.config_entry_id) if tracker.config_entry_id else None
             ble = {
                 "home": (tstate.state == "home") if tstate and tstate.state in ("home", "not_home") else None,
                 "distance": distance,
                 "address": attrs.get("current_address") or attrs.get("address") or (mac if mac else None),
                 "scanner": attrs.get("scanner") or _scanner_name(hass, attrs.get("source")),
-                "irk": entry.data.get("irk") if entry is not None else None,
             }
         area = area_reg.async_get_area(dev.area_id) if dev.area_id else None
         result.append(
@@ -367,7 +365,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                     "ble_switch": None,
                     "temp": None,
                     "rssi": None,
-                    "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+                    "ble": {"home": None, "distance": None, "address": None, "scanner": None},
                 }
             )
     result.extend(kids)
@@ -401,7 +399,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "ble_switch": None,
                 "temp": None,
                 "rssi": None,
-                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None},
             }
         )
     # the Home Assistant server itself is no device in the registry: add a row so its IP can be found
@@ -429,7 +427,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "ble_switch": None,
                 "temp": None,
                 "rssi": None,
-                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None},
             }
         )
     # network clients known only as device trackers (FRITZ!Box, router, nmap ...), e.g. a Proxmox host or a PC: one row per IP not yet listed
@@ -466,7 +464,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "ble_switch": None,
                 "temp": None,
                 "rssi": None,
-                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None},
             }
         )
     # FRITZ!Box / mesh: which mesh node (router, repeater) and how (LAN, WLAN + SSID) each client is connected to
@@ -591,7 +589,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "ble_switch": None,
                 "temp": None,
                 "rssi": None,
-                "ble": {"home": None, "distance": None, "address": None, "scanner": None, "irk": None},
+                "ble": {"home": None, "distance": None, "address": None, "scanner": None},
                 "mesh": None,
             }
         )

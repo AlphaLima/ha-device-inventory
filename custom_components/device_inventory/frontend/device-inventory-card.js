@@ -28,7 +28,7 @@ const T = {
     addPhoto: "Add photo(s)", close: "Close", del: "Delete", save: "Save", cancel: "Cancel", hint: "Ctrl+Enter = save, Esc = cancel",
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
-    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
+    uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
     maker: "Hersteller", fw: "Firmware", seen: "Zuletzt", battery: "Batt.", photos: "Fotos", note: "Bemerkung",
     printColorOn: "Ausdruck in Farbe (Klick: schwarz-weiß)", printColorOff: "Ausdruck schwarz-weiß (Klick: Farbe)", denseOn: "Weiterer Zeilenabstand", denseOff: "Engerer Zeilenabstand", commentsOff: "Kommentartext in der Liste ausblenden", commentsOn: "Kommentartext in der Liste anzeigen",
@@ -39,11 +39,11 @@ const T = {
     addPhoto: "Foto(s) hinzufügen", close: "Schließen", del: "Löschen", save: "Speichern", cancel: "Abbrechen", hint: "Strg+Enter = Speichern, Esc = Abbrechen",
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
-    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", irk: "IRK", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
+    uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", mesh: "Router Mesh", fritz: "FRITZ!", apple: "Apple", bluetooth: "Bluetooth" };
-const COLS = ["#", "status", "internet", "conn", "kids", "name", "model", "lanc", "wific", "area", "distance", "home", "ip", "mesh", "mac", "bleaddr", "scanner", "scannerip", "irk", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
+const COLS = ["#", "status", "internet", "conn", "kids", "name", "model", "lanc", "wific", "area", "distance", "home", "ip", "mesh", "mac", "bleaddr", "scanner", "scannerip", "maker", "fw", "signal", "temp", "ble", "battery", "seen", "photos", "note"];
 const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="${on ? "color:var(--primary-color)" : ""}"><rect x="3" y="2" width="9" height="5" rx="1.5"/><g ${on ? "" : 'stroke-dasharray="2 2.2" opacity=".55"'}><path d="M7.5 7v10a2.5 2.5 0 0 0 2.5 2.5H13M7.5 12H13"/><rect x="13" y="9.5" width="8" height="5" rx="1.5"/><rect x="13" y="17" width="8" height="5" rx="1.5"/></g></svg>`;
 // Default column layouts (used until a user saves his own): order = [] keeps the built-in order, w = widths (display: px, printout: mm), n = column names
 const DEFAULT_LAYOUT = {
@@ -51,10 +51,10 @@ const DEFAULT_LAYOUT = {
   print: { order: [], off: ["seen", "status", "mesh"], w: { "#": 6, status: 9, internet: 12, name: 22, model: 19, area: 16, ip: 24, mac: 29, maker: 16, fw: 19, signal: 14, temp: 10, battery: 14, seen: 22, photos: 18, note: 63 }, n: {} }, // printout: no "Zuletzt" and "Online"; widths in mm (author's layout)
 };
 // own default layout of the FRITZ! tab (used until the layout of that tab is changed; saved separately from the other tabs)
-const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["mesh"],"w":{},"n":{}},"print":{"order":["#","status","internet","conn","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","irk","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status","mesh"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
+const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["mesh"],"w":{},"n":{}},"print":{"order":["#","status","internet","conn","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status","mesh"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
 const HEAD_ICONS = { status: "dot", photos: "image", note: "note", battery: "battery", internet: "globe", conn: "link", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth", lanc: "lan", wific: "wifi" }; // columns whose heading is a symbol (narrow)
-const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip", "irk"]; // columns blurred by the "hide addresses" option
-const OPTIONAL =["kids", "mesh", "conn", "lanc", "wific", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "irk", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
+const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip"]; // columns blurred by the "hide addresses" option
+const OPTIONAL =["kids", "mesh", "conn", "lanc", "wific", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
 const ICONS = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>',
@@ -199,7 +199,7 @@ class DeviceInventoryCard extends HTMLElement {
       s.devices.push({
         id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: "Mesh", mesh_stats: { total: cl.length, lan, wlan: cl.length - lan }, sw_version: null, area: null, mac: null, ip: null,
         classes: ["mesh"], integrations: ["fritz"], online: cl.some((d) => d.online), battery: null, battery_low: null, last_seen: null, entity: null,
-        internet_switch: null, ble_switch: null, temp: null, rssi: null, ble: { home: null, distance: null, address: null, scanner: null, irk: null }, mesh: null,
+        internet_switch: null, ble_switch: null, temp: null, rssi: null, ble: { home: null, distance: null, address: null, scanner: null }, mesh: null,
       });
     });
   }
@@ -229,7 +229,6 @@ class DeviceInventoryCard extends HTMLElement {
       case "lanc": case "wific": return !!d.mesh_stats;
       case "scanner": return !!d.ble && !!d.ble.scanner;
       case "scannerip": return !!d.ble && !!d.ble.scanner_ip;
-      case "irk": return !!d.ble && !!d.ble.irk;
       case "signal": return d.rssi != null;
       case "temp": return d.temp != null;
       case "ble": return !!d.ble_switch;
@@ -265,7 +264,6 @@ class DeviceInventoryCard extends HTMLElement {
       case "wific": return d.mesh_stats ? d.mesh_stats.wlan : -1;
       case "scanner": return (d.ble && d.ble.scanner) || "";
       case "scannerip": return (d.ble && d.ble.scanner_ip) || "";
-      case "irk": return (d.ble && d.ble.irk) || "";
       case "signal": return d.rssi == null ? -999 : d.rssi;
       case "temp": return d.temp == null ? -999 : d.temp;
       case "ble": { const x = this._sw(d.ble_switch); return x === "on" ? 2 : x === "off" ? 1 : 0; }
@@ -658,7 +656,6 @@ class DeviceInventoryCard extends HTMLElement {
     } else add("conn", "–");
     add("scanner", b.scanner ? (() => { const sc = el("span", null, String(b.scanner).split(" (")[0]); sc.title = b.scanner; return sc; })() : "–");
     if (b.scanner_ip) { const a2 = el("a", "color:var(--primary-color)", b.scanner_ip); a2.href = `http://${b.scanner_ip}`; a2.target = "_blank"; a2.rel = "noopener"; add("scannerip", a2); } else add("scannerip", "–");
-    add("irk", b.irk ? copyable(String(b.irk).slice(0, 8) + "…", false, String(b.irk)) : "–");
     add("maker", d.manufacturer || "–");
     add("fw", (d.sw_version || "–").split(" ")[0]);
     const sev = (v, good, warn, hi) => (hi ? (v >= good ? "var(--success-color)" : v >= warn ? "var(--warning-color)" : "var(--error-color)") : (v <= good ? "var(--success-color)" : v <= warn ? "var(--warning-color)" : "var(--error-color)"));
@@ -694,11 +691,11 @@ class DeviceInventoryCard extends HTMLElement {
       const b = el("span", "display:inline-flex;align-items:center;gap:2px"); b.innerHTML = ico("image", 18) + (ps.length > 1 ? `<small>${ps.length}</small>` : ""); b.className = "ic";
       b.onclick = () => this._gallery(d);
       if (this._thumbs) { // thumbnails right in the list (the hover preview works in both cases)
-        b.innerHTML = ps.slice(0, 3).map((q) => `<img src="/api/device_inventory/photo/${q.id}" style="width:34px;height:34px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:2px">`).join("") + (ps.length > 3 ? `<small>+${ps.length - 3}</small>` : "");
+        b.innerHTML = ps.slice(0, 3).map((q) => `<img src="${q.url}" style="width:34px;height:34px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:2px">`).join("") + (ps.length > 3 ? `<small>+${ps.length - 3}</small>` : "");
       }
       this._pop(b, (p) => {
         const g = el("div", `display:grid;grid-template-columns:repeat(${ps.length > 1 ? 2 : 1},auto);gap:6px`);
-        ps.slice(0, 6).forEach((q) => { const im = el("img", ps.length > 1 ? "width:150px;height:150px;object-fit:cover;border-radius:4px" : "max-width:260px;max-height:260px;object-fit:contain"); im.src = `/api/device_inventory/photo/${q.id}`; g.appendChild(im); });
+        ps.slice(0, 6).forEach((q) => { const im = el("img", ps.length > 1 ? "width:150px;height:150px;object-fit:cover;border-radius:4px" : "max-width:260px;max-height:260px;object-fit:contain"); im.src = q.url; g.appendChild(im); });
         p.appendChild(g);
         if (ps.length > 6) p.appendChild(el("div", "margin-top:4px;opacity:.7", `+ ${ps.length - 6}`));
       });
@@ -778,7 +775,7 @@ class DeviceInventoryCard extends HTMLElement {
       if (!ps.length) g.appendChild(el("div", "opacity:.6", t.noPhotos));
       ps.forEach((p) => {
         const w = el("div", "position:relative"), a = document.createElement("a");
-        a.href = `/api/device_inventory/photo/${p.id}`; a.target = "_blank";
+        a.href = p.url; a.target = "_blank";
         const im = el("img", "width:100%;height:200px;object-fit:cover;border-radius:8px;display:block"); im.src = a.href; a.appendChild(im); w.appendChild(a);
         const x = el("span", "position:absolute;top:6px;right:6px;cursor:pointer;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center", "");
         x.innerHTML = ico("close", 14); x.title = t.del;
@@ -889,7 +886,7 @@ class DeviceInventoryCard extends HTMLElement {
       "#": i + 1, status: d.online ? t.online : t.offline, internet: inet === "on" ? t.allowed : inet === "off" ? t.blocked : "",
       name: d.name || "", model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WiFi " + d.mesh_stats.wlan + ")") : d.model || ""), area: d.area || "", ip: d.ip || "", mac: d.mac || "", maker: d.manufacturer || "", fw: (d.sw_version || "").split(" ")[0],
       battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "", seen: d.last_seen || "",
-      distance: b.distance != null ? String(b.distance) : "", home: b.home != null ? (b.home ? t.yes : "") : "", bleaddr: b.address || "", scanner: b.scanner || "", mesh: (d.mesh && d.mesh.to) || "", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " " + d.mesh.ssid : "") : "", scannerip: b.scanner_ip || "", irk: b.irk || "",
+      distance: b.distance != null ? String(b.distance) : "", home: b.home != null ? (b.home ? t.yes : "") : "", bleaddr: b.address || "", scanner: b.scanner || "", mesh: (d.mesh && d.mesh.to) || "", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " " + d.mesh.ssid : "") : "", scannerip: b.scanner_ip || "",
       signal: d.rssi == null ? "" : String(d.rssi), temp: d.temp == null ? "" : String(d.temp), ble: ble === "on" ? "on" : ble === "off" ? "off" : "",
       photos: String((s.photos[d.id] || []).length || ""), note: (s.notes[d.id] || {}).t || "",
     };
@@ -991,12 +988,12 @@ class DeviceInventoryCard extends HTMLElement {
       const cells = {
         "#": i + 1, status: d.online ? "🟢 " + t.online : "🔴 " + t.offline, internet: (() => { const x = this._inet(d); return x === "on" ? ico("checkc", 15) : x === "off" ? ico("block", 15) : "–"; })(), name: d.name, model: (d.mesh_stats ? ((d.model && d.model !== "Mesh" ? d.model + " · " : "") + d.mesh_stats.total + " Clients (LAN " + d.mesh_stats.lan + " · WiFi " + d.mesh_stats.wlan + ")") : d.model || "–"), area: d.area || "–", ip: d.ip || "–", mac: d.mac || "–",
         maker: d.manufacturer || "–", fw: (d.sw_version || "–").split(" ")[0], battery: d.battery != null ? d.battery + " %" : d.battery_low != null ? (d.battery_low ? t.low : t.ok) : "–",
-        seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "–", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "–", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", irk: (d.ble && d.ble.irk) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
+        seen: this._ago(d.last_seen), distance: d.ble && d.ble.distance != null ? d.ble.distance.toFixed(1) + " m" : "–", home: d.ble && d.ble.home != null ? (d.ble.home ? "✔" : "✘") : "–", bleaddr: (d.ble && d.ble.address) || "–", scanner: (d.ble && d.ble.scanner) || "–", mesh: d.mesh && d.mesh.to ? String(d.mesh.to).replace(/^fritz\./i, "") : "–", lanc: d.mesh_stats ? String(d.mesh_stats.lan) : "–", wific: d.mesh_stats ? String(d.mesh_stats.wlan) : "–", conn: d.mesh && d.mesh.type ? String(d.mesh.type).replace(/WLAN/gi, "WiFi") + (d.mesh.ssid ? " · " + d.mesh.ssid : "") : "–", scannerip: (d.ble && d.ble.scanner_ip) || "–", signal: d.rssi == null ? "–" : d.rssi + " dBm", temp: d.temp == null ? "–" : d.temp.toFixed(1) + "°C", ble: (() => { const x = this._sw(d.ble_switch); return x === "on" ? "on" : x === "off" ? "off" : "–"; })(), note: (s.notes[d.id] || {}).t || "",
       };
       const lvl = d.battery != null ? d.battery : d.battery_low != null ? (d.battery_low ? 0 : 100) : null;
       const tint = { battery: lvl == null ? null : lvl <= 20 ? R : lvl <= 40 ? O : G, signal: d.rssi == null ? null : sev(d.rssi, -60, -75, true), temp: d.temp == null ? null : sev(d.temp, ...(d.classes && d.classes.includes("fritz") ? [85, 95] : [55, 65]), false), home: d.ble && d.ble.home != null ? (d.ble.home ? G : R) : null };
       html += "<tr>" + cols.map((c) => c === "photos"
-        ? `<td${wst(c)}>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${location.origin}/api/device_inventory/photo/${p.id}">`).join("")}</td>`
+        ? `<td${wst(c)}>${(s.photos[d.id] || []).slice(0, 8).map((p) => `<img src="${p.url.startsWith("http") ? p.url : location.origin + p.url}">`).join("")}</td>`
         : c === "conn" && d.mesh && d.mesh.type ? `<td${wst(c)}><span${C ? ` style="color:${/lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type) ? "#1b66d1" : "#7a4fd1"}"` : ""} title="${E(cells[c])}">${ico(/lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type) ? "lan" : "wifi", 15)}</span></td>`
         : c === "internet" && cells[c].startsWith("<svg") ? `<td${wst(c)}>${C ? `<span style="color:${this._inet(d) === "on" ? G : R}">${cells[c]}</span>` : cells[c]}</td>`
         : `<td${wst(c)}${this._blur && BLURCOLS.includes(c) ? ' class="bl"' : ""}>${E(this._blur && BLURCOLS.includes(c) ? String(cells[c]).replace(/[0-9a-fA-F]/g, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]) : cells[c]).replace(/\n/g, "<br>")}</td>`).map((h, k) => { const col = C && tint[cols[k]]; return col ? h.replace(/>([^<]*)<\/td>$/, `><b style="color:${col}">$1</b></td>`) : h; }).join("") + "</tr>";

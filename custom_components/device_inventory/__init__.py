@@ -15,6 +15,7 @@ import voluptuous as vol
 
 from homeassistant.components import frontend, panel_custom, websocket_api
 from homeassistant.components.http import HomeAssistantView
+from homeassistant.components.http.auth import async_sign_path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
@@ -45,6 +46,7 @@ class InventoryManager:
     """Holds the coordinator and the persistent notes/photos."""
 
     def __init__(self, hass: HomeAssistant) -> None:
+        self._signed: dict[tuple[str, str | None], tuple[float, str]] = {}
         self.hass = hass
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
         self.data: dict[str, Any] = {"notes": {}, "photos": {}}
@@ -87,12 +89,34 @@ class InventoryManager:
     def save(self) -> None:
         self.store.async_delay_save(lambda: self.data, 1)
 
-    def payload(self) -> dict[str, Any]:
+    def payload(self, refresh_token_id: str | None = None) -> dict[str, Any]:
+        """Inventory for the card; every photo carries a signed, expiring URL (the photo view needs authentication)."""
+        now = time.monotonic()
+        photos: dict[str, list[dict[str, Any]]] = {}
+        for device_id, items in self.data["photos"].items():
+            photos[device_id] = [{**item, "url": self._signed_photo_url(item["id"], refresh_token_id, now)} for item in items]
         return {
             "devices": self.coordinator.data or [],
             "notes": self.data["notes"],
-            "photos": self.data["photos"],
+            "photos": photos,
         }
+
+    def _signed_photo_url(self, photo_id: str, refresh_token_id: str | None, now: float) -> str:
+        """Signed path valid for one hour; re-signed every ten minutes so the browser can cache the image in between."""
+        key = (photo_id, refresh_token_id)
+        cached = self._signed.get(key)
+        if cached is None or now - cached[0] > 600:
+            url = async_sign_path(
+                self.hass,
+                f"/api/{DOMAIN}/photo/{photo_id}",
+                timedelta(hours=1),
+                refresh_token_id=refresh_token_id,
+            )
+            cached = (now, url)
+            self._signed[key] = cached
+            if len(self._signed) > 5000:
+                self._signed.clear()
+        return cached[1]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -149,7 +173,7 @@ async def ws_list(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     """Return devices (freshly built), notes and photo ids."""
     manager: InventoryManager = hass.data[DOMAIN]
     await manager.async_refresh_if_old()
-    connection.send_result(msg["id"], manager.payload())
+    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
 
 @websocket_api.websocket_command(
@@ -172,7 +196,7 @@ def ws_set_note(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     else:
         manager.data["notes"].pop(msg["device_id"], None)
     manager.save()
-    connection.send_result(msg["id"], manager.payload())
+    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
 
 @websocket_api.websocket_command(
@@ -196,7 +220,7 @@ async def ws_delete_photo(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         else:
             manager.data["photos"].pop(msg["device_id"], None)
         manager.save()
-    connection.send_result(msg["id"], manager.payload())
+    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
 
 @websocket_api.websocket_command(
@@ -338,15 +362,14 @@ class PhotoUploadView(HomeAssistantView):
 
 
 class PhotoServeView(HomeAssistantView):
-    """GET /api/device_inventory/photo/<photo_id>.
+    """GET /api/device_inventory/photo/<photo_id> (authenticated).
 
-    Unauthenticated on purpose so <img> tags work; the id is a random
-    128 bit token and only known to users who can see the inventory.
+    The card gets signed, expiring URLs from ``device_inventory/list`` (``async_sign_path``), which work in plain <img> tags and in the print view.
     """
 
     url = f"/api/{DOMAIN}/photo/{{photo_id}}"
     name = f"api:{DOMAIN}:photo"
-    requires_auth = False
+    requires_auth = True
 
     async def get(self, request: web.Request, photo_id: str) -> web.StreamResponse:
         hass: HomeAssistant = request.app["hass"]

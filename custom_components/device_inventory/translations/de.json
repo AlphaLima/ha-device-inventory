@@ -1,6 +1,24 @@
 {
   "config": {
-    "step": { "user": { "title": "Device Inventory", "description": "Fügt klassifizierte Gerätetabellen (Shelly, ESPHome, ZigBee, ...) mit Fotos, Bemerkungen und Druckfunktion hinzu. Keine Einstellungen nötig." } },
-    "abort": { "single_instance_allowed": "Bereits eingerichtet." }
+    "step": {
+      "user": {
+        "title": "Device Inventory",
+        "description": "Fügt klassifizierte Gerätetabellen (Shelly, ESPHome, ZigBee, ...) mit Fotos, Bemerkungen und Druckfunktion hinzu. Keine Einstellungen nötig."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "KI für Bedienungsanleitungen",
+        "description": "Optional. Wähle die KI-Task-Entität eines in Home Assistant eingerichteten KI-Anbieters (z. B. Google Generative AI, OpenAI oder Anthropic). Device Inventory fragt sie dann nach den Anleitungen deiner Geräte. Gesendet werden nur Hersteller und Modell; jede Adresse wird vor dem Speichern geprüft. Leer lassen = aus.",
+        "data": {
+          "ai_task_entity": "KI-Task-Entität"
+        }
+      }
+    }
   }
 }

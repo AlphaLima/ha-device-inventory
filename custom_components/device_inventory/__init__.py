@@ -21,6 +21,7 @@ from homeassistant.components.http import HomeAssistantView
 from homeassistant.components.http.auth import async_sign_path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -31,6 +32,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CARD_URL,
+    CONF_AI_TASK,
     DOMAIN,
     PANEL_PATH,
     PANEL_URL,
@@ -54,7 +56,7 @@ class InventoryManager:
         self._signed: dict[tuple[str, str | None], tuple[float, str]] = {}
         self.hass = hass
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
-        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}}
+        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}, "ai_cache": {}}
         self.last_refresh = 0.0
         self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
@@ -88,6 +90,7 @@ class InventoryManager:
             self.data["notes"] = stored.get("notes", {})
             self.data["photos"] = stored.get("photos", {})
             self.data["manuals"] = stored.get("manuals", {})
+            self.data["ai_cache"] = stored.get("ai_cache", {})
         await self.hass.async_add_executor_job(
             lambda: (self.photo_dir.mkdir(parents=True, exist_ok=True), self.manual_dir.mkdir(parents=True, exist_ok=True))
         )
@@ -106,6 +109,8 @@ class InventoryManager:
         for device_id, entry in self.data["manuals"].items():
             manuals[device_id] = {
                 "link": entry.get("link"),
+                "ai": bool(entry.get("ai")),
+                "pdf": entry.get("pdf"),
                 "name": entry.get("name"),
                 "file": self._signed_url(f"/api/{DOMAIN}/manual/{entry['file']}", refresh_token_id, now) if entry.get("file") else None,
             }
@@ -114,6 +119,7 @@ class InventoryManager:
             "notes": self.data["notes"],
             "photos": photos,
             "manuals": manuals,
+            "ai": _ai_entity(self.hass) is not None,
         }
 
     def _signed_url(self, path: str, refresh_token_id: str | None, now: float) -> str:
@@ -164,6 +170,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     websocket_api.async_register_command(hass, ws_set_manual)
     websocket_api.async_register_command(hass, ws_fetch_manual)
     websocket_api.async_register_command(hass, ws_delete_manual)
+    websocket_api.async_register_command(hass, ws_find_manuals)
     websocket_api.async_register_command(hass, ws_import_legacy)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -296,6 +303,8 @@ def ws_set_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
         connection.send_error(msg["id"], "invalid_url", "Only http(s) addresses are allowed")
         return
     entry = manager.data["manuals"].setdefault(msg["device_id"], {})
+    entry.pop("ai", None)
+    entry.pop("pdf", None)
     if link:
         entry["link"] = link
     else:
@@ -348,6 +357,110 @@ async def ws_delete_manual(hass: HomeAssistant, connection, msg: dict[str, Any])
         await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
     manager.save()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
+
+
+def _ai_entity(hass: HomeAssistant) -> str | None:
+    """The AI task entity chosen in the options (None = no AI set up, nothing is ever sent)."""
+    entries = hass.config_entries.async_entries(DOMAIN)
+    entity = entries[0].options.get(CONF_AI_TASK) if entries else None
+    if entity and hass.states.get(entity) is not None and hass.services.has_service("ai_task", "generate_data"):
+        return entity
+    return None
+
+
+async def _verify_manual_url(hass: HomeAssistant, url: str) -> str | None:
+    """"pdf" / "page" when the address really answers with a PDF or a web page, otherwise None."""
+    session = async_get_clientsession(hass)
+    for _ in range(5):
+        if not _http_url_ok(url) or not await _is_public_host(hass, urlparse(url).hostname or ""):
+            return None
+        try:
+            async with session.get(url, allow_redirects=False, timeout=ClientTimeout(total=25), headers={"User-Agent": "HomeAssistant-DeviceInventory"}) as resp:
+                if resp.status in (301, 302, 303, 307, 308) and resp.headers.get("Location"):
+                    url = urljoin(url, resp.headers["Location"])
+                    continue
+                if resp.status != 200:
+                    return None
+                head = await resp.content.read(1024)
+                if head.startswith(b"%PDF"):
+                    return "pdf"
+                return "page" if "html" in resp.headers.get("Content-Type", "").lower() else None
+        except (OSError, asyncio.TimeoutError):
+            return None
+    return None
+
+
+async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str) -> str | None:
+    """Ask the AI task for the official manual of one device model; only manufacturer and model are sent."""
+    instructions = (
+        f"Find the official user manual (a PDF is preferred) for this device: manufacturer '{maker}', model '{model}'. "
+        f"The manual language should be '{hass.config.language}' if the manufacturer offers it, otherwise English. "
+        "Answer only with a direct address (URL) taken from the manufacturer's own website. "
+        "If you are not certain that exactly this address exists, leave the url empty. Never guess or invent an address."
+    )
+    try:
+        resp = await hass.services.async_call(
+            "ai_task",
+            "generate_data",
+            {
+                "entity_id": entity,
+                "task_name": "device manual",
+                "instructions": instructions,
+                "structure": {"url": {"description": "Direct address of the official manual, empty if unknown", "required": True, "selector": {"text": {}}}},
+            },
+            blocking=True,
+            return_response=True,
+        )
+    except HomeAssistantError as err:
+        _LOGGER.warning("AI task failed for %s %s: %s", maker, model, err)
+        return None
+    data = (resp or {}).get("data") or {}
+    url = str(data.get("url") or "").strip()
+    return url if _http_url_ok(url) else None
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/find_manuals",
+        vol.Required("device_ids"): vol.All([str], vol.Length(max=25)),
+        vol.Optional("overwrite", default=False): bool,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Let the AI find manual links for devices (admin only; only manufacturer and model are sent; every address is checked before it is saved)."""
+    manager: InventoryManager = hass.data[DOMAIN]
+    entity = _ai_entity(hass)
+    if entity is None:
+        connection.send_error(msg["id"], "no_ai", "No AI task entity is set up")
+        return
+    devices = {dev["id"]: dev for dev in (manager.coordinator.data or [])}
+    found = missing = 0
+    for device_id in msg["device_ids"]:
+        dev = devices.get(device_id)
+        entry = manager.data["manuals"].get(device_id, {})
+        if dev is None or ((entry.get("link") or entry.get("file")) and not msg["overwrite"]):
+            continue
+        maker, model = str(dev.get("manufacturer") or ""), str(dev.get("model") or "")
+        if not model or "~" in device_id or "tracked device" in model.lower() or model == "Mesh":
+            continue
+        key = f"{maker.lower()}|{model.lower()}"
+        cache: dict[str, Any] = manager.data["ai_cache"]
+        if key not in cache or msg["overwrite"]:
+            url = await _ai_find(hass, entity, maker, model)
+            kind = await _verify_manual_url(hass, url) if url else None
+            cache[key] = {"url": url, "pdf": kind == "pdf"} if kind else {"url": "", "pdf": False}
+        hit = cache[key]
+        if hit["url"]:
+            manager.data["manuals"].setdefault(device_id, {}).update({"link": hit["url"], "ai": True, "pdf": hit["pdf"]})
+            found += 1
+        else:
+            missing += 1
+    manager.save()
+    result = manager.payload(connection.refresh_token_id)
+    result["stats"] = {"found": found, "missing": missing}
+    connection.send_result(msg["id"], result)
 
 
 async def _store_manual(hass: HomeAssistant, manager: InventoryManager, device_id: str, data: bytes, name: str) -> None:

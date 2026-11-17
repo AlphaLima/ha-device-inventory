@@ -784,7 +784,7 @@ class DeviceInventoryCard extends HTMLElement {
       const ma = el("span", `display:inline-flex;align-items:center;gap:2px;cursor:pointer;color:${color};opacity:${mdocs.length ? 1 : .4}`);
       ma.innerHTML = ico("manual", 22) + (mdocs.length > 1 ? `<small>${mdocs.length}</small>` : "");
       ma.title = !mdocs.length ? this._t.manualAdd : mdocs.length === 1 ? mdocs[0].title : `${mdocs.length} ${this._t.manualDocs}`;
-      ma.onclick = (ev) => { if (mdocs.length === 1) window.open(mdocs[0].href, "_blank", "noopener"); else this._manualMenu(ma, mdocs, ev); };
+      ma.onclick = (ev) => { if (!mdocs.length) this._manualDialog(d); else if (mdocs.length === 1) window.open(mdocs[0].href, "_blank", "noopener"); else this._manualMenu(ma, mdocs, ev); };
       const me = el("span", "display:inline-flex;cursor:pointer;opacity:.7"); me.innerHTML = ico("pencil", 14); me.title = this._t.manualOf;
       me.onclick = () => this._manualDialog(d);
       wrap.append(ma, me);

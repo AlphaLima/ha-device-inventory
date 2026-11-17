@@ -14,7 +14,7 @@
     "step": {
       "init": {
         "title": "KI for manualer og produktbilder",
-        "description": "Valgfritt. Velg KI-oppgaveentiteten til en KI-leverandør som er satt opp i Home Assistant (for eksempel Google Generative AI, OpenAI eller Anthropic). Device Inventory spør den da om manualer og produktbilder for enhetene dine. Bare produsent og modell sendes; hver adresse kontrolleres før den lagres. La stå tomt for å slå av.",
+        "description": "Valgfritt. Velg KI-oppgaveentiteten til en KI-leverandør som er satt opp i Home Assistant (for eksempel Google Generative AI, OpenAI eller Anthropic). Device Inventory spør den da om manualer og produktbilder for enhetene dine. Bare produsent og modell sendes; hver adresse kontrolleres før den lagres. La stå tomt for å slå av. For nettverksenheter uten modell sendes enhetsnavnet i stedet.",
         "data": {
           "ai_task_entity": "KI-oppgaveentitet",
           "ai_copy_local": "Arkiver funnede PDF-er i Home Assistant (anbefalt)",

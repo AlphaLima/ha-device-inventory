@@ -14,7 +14,7 @@
     "step": {
       "init": {
         "title": "KI vir handleidings en produkfoto's",
-        "description": "Opsioneel. Kies die KI-taak-entiteit van 'n KI-verskaffer wat in Home Assistant opgestel is (byvoorbeeld Google Generative AI, OpenAI of Anthropic). Device Inventory vra dit dan na die handleidings en produkfoto's van jou toestelle. Slegs vervaardiger en model word gestuur; elke adres word gekontroleer voordat dit gestoor word. Los leeg om dit af te skakel.",
+        "description": "Opsioneel. Kies die KI-taak-entiteit van 'n KI-verskaffer wat in Home Assistant opgestel is (byvoorbeeld Google Generative AI, OpenAI of Anthropic). Device Inventory vra dit dan na die handleidings en produkfoto's van jou toestelle. Slegs vervaardiger en model word gestuur; elke adres word gekontroleer voordat dit gestoor word. Los leeg om dit af te skakel. Vir netwerktoestelle sonder model word die toestelnaam in plaas daarvan gestuur.",
         "data": {
           "ai_task_entity": "KI-taak-entiteit",
           "ai_copy_local": "Argiveer gevonde PDF's in Home Assistant (aanbeveel)",

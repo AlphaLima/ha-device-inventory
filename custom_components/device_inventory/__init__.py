@@ -749,11 +749,16 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
     return None
 
 
-async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, want_image: bool, avoid: list[str] | None = None) -> tuple[list[str], str | None, str | None, str | None]:
-    """Ask the AI task for candidate addresses of the official manual (and a product photo) of one device model; only manufacturer and model are sent: (candidates, photo, manufacturer domain, error text)."""
+async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, want_image: bool, avoid: list[str] | None = None, by_name: bool = False) -> tuple[list[str], str | None, str | None, str | None, str]:
+    """Ask the AI task for candidate addresses of the official manual (and a product photo) of one device model; only manufacturer and model are sent: (candidates, photo, manufacturer domain, error text, identified product name); for network clients without a model the device name is sent instead."""
     instructions = (
         "You are a research assistant for smart-home device documentation. "
-        f"Device: manufacturer '{maker}', model / type designation '{model}'. "
+        + (
+            f"Device: a network client without a known model, with the device name / hostname '{model}'. First work out which real product this most likely is (brand and exact product name; names such as 'VestelWallbox' often start with the brand) and give it in product_name; leave product_name and urls empty if you cannot identify one specific product with certainty. "
+            if by_name
+            else f"Device: manufacturer '{maker}', model / type designation '{model}'. "
+        )
+        +
         "Use your web search or browsing ability if you have one. Many smart-home brands are sold under a system or parent brand: "
         "eQ-3 / ELV makes Homematic and Homematic IP (type names HmIP-..., HM-..., CCU), AVM makes FRITZ!, Signify makes Philips Hue, "
         "Shelly is Allterco, Sonoff is ITEAD, Aqara is Lumi, Tuya devices are rebranded, and a model name starting with a known prefix identifies the brand. "
@@ -767,6 +772,8 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
     if avoid:
         instructions += "These addresses were already tried and did not work, so do not repeat them, give different ones (for example the download area of the product family): " + ", ".join(avoid[:8]) + ". "
     structure: dict[str, Any] = {"urls": {"description": "Up to 5 candidate addresses, one per line, best first, empty if unknown", "required": True, "selector": {"text": {"multiline": True}}}}
+    if by_name:
+        structure["product_name"] = {"description": "Brand and exact product name you identified from the device name, empty if not certain", "required": False, "selector": {"text": {}}}
     if want_image:
         instructions += (
             "Also give the direct address of one clean product photo of exactly this device (a JPG or PNG file, not a logo or an icon) in image_url, "
@@ -783,12 +790,15 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
             await asyncio.sleep(wait)
         hass.data[AI_LAST_KEY] = time.monotonic()
         try:
-            resp = await hass.services.async_call(
-                "ai_task",
-                "generate_data",
-                {"entity_id": entity, "task_name": "device manual", "instructions": instructions, "structure": structure},
-                blocking=True,
-                return_response=True,
+            resp = await asyncio.wait_for(
+                hass.services.async_call(
+                    "ai_task",
+                    "generate_data",
+                    {"entity_id": entity, "task_name": "device manual", "instructions": instructions, "structure": structure},
+                    blocking=True,
+                    return_response=True,
+                ),
+                timeout=90,  # an overloaded AI service must not block the search for minutes
             )
             break
         except (HomeAssistantError, asyncio.TimeoutError, OSError) as err:
@@ -797,8 +807,11 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
             if attempt == 0 and retry and "perday" not in text.lower().replace(" ", ""):  # per-minute limit: wait as told and try once more
                 await asyncio.sleep(min(float(retry.group(1)) + 1, 30))
                 continue
+            if attempt == 0 and any(hint in text.lower() for hint in ("high demand", "unavailable", "overloaded", "503")):  # the service is busy: one more try after a short pause
+                await asyncio.sleep(8)
+                continue
             _LOGGER.warning("AI task failed for %s %s: %s", maker, model, err)
-            return [], None, None, text
+            return [], None, None, text, ""
     data = (resp or {}).get("data") or {}
     urls: list[str] = []
     for token in re.split(r"[\s,;]+", str(data.get("urls") or data.get("url") or "")):
@@ -807,7 +820,7 @@ async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, wan
             urls.append(token)
     image = str(data.get("image_url") or "").strip()
     domain = str(data.get("manufacturer_domain") or "").strip()
-    return urls[:5], (image if _http_url_ok(image) else None), domain, None
+    return urls[:5], (image if _http_url_ok(image) else None), domain, None, str(data.get("product_name") or "").strip()[:80]
 
 
 def _norm(text: str) -> str:
@@ -887,12 +900,18 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         need_manual = msg["overwrite"] or upgrade or not (entry.get("link") or entry.get("file") or entry.get("docs") or entry.get("links"))
         need_image = use_images and not manager.data["photos"].get(device_id)
         maker, model = str(dev.get("manufacturer") or ""), str(dev.get("model") or "")
-        if not (need_manual or need_image) or not model or "~" in device_id or "tracked device" in model.lower() or model == "Mesh":
+        by_name = "tracked device" in model.lower()  # network client without a real model: search by the device name instead
+        if by_name:
+            maker, model = "", str(dev.get("name") or "").strip()
+        if not (need_manual or need_image) or not model or "~" in device_id or model == "Mesh":
             continue
-        key = f"{maker.lower()}|{model.lower()}"
+        key = f"{'name' if by_name else maker.lower()}|{model.lower()}"
         cache: dict[str, Any] = manager.data["ai_cache"]
         if key not in cache or msg["overwrite"] or cache[key].get("v", 1) < 2:
-            urls, image, domain, err = await _ai_find(hass, entity, maker, model, use_images)
+            urls, image, domain, err, product = await _ai_find(hass, entity, maker, model, use_images, None, by_name)
+            cm = product if by_name else model  # name that the manual pages must show
+            if by_name and not product and not err:
+                urls = []
             if err:
                 if _is_quota_error(err):
                     quota = True
@@ -901,14 +920,14 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 error = error or err
                 missing += 1
                 continue  # not cached: a later run asks again
-            url, kind, page = await _resolve_manual(hass, urls, model, maker)
+            url, kind, page = await _resolve_manual(hass, urls, cm, maker) if urls else (None, None, None)
             if kind != "pdf":  # second try: ask again for different pages, only counts when it brings a real PDF or any working page
-                urls2, image2, domain2, err2 = await _ai_find(hass, entity, maker, model, use_images and not image, urls)
+                urls2, image2, domain2, err2, _p2 = await _ai_find(hass, entity, maker, model, use_images and not image, urls, by_name) if urls or not by_name else ([], None, None, None, "")
                 if err2 and _is_quota_error(err2):
                     quota = True
                     error = err2
                 if not err2:
-                    url2, kind2, page2 = await _resolve_manual(hass, [u for u in urls2 if u not in urls], model, maker)
+                    url2, kind2, page2 = await _resolve_manual(hass, [u for u in urls2 if u not in urls], cm, maker)
                     if kind2 and (kind != "page" or kind2 == "pdf"):
                         url, kind, page = url2, kind2, page2
                     if not image and image2:

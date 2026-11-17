@@ -14,7 +14,7 @@
     "step": {
       "init": {
         "title": "AI pro návody a fotografie produktů",
-        "description": "Volitelné. Vyberte entitu úlohy AI poskytovatele AI nastaveného v Home Assistantu (například Google Generative AI, OpenAI nebo Anthropic). Device Inventory se jí pak zeptá na návody a fotografie produktů vašich zařízení. Posílá se jen výrobce a model; každá adresa se před uložením ověří. Nechte prázdné pro vypnutí.",
+        "description": "Volitelné. Vyberte entitu úlohy AI poskytovatele AI nastaveného v Home Assistantu (například Google Generative AI, OpenAI nebo Anthropic). Device Inventory se jí pak zeptá na návody a fotografie produktů vašich zařízení. Posílá se jen výrobce a model; každá adresa se před uložením ověří. Nechte prázdné pro vypnutí. U síťových zařízení bez modelu se místo toho posílá název zařízení.",
         "data": {
           "ai_task_entity": "Entita úlohy AI",
           "ai_copy_local": "Archivovat nalezená PDF v Home Assistantu (doporučeno)",

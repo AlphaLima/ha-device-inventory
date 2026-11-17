@@ -14,7 +14,7 @@
     "step": {
       "init": {
         "title": "AI do instrukcji i zdjęć produktów",
-        "description": "Opcjonalne. Wybierz encję zadania AI dostawcy AI skonfigurowanego w Home Assistant (np. Google Generative AI, OpenAI lub Anthropic). Device Inventory zapyta ją o instrukcje i zdjęcia produktów Twoich urządzeń. Wysyłani są tylko producent i model; każdy adres jest sprawdzany przed zapisem. Zostaw puste, aby wyłączyć.",
+        "description": "Opcjonalne. Wybierz encję zadania AI dostawcy AI skonfigurowanego w Home Assistant (np. Google Generative AI, OpenAI lub Anthropic). Device Inventory zapyta ją o instrukcje i zdjęcia produktów Twoich urządzeń. Wysyłani są tylko producent i model; każdy adres jest sprawdzany przed zapisem. Zostaw puste, aby wyłączyć. W przypadku urządzeń sieciowych bez modelu wysyłana jest zamiast tego nazwa urządzenia.",
         "data": {
           "ai_task_entity": "Encja zadania AI",
           "ai_copy_local": "Archiwizuj znalezione pliki PDF w Home Assistant (zalecane)",

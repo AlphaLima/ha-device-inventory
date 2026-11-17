@@ -14,7 +14,7 @@
     "step": {
       "init": {
         "title": "IA per manuali e foto dei prodotti",
-        "description": "Facoltativo. Scegli l'entità Attività IA di un provider di IA configurato in Home Assistant (ad es. Google Generative AI, OpenAI o Anthropic). Device Inventory le chiederà i manuali e le foto dei prodotti dei tuoi dispositivi. Vengono inviati solo produttore e modello; ogni indirizzo viene verificato prima del salvataggio. Lascia vuoto per disattivare.",
+        "description": "Facoltativo. Scegli l'entità Attività IA di un provider di IA configurato in Home Assistant (ad es. Google Generative AI, OpenAI o Anthropic). Device Inventory le chiederà i manuali e le foto dei prodotti dei tuoi dispositivi. Vengono inviati solo produttore e modello; ogni indirizzo viene verificato prima del salvataggio. Lascia vuoto per disattivare. Per i dispositivi di rete senza modello viene inviato invece il nome del dispositivo.",
         "data": {
           "ai_task_entity": "Entità Attività IA",
           "ai_copy_local": "Archivia i PDF trovati in Home Assistant (consigliato)",

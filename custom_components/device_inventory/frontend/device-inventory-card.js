@@ -29,9 +29,11 @@ const T = {
     delPhoto: "Delete this photo?", delNote: "Delete note?", noPhotos: "No photos yet.", noteOf: "Note", photosOf: "Photos",
     addedTip: "Registered in Home Assistant on", addedUnknown: "Older than the registry date field (before Oct 2024) – unknown",
     manual: "Manual", manualOf: "Manual", manualLink: "Open the manual", manualLocal: "Open the local copy (PDF)", manualUrlHint: "Link to the manual (empty = automatic search)", manualSave: "Save link", manualFetch: "Copy the PDF to Home Assistant", manualUpload: "Upload PDF", manualRemove: "Remove manual", manualNone: "No local copy", manualLocalCopy: "Local copy", manualFail: "Manual failed",
-    manualAiBtn: "Find manuals with AI (for this tab)", manualAiFind: "Find with AI", manualAiLink: "Manual (found by AI) – please check it", manualAiAsk: "Ask the AI for the manuals of {n} devices of this tab? Only manufacturer and model are sent to your configured AI service; every address is checked before it is saved.", manualAiNone: "No AI is set up. Add an AI provider in Home Assistant (Settings → Devices & services, e.g. Google Generative AI, OpenAI or Anthropic), then choose its AI task entity in the options of Device Inventory.", manualAiNothing: "Nothing to do: every device of this tab with a model already has a manual.", manualAiDone: "{found} manuals found, {none} not found",
+    manualAiBtn: "Find manuals and product photos with AI (for this tab)", manualAiFind: "Find with AI", manualAiLink: "Manual (found by AI) – please check it", manualAiAsk: "Ask the AI for the manuals of {n} devices of this tab? Only manufacturer and model are sent to your configured AI service; every address is checked before it is saved. Devices without a photo also get an original product photo of the manufacturer.", manualAiNone: "No AI is set up. Add an AI provider in Home Assistant (Settings → Devices & services, e.g. Google Generative AI, OpenAI or Anthropic), then choose its AI task entity in the options of Device Inventory.", manualAiNothing: "Nothing to do: every device of this tab with a model already has a manual.", manualAiDone: "{found} manuals found, {none} not found",
     manualAiQuota: "The AI quota or rate limit is used up. {found} manuals were found before it stopped. Please try again later (free quotas renew daily or per minute).", manualAiError: "The AI service reported an error: {error}", manualAiNoneFound: "No manuals were found for these devices. Many devices have no public manual – you can enter your own link or upload a PDF in the editor of the device.", manualCopyBtn: "Copy the manual PDFs of this tab to Home Assistant", manualCopyAsk: "Copy the PDFs of {n} manuals to Home Assistant (stored locally, work without internet)?", manualCopyNothing: "Nothing to copy: every manual link of this tab is already stored locally or is not a PDF.", manualCopyDone: "{copied} PDFs copied, {failed} failed (not a PDF or not reachable)",
     manualArchived: "archived on",
+    manualDocs: "documents", manualAdd: "Add a manual (link or own PDF)", manualOwn: "Own document", manualUploaded: "uploaded", manualDocDel: "Delete this document?", manualUploadHint: "Upload your own PDFs (several at once, also old manuals that no longer exist on the internet). They are stored on your Home Assistant and are never replaced by the AI.",
+    manualAiImages: "{n} product photos added (original images from the manufacturer only)",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
@@ -45,9 +47,11 @@ const T = {
     delPhoto: "Dieses Foto löschen?", delNote: "Bemerkung löschen?", noPhotos: "Noch keine Fotos.", noteOf: "Bemerkung", photosOf: "Fotos",
     addedTip: "In Home Assistant eingetragen am", addedUnknown: "Älter als das Datumsfeld der Registry (vor Okt. 2024) – unbekannt",
     manual: "Anleitung", manualOf: "Bedienungsanleitung", manualLink: "Anleitung öffnen", manualLocal: "Lokale Kopie (PDF) öffnen", manualUrlHint: "Link zur Anleitung (leer = automatische Suche)", manualSave: "Link speichern", manualFetch: "PDF nach Home Assistant kopieren", manualUpload: "PDF hochladen", manualRemove: "Anleitung entfernen", manualNone: "Keine lokale Kopie", manualLocalCopy: "Lokale Kopie", manualFail: "Anleitung fehlgeschlagen",
-    manualAiBtn: "Anleitungen per KI finden (für diesen Tab)", manualAiFind: "Per KI finden", manualAiLink: "Anleitung (von der KI gefunden) – bitte prüfen", manualAiAsk: "Die KI nach den Anleitungen von {n} Geräten dieses Tabs fragen? An deinen eingerichteten KI-Dienst gehen nur Hersteller und Modell; jede Adresse wird vor dem Speichern geprüft.", manualAiNone: "Es ist keine KI eingerichtet. Richte in Home Assistant einen KI-Anbieter ein (Einstellungen → Geräte & Dienste, z. B. Google Generative AI, OpenAI oder Anthropic) und wähle dann dessen KI-Task-Entität in den Optionen von Device Inventory.", manualAiNothing: "Nichts zu tun: Jedes Gerät dieses Tabs mit Modell hat schon eine Anleitung.", manualAiDone: "{found} Anleitungen gefunden, {none} nicht gefunden",
+    manualAiBtn: "Anleitungen und Produktfotos per KI finden (für diesen Tab)", manualAiFind: "Per KI finden", manualAiLink: "Anleitung (von der KI gefunden) – bitte prüfen", manualAiAsk: "Die KI nach den Anleitungen von {n} Geräten dieses Tabs fragen? An deinen eingerichteten KI-Dienst gehen nur Hersteller und Modell; jede Adresse wird vor dem Speichern geprüft. Geräte ohne Foto bekommen auch ein Original-Produktfoto des Herstellers.", manualAiNone: "Es ist keine KI eingerichtet. Richte in Home Assistant einen KI-Anbieter ein (Einstellungen → Geräte & Dienste, z. B. Google Generative AI, OpenAI oder Anthropic) und wähle dann dessen KI-Task-Entität in den Optionen von Device Inventory.", manualAiNothing: "Nichts zu tun: Jedes Gerät dieses Tabs mit Modell hat schon eine Anleitung.", manualAiDone: "{found} Anleitungen gefunden, {none} nicht gefunden",
     manualAiQuota: "Das Kontingent oder die Anfragegrenze der KI ist aufgebraucht. Bis dahin wurden {found} Anleitungen gefunden. Bitte später noch einmal versuchen (kostenlose Kontingente erneuern sich täglich oder pro Minute).", manualAiError: "Der KI-Dienst meldet einen Fehler: {error}", manualAiNoneFound: "Für diese Geräte wurden keine Anleitungen gefunden. Viele Geräte haben keine öffentliche Anleitung – im Editor des Geräts kannst du einen eigenen Link eintragen oder ein PDF hochladen.", manualCopyBtn: "Die Anleitungs-PDFs dieses Tabs nach Home Assistant kopieren", manualCopyAsk: "Die PDFs von {n} Anleitungen nach Home Assistant kopieren (lokal gespeichert, funktionieren ohne Internet)?", manualCopyNothing: "Nichts zu kopieren: Jeder Anleitungs-Link dieses Tabs ist schon lokal gespeichert oder kein PDF.", manualCopyDone: "{copied} PDFs kopiert, {failed} fehlgeschlagen (kein PDF oder nicht erreichbar)",
     manualArchived: "archiviert am",
+    manualDocs: "Dokumente", manualAdd: "Anleitung hinzufügen (Link oder eigenes PDF)", manualOwn: "Eigenes Dokument", manualUploaded: "hochgeladen", manualDocDel: "Dieses Dokument löschen?", manualUploadHint: "Eigene PDFs hochladen (auch mehrere auf einmal, auch alte Anleitungen, die es im Internet nicht mehr gibt). Sie liegen auf deinem Home Assistant und werden nie von der KI ersetzt.",
+    manualAiImages: "{n} Produktfotos hinzugefügt (nur Originalbilder des Herstellers)",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
     uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
   fr: { all: "Tous les appareils", other: "Autres", status: "État", name: "Appareil", model: "Modèle", area: "Pièce", ip: "IP", mac: "MAC", maker: "Fabricant", fw: "Firmware", added: "Ajouté", seen: "Vu", battery: "Batt.", photos: "Photos", note: "Note", printColorOn: "Impression en couleur (cliquer pour noir et blanc)", printColorOff: "Impression en noir et blanc (cliquer pour la couleur)", denseOn: "Espacement des lignes plus large", denseOff: "Espacement des lignes plus serré", commentsOff: "Masquer le texte des commentaires dans la liste", commentsOn: "Afficher le texte des commentaires dans la liste", thumbsOff: "Masquer les miniatures dans la liste", thumbsOn: "Afficher les miniatures dans la liste", kidFilterOn: "Déplier uniquement les sous-lignes avec commentaire ou photo", kidFilterOff: "Déplier toutes les sous-lignes", blurOn: "Flouter les adresses IP / MAC (p. ex. pour des captures d'écran)", blurOff: "Afficher les adresses IP / MAC", print: "Imprimer / PDF", land: "Paysage", port: "Portrait", count: "appareils", online: "En ligne", offline: "Hors ligne", addPhoto: "Ajouter des photos", close: "Fermer", del: "Supprimer", save: "Enregistrer", cancel: "Annuler", hint: "Ctrl+Entrée = enregistrer, Échap = annuler", delPhoto: "Supprimer cette photo ?", delNote: "Supprimer la note ?", noPhotos: "Aucune photo pour l'instant.", noteOf: "Note", photosOf: "Photos", addedTip: "Enregistré dans Home Assistant le", addedUnknown: "Plus ancien que le champ de date du registre (avant oct. 2024) – inconnu", mesh: "Connecté à", conn: "Connexion", lanc: "Clients LAN", wific: "Clients WiFi", uploadFail: "Échec du téléversement", saveFail: "Échec de l'enregistrement", printFail: "Échec de l'impression", stand: "État au", printCols: "Modifier les colonnes (affichage et impression)", exportCsv: "Exporter en CSV", copyLayout: "Copier la disposition des colonnes (JSON)", layoutCopied: "Disposition des colonnes copiée dans le presse-papiers.", importLayout: "Importer une disposition de colonnes : collez le JSON ici", resetAsk: "Réinitialiser la configuration du tableau ? Tous les réglages de ce côté (colonnes affichées, ordre, largeurs, noms de colonnes) seront perdus.", parent: "Appareil principal", yes: "oui", rename: "Nom de la colonne (vide = par défaut)", tgtView: "Affichage", tgtPrint: "Impression", done: "Terminé", reset: "Réinitialiser", expand: "Afficher les canaux", collapse: "Masquer les canaux", channels: "canaux", distance: "Distance", home: "Présent", bleaddr: "MAC BLE", scanner: "Scanner", scannerip: "IP du scanner", signal: "Signal", temp: "Temp.", ble: "Bluetooth", importDone: "Importé depuis l'ancien tableau de bord réseau", importNotes: "notes", importPhotos: "photos", internet: "Internet", allowed: "Autorisé", blocked: "Bloqué", blockAsk: "Bloquer l'accès à Internet pour cet appareil ?", allowAsk: "Autoriser l'accès à Internet pour cet appareil ?", search: "Rechercher", copy: "Copier", refresh: "Actualiser", low: "Faible", ok: "OK", batteries: "Piles", adminOnly: "Droits d'administrateur requis" },
@@ -77,7 +81,7 @@ const DEFAULT_LAYOUT = {
 const FRITZ_LAYOUT = {"view":{"order":["#","status","internet","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["mesh"],"w":{},"n":{}},"print":{"order":["#","status","internet","conn","name","model","area","distance","home","ip","mesh","mac","bleaddr","scanner","scannerip","maker","fw","signal","temp","ble","battery","seen","photos","note"],"off":["seen","status","mesh","added","manual"],"w":{"#":6,"status":6,"mac":29,"name":36,"ip":24,"maker":16,"temp":10,"signal":14,"battery":14,"seen":22,"photos":18,"area":16,"model":19,"internet":12,"note":63,"fw":11},"n":{}}};
 const HEAD_ICONS = { manual: "manual", status: "dot", photos: "image", note: "note", battery: "battery", internet: "globe", conn: "link", distance: "ruler", home: "home", signal: "signal", temp: "thermo", ble: "bluetooth", lanc: "lan", wific: "wifi" }; // columns whose heading is a symbol (narrow)
 const BLURCOLS = ["ip", "mac", "bleaddr", "scannerip"]; // columns blurred by the "hide addresses" option
-const OPTIONAL =["kids", "manual", "added", "mesh", "conn", "lanc", "wific", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
+const OPTIONAL =["kids", "added", "mesh", "conn", "lanc", "wific", "internet", "distance", "home", "bleaddr", "scanner", "scannerip", "ip", "mac", "signal", "temp", "ble", "battery"]; // hidden when no device has a value
 
 const ICONS = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>',
@@ -751,11 +755,19 @@ class DeviceInventoryCard extends HTMLElement {
     const ad = el("span", "display:inline-flex"); ad.innerHTML = ico("camera", 18); ad.className = "ic"; ad.title = t.addPhoto;
     ad.onclick = async () => { ad.textContent = "…"; await this._pick(d, (x) => (ad.textContent = x)); this._freeze = true; await this._load(); };
     tp.appendChild(ad);
-    const mi = this._manualInfo(d); // manual: own link / local copy / automatic search
-    if (mi) {
-      const ma = el("a", `display:inline-flex;color:${mi.kind === "local" ? "var(--success-color,#43a047)" : mi.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`);
-      ma.href = mi.href; ma.target = "_blank"; ma.rel = "noopener"; ma.innerHTML = ico("manual", 24); ma.title = mi.title;
-      add("manual", ma);
+    const mdocs = String(d.id).includes("~") ? null : this._manualDocs(d); // found / linked manual + own PDFs
+    if (mdocs) {
+      const kind = mdocs.length ? mdocs[0].kind : "none";
+      const color = kind === "local" ? "var(--success-color,#43a047)" : kind === "ai" ? "#a07cf0" : kind === "none" ? "var(--secondary-text-color,#888)" : "var(--primary-color)";
+      const wrap = el("span", "display:inline-flex;align-items:center;gap:4px");
+      const ma = el("span", `display:inline-flex;align-items:center;gap:2px;cursor:pointer;color:${color};opacity:${mdocs.length ? 1 : .4}`);
+      ma.innerHTML = ico("manual", 22) + (mdocs.length > 1 ? `<small>${mdocs.length}</small>` : "");
+      ma.title = !mdocs.length ? this._t.manualAdd : mdocs.length === 1 ? mdocs[0].title : `${mdocs.length} ${this._t.manualDocs}`;
+      ma.onclick = () => { if (mdocs.length === 1) window.open(mdocs[0].href, "_blank", "noopener"); else this._manualDialog(d); };
+      const me = el("span", "display:inline-flex;cursor:pointer;opacity:.7"); me.innerHTML = ico("pencil", 14); me.title = this._t.manualOf;
+      me.onclick = () => this._manualDialog(d);
+      wrap.append(ma, me);
+      add("manual", wrap);
     } else add("manual", "–");
     add("photos", tp);
 
@@ -861,12 +873,12 @@ class DeviceInventoryCard extends HTMLElement {
 
   // ask the AI (the AI task entity chosen in the options) for the manuals of the given devices, in chunks; only manufacturer and model leave Home Assistant
   async _aiFind(ids, overwrite, onProgress) {
-    const t = this._t, tot = { found: 0, missing: 0, copied: 0, quota: false, error: null }; let last = null;
+    const t = this._t, tot = { found: 0, missing: 0, copied: 0, images: 0, quota: false, error: null }; let last = null;
     for (let i = 0; i < ids.length && !tot.quota; i += 5) {
       if (onProgress) onProgress(Math.min(i + 5, ids.length), ids.length);
       last = await this._hass.callWS({ type: "device_inventory/find_manuals", device_ids: ids.slice(i, i + 5), overwrite: !!overwrite });
       const st = last.stats;
-      tot.found += st.found; tot.missing += st.missing; tot.copied += st.copied || 0;
+      tot.found += st.found; tot.missing += st.missing; tot.copied += st.copied || 0; tot.images += st.images || 0;
       tot.quota = tot.quota || !!st.quota; tot.error = tot.error || st.error;
     }
     if (last) { this._freeze = true; this._apply(last); }
@@ -875,13 +887,14 @@ class DeviceInventoryCard extends HTMLElement {
     else if (tot.error && !tot.found) lines.push(t.manualAiError.replace("{error}", String(tot.error).slice(0, 300)));
     if (!tot.quota) lines.push(tot.found ? t.manualAiDone.replace("{found}", tot.found).replace("{none}", tot.missing) : t.manualAiNoneFound);
     if (tot.copied) lines.push(t.manualCopyDone.replace("{copied}", tot.copied).replace("{failed}", 0));
+    if (tot.images) lines.push(t.manualAiImages.replace("{n}", tot.images));
     return Object.assign(tot, { text: lines.join("\n\n") });
   }
 
   async _aiAll(btn) {
     const t = this._t, s = this._state;
     if (!s.ai) { alert(t.manualAiNone); return; }
-    const ids = s.devices.filter((d) => !this._manualInfo(d) && d.model && !String(d.id).includes("~") && !/tracked device|^mesh$/i.test(String(d.model))).map((d) => d.id);
+    const ids = s.devices.filter((d) => !this._manualDocs(d).length && d.model && !String(d.id).includes("~") && !/tracked device|^mesh$/i.test(String(d.model))).map((d) => d.id);
     if (!ids.length) { alert(t.manualAiNothing); return; }
     if (!confirm(t.manualAiAsk.replace("{n}", ids.length))) return;
     btn.disabled = true;
@@ -909,51 +922,95 @@ class DeviceInventoryCard extends HTMLElement {
     this._render();
   }
 
-  _manualSection(d, o) {
-    const t = this._t, m = (this._state.manuals || {})[d.id] || {};
-    const box = el("div", "margin-top:14px;padding-top:10px;border-top:1px solid var(--divider-color,#888)");
-    box.appendChild(el("div", "font-weight:600;margin-bottom:6px", `${t.manualOf}: ${d.name}`));
+  // all documents of a device: the found / linked manual first, then the own uploaded PDFs
+  _manualDocs(d) {
+    const t = this._t, m = (this._state.manuals || {})[d.id] || {}, out = [];
+    const main = this._manualInfo(d);
+    if (main) {
+      let name = m.name || "PDF";
+      if (main.kind !== "local" && m.link) { try { name = new URL(m.link).hostname; } catch (e) { name = m.link; } }
+      out.push({ href: main.href, kind: main.kind, name, title: main.title });
+    }
+    (m.docs || []).forEach((x) => out.push({ href: x.url, kind: "own", name: x.name || "PDF", id: x.id, title: `${t.manualOwn}: ${x.name || "PDF"}${x.ts ? ` (${t.manualUploaded} ${this._date(x.ts)})` : ""}` }));
+    return out;
+  }
+
+  _manualDialog(d) {
+    const t = this._t, o = this._overlay(), m = (this._state.manuals || {})[d.id] || {};
+    const again = () => { o.close(); this._manualDialog(d); };
+    const fail = (e) => alert(`${t.manualFail}: ${e.message || e.code || e}`);
+    o.bx.appendChild(el("div", "font-weight:600;font-size:16px;margin-bottom:10px", `${t.manualOf}: ${d.name}`));
+    // list of the documents
+    const docs = this._manualDocs(d), list = el("div", "display:flex;flex-direction:column;gap:6px;margin-bottom:12px");
+    if (!docs.length) list.appendChild(el("div", "opacity:.7;font-size:13px", t.manualNone));
+    docs.forEach((x) => {
+      const row = el("div", "display:flex;align-items:center;gap:8px");
+      const a = el("a", "display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;flex:1;min-width:0");
+      a.href = x.href; a.target = "_blank"; a.rel = "noopener";
+      const ic = el("span", `display:inline-flex;color:${x.kind === "local" ? "var(--success-color,#43a047)" : x.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`); ic.innerHTML = ico("manual", 22);
+      a.append(ic, el("span", "overflow:hidden;text-overflow:ellipsis;white-space:nowrap", x.title));
+      row.appendChild(a);
+      if (x.id) {
+        const del = el("button", "padding:2px 8px", "✕"); del.title = t.del;
+        del.onclick = async () => {
+          if (!confirm(t.manualDocDel)) return;
+          try { this._freeze = true; this._apply(await this._hass.callWS({ type: "device_inventory/delete_manual_doc", device_id: d.id, doc_id: x.id })); again(); } catch (e) { fail(e); }
+        };
+        row.appendChild(del);
+      }
+      list.appendChild(row);
+    });
+    o.bx.appendChild(list);
+    // link, AI, local copy, own PDFs
+    const box = el("div", "padding-top:10px;border-top:1px solid var(--divider-color,#888)");
     const row = el("div", "display:flex;gap:6px;flex-wrap:wrap;align-items:center");
     const inp = el("input", "flex:1;min-width:220px;padding:6px 8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font:inherit");
     inp.type = "url"; inp.placeholder = t.manualUrlHint; inp.value = m.link || "";
     inp.onkeydown = (ev) => ev.stopPropagation();
     const bSave = this._btn(t.manualSave);
     row.append(inp, bSave); box.appendChild(row);
-    box.appendChild(el("div", "margin:8px 0 4px;font-size:12px;opacity:.75", m.file ? `${t.manualLocalCopy}: ${m.name || "PDF"}${m.archived ? ` – ${t.manualArchived} ${this._date(m.archived)}` : ""}` : t.manualNone));
-    const row2 = el("div", "display:flex;gap:6px;flex-wrap:wrap");
-    const bFetch = this._btn(t.manualFetch), bUp = this._btn(t.manualUpload), bDel = this._btn(t.manualRemove);
-    const bAi = this._btn(t.manualAiFind);
+    if (m.file) box.appendChild(el("div", "margin:8px 0 0;font-size:12px;opacity:.75", `${t.manualLocalCopy}: ${m.name || "PDF"}${m.archived ? ` – ${t.manualArchived} ${this._date(m.archived)}` : ""}`));
+    const row2 = el("div", "display:flex;gap:6px;flex-wrap:wrap;margin-top:8px");
+    const bUp = this._btn(t.manualUpload, true), bAi = this._btn(t.manualAiFind), bFetch = this._btn(t.manualFetch), bDel = this._btn(t.manualRemove);
+    row2.append(bUp, bAi, bFetch); if (m.file || m.link) row2.appendChild(bDel);
+    box.appendChild(row2);
+    box.appendChild(el("div", "margin-top:8px;font-size:12px;opacity:.65", t.manualUploadHint));
+    o.bx.appendChild(box);
+    const call = async (btn, type, extra) => {
+      btn.disabled = true;
+      try { this._freeze = true; this._apply(await this._hass.callWS(Object.assign({ type: `device_inventory/${type}`, device_id: d.id }, extra || {}))); again(); }
+      catch (e) { btn.disabled = false; fail(e); }
+    };
+    bSave.onclick = () => call(bSave, "set_manual", { link: inp.value });
+    bFetch.onclick = async () => {
+      if (inp.value.trim() !== (m.link || "")) { try { await this._hass.callWS({ type: "device_inventory/set_manual", device_id: d.id, link: inp.value }); } catch (e) { fail(e); return; } }
+      call(bFetch, "fetch_manual");
+    };
+    bDel.onclick = () => call(bDel, "delete_manual");
     bAi.onclick = async () => {
       if (!this._state.ai) { alert(t.manualAiNone); return; }
       bAi.disabled = true;
-      try { const r = await this._aiFind([d.id], true); alert(r.text); o.close(); }
-      catch (e) { bAi.disabled = false; alert(`${t.manualFail}: ${e.message || e.code || e}`); }
+      try { const r = await this._aiFind([d.id], true); alert(r.text); again(); } catch (e) { bAi.disabled = false; fail(e); }
     };
-    row2.append(bAi, bFetch, bUp); if (m.file || m.link) row2.appendChild(bDel);
-    box.appendChild(row2);
-    const call = async (btn, type, extra) => {
-      btn.disabled = true;
-      try { this._freeze = true; this._apply(await this._hass.callWS(Object.assign({ type: `device_inventory/${type}`, device_id: d.id }, extra || {}))); o.close(); }
-      catch (e) { btn.disabled = false; alert(`${t.manualFail}: ${e.message || e.code || e}`); }
-    };
-    bSave.onclick = () => call(bSave, "set_manual", { link: inp.value });
-    bFetch.onclick = async () => { if (inp.value.trim() !== (m.link || "")) { try { await this._hass.callWS({ type: "device_inventory/set_manual", device_id: d.id, link: inp.value }); } catch (e) { alert(`${t.manualFail}: ${e.message || e.code || e}`); return; } } call(bFetch, "fetch_manual"); };
-    bDel.onclick = () => call(bDel, "delete_manual");
-    bUp.onclick = () => {
-      const f = document.createElement("input"); f.type = "file"; f.accept = "application/pdf"; f.style.display = "none"; document.body.appendChild(f);
+    bUp.onclick = () => { // own PDFs, also old ones that exist nowhere on the internet; several at once
+      const f = document.createElement("input"); f.type = "file"; f.accept = "application/pdf"; f.multiple = true; f.style.display = "none"; document.body.appendChild(f);
       f.onchange = async () => {
-        const file = (f.files || [])[0]; f.remove(); if (!file) return;
+        const files = [...(f.files || [])]; f.remove(); if (!files.length) return;
         bUp.disabled = true;
         try {
-          const fd = new FormData(); fd.append("file", file, file.name);
-          const r = await this._hass.fetchWithAuth(`/api/device_inventory/manual_upload/${d.id}`, { method: "POST", body: fd });
-          if (!r.ok) throw new Error(`HTTP ${r.status} ${await r.text()}`);
-          this._freeze = true; await this._load(); o.close();
-        } catch (e) { bUp.disabled = false; alert(`${t.manualFail}: ${e.message || e}`); }
+          for (let i = 0; i < files.length; i++) {
+            bUp.textContent = `… ${i + 1}/${files.length}`;
+            const fd = new FormData(); fd.append("file", files[i], files[i].name);
+            const r = await this._hass.fetchWithAuth(`/api/device_inventory/manual_upload/${d.id}`, { method: "POST", body: fd });
+            if (!r.ok) throw new Error(`${files[i].name}: HTTP ${r.status} ${await r.text()}`);
+          }
+          this._freeze = true; await this._load(); again();
+        } catch (e) { bUp.disabled = false; bUp.textContent = t.manualUpload; fail(e); this._freeze = true; await this._load(); }
       };
       f.click();
     };
-    return box;
+    const ft = el("div", "display:flex;justify-content:flex-end;margin-top:12px");
+    const bClose = this._btn(t.close); bClose.onclick = o.close; ft.appendChild(bClose); o.bx.appendChild(ft);
   }
 
   _editNote(d) {
@@ -972,7 +1029,7 @@ class DeviceInventoryCard extends HTMLElement {
     bD.onclick = () => { if (confirm(t.delNote)) save(""); };
     bC.onclick = o.close; bS.onclick = () => save(ta.value);
     if (old) ft.appendChild(bD);
-    ft.append(bC, bS); o.bx.append(ta, ft, this._manualSection(d, o)); ta.focus();
+    ft.append(bC, bS); o.bx.append(ta, ft); ta.focus();
   }
 
   // ---------- upload

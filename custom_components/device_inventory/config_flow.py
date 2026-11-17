@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResu
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
-from .const import CONF_AI_COPY, CONF_AI_TASK, DOMAIN
+from .const import CONF_AI_COPY, CONF_AI_IMAGES, CONF_AI_TASK, DOMAIN
 
 
 class DeviceInventoryConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -39,6 +39,7 @@ class DeviceInventoryOptionsFlow(OptionsFlow):
             {
                 vol.Optional(CONF_AI_TASK): selector.EntitySelector(selector.EntitySelectorConfig(domain="ai_task")),
                 vol.Optional(CONF_AI_COPY, default=True): bool,
+                vol.Optional(CONF_AI_IMAGES, default=True): bool,
             }
         )
         return self.async_show_form(step_id="init", data_schema=self.add_suggested_values_to_schema(schema, self.config_entry.options))

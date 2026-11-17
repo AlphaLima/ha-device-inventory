@@ -34,10 +34,12 @@ from homeassistant.util import dt as dt_util
 from .const import (
     CARD_URL,
     CONF_AI_COPY,
+    CONF_AI_IMAGES,
     CONF_AI_TASK,
     DOMAIN,
     PANEL_PATH,
     PANEL_URL,
+    MAX_DOCS_PER_DEVICE,
     MAX_MANUAL_BYTES,
     MAX_UPLOAD_BYTES,
     SCAN_INTERVAL_SECONDS,
@@ -116,6 +118,10 @@ class InventoryManager:
                 "pdf": entry.get("pdf"),
                 "name": entry.get("name"),
                 "archived": entry.get("archived"),
+                "docs": [
+                    {"id": doc["id"], "name": doc.get("name"), "ts": doc.get("ts"), "url": self._signed_url(f"/api/{DOMAIN}/manual/{doc['id']}", refresh_token_id, now)}
+                    for doc in entry.get("docs", [])
+                ],
                 "file": self._signed_url(f"/api/{DOMAIN}/manual/{entry['file']}", refresh_token_id, now) if entry.get("file") else None,
             }
         return {
@@ -174,6 +180,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     websocket_api.async_register_command(hass, ws_set_manual)
     websocket_api.async_register_command(hass, ws_fetch_manual)
     websocket_api.async_register_command(hass, ws_delete_manual)
+    websocket_api.async_register_command(hass, ws_delete_manual_doc)
     websocket_api.async_register_command(hass, ws_find_manuals)
     websocket_api.async_register_command(hass, ws_copy_manuals)
     websocket_api.async_register_command(hass, ws_import_legacy)
@@ -429,12 +436,45 @@ async def ws_copy_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
 @websocket_api.require_admin
 @websocket_api.async_response
 async def ws_delete_manual(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    """Remove the local copy and the own link of a device."""
+    """Remove the found / linked manual (link and archived copy) of a device; own uploaded documents stay."""
     manager: InventoryManager = hass.data[DOMAIN]
-    entry = manager.data["manuals"].pop(msg["device_id"], None)
+    entry = manager.data["manuals"].get(msg["device_id"])
     if entry:
-        await _remove_manual_file(hass, manager, msg["device_id"], entry.get("file"))
+        file_id = entry.get("file")
+        for key in ("link", "ai", "pdf", "file", "name", "archived"):
+            entry.pop(key, None)
+        if not entry.get("docs"):
+            manager.data["manuals"].pop(msg["device_id"], None)
+        await _remove_manual_file(hass, manager, msg["device_id"], file_id)
     manager.save()
+    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/delete_manual_doc",
+        vol.Required("device_id"): str,
+        vol.Required("doc_id"): str,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_delete_manual_doc(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Delete one own uploaded document of a device."""
+    manager: InventoryManager = hass.data[DOMAIN]
+    entry = manager.data["manuals"].get(msg["device_id"], {})
+    docs = entry.get("docs", [])
+    keep = [doc for doc in docs if doc["id"] != msg["doc_id"]]
+    if len(keep) != len(docs):
+        path = manager.manual_dir / f"{msg['doc_id']}.pdf"
+        await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
+        if keep:
+            entry["docs"] = keep
+        else:
+            entry.pop("docs", None)
+            if not entry:
+                manager.data["manuals"].pop(msg["device_id"], None)
+        manager.save()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
 
@@ -476,6 +516,46 @@ async def _verify_manual_url(hass: HomeAssistant, url: str) -> str | None:
     return None
 
 
+SHOP_HOSTS = ("amazon", "ebay", "aliexpress", "alibaba", "idealo", "pinterest", "wikipedia", "wikimedia", "google", "bing", "shutterstock", "getty", "alamy", "etsy", "facebook", "instagram", "geizhals", "otto.", "conrad", "reichelt", "mediamarkt", "saturn.", "bol.com", "walmart")
+
+
+def _manufacturer_image_ok(image_url: str, domain: str, maker: str, manual_url: str | None) -> bool:
+    """Only original images of the manufacturer: the picture must come from the manufacturer's own domain (no shops, marketplaces or search engines)."""
+    host = (urlparse(image_url).hostname or "").lower()
+    dom = domain.lower().replace("https://", "").replace("http://", "").split("/")[0].removeprefix("www.").strip()
+    if not host or not dom or "." not in dom or any(shop in host for shop in SHOP_HOSTS):
+        return False
+    if not (host == dom or host.endswith("." + dom)):
+        return False
+    tokens = [tok for tok in re.split(r"[^a-z0-9]+", maker.lower()) if len(tok) >= 2]
+    manual_host = (urlparse(manual_url).hostname or "").lower() if manual_url else ""
+    return any(tok in dom for tok in tokens) or (bool(manual_host) and (manual_host == dom or manual_host.endswith("." + dom)))
+
+
+async def _download_image(hass: HomeAssistant, url: str) -> bytes | None:
+    """Download a JPEG or PNG from a public address (redirects checked by hand, size limited); None when it is no such picture."""
+    session = async_get_clientsession(hass)
+    for _ in range(5):
+        if not _http_url_ok(url) or not await _is_public_host(hass, urlparse(url).hostname or ""):
+            return None
+        try:
+            async with session.get(url, allow_redirects=False, timeout=ClientTimeout(total=40), headers={"User-Agent": "HomeAssistant-DeviceInventory"}) as resp:
+                if resp.status in (301, 302, 303, 307, 308) and resp.headers.get("Location"):
+                    url = urljoin(url, resp.headers["Location"])
+                    continue
+                if resp.status != 200:
+                    return None
+                data = bytearray()
+                async for chunk in resp.content.iter_chunked(65536):
+                    data.extend(chunk)
+                    if len(data) > MAX_UPLOAD_BYTES:
+                        return None
+                return bytes(data) if _is_image(bytes(data)) else None
+        except (OSError, asyncio.TimeoutError):
+            return None
+    return None
+
+
 async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> str | None:
     """The AI sometimes returns the product page: look on that page for a PDF link that really is a PDF (no AI needed)."""
     session = async_get_clientsession(hass)
@@ -510,34 +590,40 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
     return None
 
 
-async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str) -> tuple[str | None, str | None]:
-    """Ask the AI task for the official manual of one device model (only manufacturer and model are sent): (address, error text)."""
+async def _ai_find(hass: HomeAssistant, entity: str, maker: str, model: str, want_image: bool) -> tuple[str | None, str | None, str | None, str | None]:
+    """Ask the AI task for the official manual (and a product photo) of one device model; only manufacturer and model are sent: (manual, photo, manufacturer domain, error text)."""
     instructions = (
         f"Find the official user manual of this device as a PDF file: manufacturer '{maker}', model '{model}'. "
         "The address must be the direct link to the PDF file itself (it normally ends in .pdf), taken from the manufacturer's own website, "
         "so that the file can be downloaded and archived. A product page is acceptable only if the manufacturer offers no PDF. "
         f"The manual language should be '{hass.config.language}' if the manufacturer offers it, otherwise English. "
-        "If you are not certain that exactly this address exists, leave the url empty. Never guess or invent an address."
     )
+    structure: dict[str, Any] = {"url": {"description": "Direct address of the official manual, empty if unknown", "required": True, "selector": {"text": {}}}}
+    if want_image:
+        instructions += (
+            "Also give the direct address of one clean product photo of exactly this device (a JPG or PNG file, not a logo or an icon), "
+            "taken from the manufacturer's own website (original manufacturer image only, never a shop, marketplace, search engine or stock photo), in image_url. "
+            "Also give the official internet domain of the manufacturer (for example shelly.com) in manufacturer_domain. "
+        )
+        structure["image_url"] = {"description": "Direct address of an original manufacturer product photo (JPG or PNG), empty if unknown", "required": False, "selector": {"text": {}}}
+        structure["manufacturer_domain"] = {"description": "Official internet domain of the manufacturer, empty if unknown", "required": False, "selector": {"text": {}}}
+    instructions += "If you are not certain that exactly an address exists, leave that field empty. Never guess or invent an address."
     try:
         resp = await hass.services.async_call(
             "ai_task",
             "generate_data",
-            {
-                "entity_id": entity,
-                "task_name": "device manual",
-                "instructions": instructions,
-                "structure": {"url": {"description": "Direct address of the official manual, empty if unknown", "required": True, "selector": {"text": {}}}},
-            },
+            {"entity_id": entity, "task_name": "device manual", "instructions": instructions, "structure": structure},
             blocking=True,
             return_response=True,
         )
     except (HomeAssistantError, asyncio.TimeoutError, OSError) as err:
         _LOGGER.warning("AI task failed for %s %s: %s", maker, model, err)
-        return None, str(err) or err.__class__.__name__
+        return None, None, None, str(err) or err.__class__.__name__
     data = (resp or {}).get("data") or {}
     url = str(data.get("url") or "").strip()
-    return (url if _http_url_ok(url) else None), None
+    image = str(data.get("image_url") or "").strip()
+    domain = str(data.get("manufacturer_domain") or "").strip()
+    return (url if _http_url_ok(url) else None), (image if _http_url_ok(image) else None), domain, None
 
 
 @websocket_api.websocket_command(
@@ -557,22 +643,26 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         connection.send_error(msg["id"], "no_ai", "No AI task entity is set up")
         return
     copy_local = bool(_options(hass).get(CONF_AI_COPY, True))  # archive found PDFs unless switched off
+    use_images = bool(_options(hass).get(CONF_AI_IMAGES, True))  # also a product photo for devices without any photo
     devices = {dev["id"]: dev for dev in (manager.coordinator.data or [])}
-    found = missing = copied = 0
+    found = missing = copied = images = 0
     quota = False
     error: str | None = None
+    image_data: dict[str, bytes | None] = {}
     for device_id in msg["device_ids"]:
         dev = devices.get(device_id)
-        entry = manager.data["manuals"].get(device_id, {})
-        if dev is None or ((entry.get("link") or entry.get("file")) and not msg["overwrite"]):
+        if dev is None:
             continue
+        entry = manager.data["manuals"].get(device_id, {})
+        need_manual = msg["overwrite"] or not (entry.get("link") or entry.get("file") or entry.get("docs"))
+        need_image = use_images and not manager.data["photos"].get(device_id)
         maker, model = str(dev.get("manufacturer") or ""), str(dev.get("model") or "")
-        if not model or "~" in device_id or "tracked device" in model.lower() or model == "Mesh":
+        if not (need_manual or need_image) or not model or "~" in device_id or "tracked device" in model.lower() or model == "Mesh":
             continue
         key = f"{maker.lower()}|{model.lower()}"
         cache: dict[str, Any] = manager.data["ai_cache"]
-        if key not in cache or msg["overwrite"]:
-            url, err = await _ai_find(hass, entity, maker, model)
+        if key not in cache or msg["overwrite"] or (need_image and "image" not in cache[key]):
+            url, image, domain, err = await _ai_find(hass, entity, maker, model, use_images)
             if err:
                 if _is_quota_error(err):
                     quota = True
@@ -586,18 +676,29 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 pdf = await _find_pdf_on_page(hass, url, model)
                 if pdf:
                     url, kind = pdf, "pdf"
-            cache[key] = {"url": url, "pdf": kind == "pdf"} if kind else {"url": "", "pdf": False}
+            image = image if image and _manufacturer_image_ok(image, domain or "", maker, url) else ""  # original manufacturer images only
+            cache[key] = {"url": url, "pdf": kind == "pdf", "image": image} if kind else {"url": "", "pdf": False, "image": image}
         hit = cache[key]
-        if hit["url"]:
-            manager.data["manuals"].setdefault(device_id, {}).update({"link": hit["url"], "ai": True, "pdf": hit["pdf"]})
-            found += 1
-            if copy_local and hit["pdf"] and await _try_copy(hass, manager, device_id, hit["url"]):
-                copied += 1
-        else:
-            missing += 1
+        if need_manual:
+            if hit["url"]:
+                manager.data["manuals"].setdefault(device_id, {}).update({"link": hit["url"], "ai": True, "pdf": hit["pdf"]})
+                found += 1
+                if copy_local and hit["pdf"] and await _try_copy(hass, manager, device_id, hit["url"]):
+                    copied += 1
+            else:
+                missing += 1
+        if need_image and hit.get("image"):
+            if hit["image"] not in image_data:
+                image_data[hit["image"]] = await _download_image(hass, hit["image"])
+            picture = image_data[hit["image"]]
+            if picture:
+                photo_id = secrets.token_urlsafe(16)
+                await hass.async_add_executor_job((manager.photo_dir / f"{photo_id}.jpg").write_bytes, picture)
+                manager.data["photos"].setdefault(device_id, []).append({"id": photo_id, "ts": dt_util.utcnow().isoformat(), "ai": True, "src": hit["image"]})
+                images += 1
     manager.save()
     result = manager.payload(connection.refresh_token_id)
-    result["stats"] = {"found": found, "missing": missing, "copied": copied, "quota": quota, "error": error}
+    result["stats"] = {"found": found, "missing": missing, "copied": copied, "images": images, "quota": quota, "error": error}
     connection.send_result(msg["id"], result)
 
 
@@ -766,8 +867,16 @@ class ManualUploadView(HomeAssistantView):
                 return self.json_message("File too large", 413)
         if not data.startswith(b"%PDF"):
             return self.json_message("Only PDF files", 415)
-        await _store_manual(hass, manager, device_id, bytes(data), field.filename or "manual.pdf")
-        return self.json({"ok": True})
+        entry = manager.data["manuals"].setdefault(device_id, {})
+        docs = entry.setdefault("docs", [])
+        if len(docs) >= MAX_DOCS_PER_DEVICE:
+            return self.json_message("Too many documents for this device", 409)
+        doc_id = secrets.token_urlsafe(16)
+        await hass.async_add_executor_job((manager.manual_dir / f"{doc_id}.pdf").write_bytes, bytes(data))
+        name = "".join(ch for ch in (field.filename or "document.pdf") if ch.isalnum() or ch in "._- ")[:80] or "document.pdf"
+        docs.append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat()})
+        manager.save()
+        return self.json({"id": doc_id})
 
 
 class ManualServeView(HomeAssistantView):

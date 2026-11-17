@@ -9,5 +9,22 @@
     "abort": {
       "single_instance_allowed": "Już skonfigurowano."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AI do instrukcji i zdjęć produktów",
+        "description": "Opcjonalne. Wybierz encję zadania AI dostawcy AI skonfigurowanego w Home Assistant (np. Google Generative AI, OpenAI lub Anthropic). Device Inventory zapyta ją o instrukcje i zdjęcia produktów Twoich urządzeń. Wysyłani są tylko producent i model; każdy adres jest sprawdzany przed zapisem. Zostaw puste, aby wyłączyć.",
+        "data": {
+          "ai_task_entity": "Encja zadania AI",
+          "ai_copy_local": "Archiwizuj znalezione pliki PDF w Home Assistant (zalecane)",
+          "ai_images": "Zapisuj też zdjęcie produktu znalezione przez AI"
+        },
+        "data_description": {
+          "ai_copy_local": "Zapisuje w Twoim Home Assistant każdą instrukcję PDF znalezioną przez AI (config/device_inventory/manuals). Archiwum zachowuje obecny stan instrukcji, działa bez internetu i zachowuje instrukcje starych urządzeń, nawet jeśli znikną ze strony producenta.",
+          "ai_images": "Dla urządzeń bez zdjęcia AI szuka też oryginalnego zdjęcia produktu na stronie producenta (nigdy w sklepach ani serwisach ze zdjęciami); jest zapisywane w Twoim Home Assistant jak Twoje własne zdjęcia. Używaj tylko do własnej dokumentacji."
+        }
+      }
+    }
   }
 }

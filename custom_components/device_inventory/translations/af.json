@@ -9,5 +9,22 @@
     "abort": {
       "single_instance_allowed": "Reeds opgestel."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "KI vir handleidings en produkfoto's",
+        "description": "Opsioneel. Kies die KI-taak-entiteit van 'n KI-verskaffer wat in Home Assistant opgestel is (byvoorbeeld Google Generative AI, OpenAI of Anthropic). Device Inventory vra dit dan na die handleidings en produkfoto's van jou toestelle. Slegs vervaardiger en model word gestuur; elke adres word gekontroleer voordat dit gestoor word. Los leeg om dit af te skakel.",
+        "data": {
+          "ai_task_entity": "KI-taak-entiteit",
+          "ai_copy_local": "Argiveer gevonde PDF's in Home Assistant (aanbeveel)",
+          "ai_images": "Stoor ook 'n produkfoto wat die KI gevind het"
+        },
+        "data_description": {
+          "ai_copy_local": "Stoor elke PDF-handleiding wat die KI vind op jou Home Assistant (config/device_inventory/manuals). Die argief hou die huidige toestand van die handleiding, werk sonder internet en behou die handleidings van ou toestelle selfs al verdwyn hulle van die vervaardiger se webwerf.",
+          "ai_images": "Vir toestelle sonder foto soek die KI ook 'n oorspronklike produkfoto op die vervaardiger se eie webwerf (nooit winkels of beeldwebwerwe nie); dit word op jou Home Assistant gestoor soos jou eie foto's. Gebruik dit slegs vir jou eie dokumentasie."
+        }
+      }
+    }
   }
 }

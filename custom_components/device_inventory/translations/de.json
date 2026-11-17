@@ -13,8 +13,8 @@
   "options": {
     "step": {
       "init": {
-        "title": "KI für Bedienungsanleitungen",
-        "description": "Optional. Wähle die KI-Task-Entität eines in Home Assistant eingerichteten KI-Anbieters (z. B. Google Generative AI, OpenAI oder Anthropic). Device Inventory fragt sie dann nach den Anleitungen deiner Geräte. Gesendet werden nur Hersteller und Modell; jede Adresse wird vor dem Speichern geprüft. Leer lassen = aus.",
+        "title": "KI für Anleitungen und Produktfotos",
+        "description": "Optional. Wähle die KI-Task-Entität eines in Home Assistant eingerichteten KI-Anbieters (z. B. Google Generative AI, OpenAI oder Anthropic). Device Inventory fragt sie dann nach den Anleitungen und Produktfotos deiner Geräte. Es werden nur Hersteller und Modell gesendet; jede Adresse wird vor dem Speichern geprüft. Leer lassen, um die Funktion auszuschalten.",
         "data": {
           "ai_task_entity": "KI-Task-Entität",
           "ai_copy_local": "Gefundene PDFs in Home Assistant archivieren (empfohlen)",

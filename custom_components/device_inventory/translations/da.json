@@ -9,5 +9,22 @@
     "abort": {
       "single_instance_allowed": "Allerede konfigureret."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AI til manualer og produktbilleder",
+        "description": "Valgfrit. Vælg AI-opgaveentiteten for en AI-udbyder, der er sat op i Home Assistant (f.eks. Google Generative AI, OpenAI eller Anthropic). Device Inventory spørger den så om manualer og produktbilleder til dine enheder. Kun producent og model sendes; hver adresse kontrolleres, før den gemmes. Lad feltet stå tomt for at slå det fra.",
+        "data": {
+          "ai_task_entity": "AI-opgaveentitet",
+          "ai_copy_local": "Arkivér fundne PDF'er i Home Assistant (anbefalet)",
+          "ai_images": "Gem også et produktbillede fundet af AI"
+        },
+        "data_description": {
+          "ai_copy_local": "Gemmer hver PDF-manual, AI finder, i din Home Assistant (config/device_inventory/manuals). Arkivet bevarer manualens nuværende tilstand, virker uden internet og beholder manualerne til gamle enheder, selv om de forsvinder fra producentens hjemmeside.",
+          "ai_images": "For enheder uden billede leder AI også efter et originalt produktbillede på producentens egen hjemmeside (aldrig webshops eller billedsider); det gemmes i din Home Assistant som dine egne billeder. Brug det kun til din egen dokumentation."
+        }
+      }
+    }
   }
 }

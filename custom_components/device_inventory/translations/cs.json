@@ -9,5 +9,22 @@
     "abort": {
       "single_instance_allowed": "Již nastaveno."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AI pro návody a fotografie produktů",
+        "description": "Volitelné. Vyberte entitu úlohy AI poskytovatele AI nastaveného v Home Assistantu (například Google Generative AI, OpenAI nebo Anthropic). Device Inventory se jí pak zeptá na návody a fotografie produktů vašich zařízení. Posílá se jen výrobce a model; každá adresa se před uložením ověří. Nechte prázdné pro vypnutí.",
+        "data": {
+          "ai_task_entity": "Entita úlohy AI",
+          "ai_copy_local": "Archivovat nalezená PDF v Home Assistantu (doporučeno)",
+          "ai_images": "Uložit také fotografii produktu nalezenou AI"
+        },
+        "data_description": {
+          "ai_copy_local": "Ukládá každý návod v PDF nalezený AI do vašeho Home Assistantu (config/device_inventory/manuals). Archiv uchovává dnešní stav návodu, funguje bez internetu a zachová návody starých zařízení, i když zmizí z webu výrobce.",
+          "ai_images": "U zařízení bez fotografie hledá AI také originální fotografii produktu na webu samotného výrobce (nikdy obchody ani obrazové servery); uloží se do vašeho Home Assistantu jako vaše vlastní fotografie. Používejte jen pro vlastní dokumentaci."
+        }
+      }
+    }
   }
 }

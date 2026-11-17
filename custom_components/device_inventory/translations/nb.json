@@ -9,5 +9,22 @@
     "abort": {
       "single_instance_allowed": "Allerede konfigurert."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "KI for manualer og produktbilder",
+        "description": "Valgfritt. Velg KI-oppgaveentiteten til en KI-leverandør som er satt opp i Home Assistant (for eksempel Google Generative AI, OpenAI eller Anthropic). Device Inventory spør den da om manualer og produktbilder for enhetene dine. Bare produsent og modell sendes; hver adresse kontrolleres før den lagres. La stå tomt for å slå av.",
+        "data": {
+          "ai_task_entity": "KI-oppgaveentitet",
+          "ai_copy_local": "Arkiver funnede PDF-er i Home Assistant (anbefalt)",
+          "ai_images": "Lagre også et produktbilde funnet av KI"
+        },
+        "data_description": {
+          "ai_copy_local": "Lagrer hver PDF-manual KI finner i din Home Assistant (config/device_inventory/manuals). Arkivet bevarer manualens nåværende tilstand, fungerer uten internett og beholder manualene til gamle enheter selv om de forsvinner fra produsentens nettside.",
+          "ai_images": "For enheter uten bilde leter KI også etter et originalt produktbilde på produsentens egen nettside (aldri nettbutikker eller bildesider); det lagres i din Home Assistant som dine egne bilder. Bruk det bare til din egen dokumentasjon."
+        }
+      }
+    }
   }
 }

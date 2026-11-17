@@ -806,16 +806,23 @@ def _heads_name(text: str, key: str) -> bool:
     return bool(key) and any(key in _norm(re.sub(r"<[^>]+>", "", part)) for group in heads for part in group if part)
 
 
-async def _page_is_about(hass: HomeAssistant, url: str, model: str) -> bool:
-    """A page only counts as a manual link when its title or headline names the model: general download / search pages that merely echo the address or list many products do not."""
+async def _page_is_about(hass: HomeAssistant, url: str, model: str, maker: str = "") -> bool:
+    """A page only counts as a manual link when its title or headline names the model (no general download / search pages that merely echo the address or list many products).
+    Without a distinctive model (e.g. WLED "FOSS") the manufacturer's own documentation site is accepted, but never a download, support or search page."""
     got = await _fetch_html(hass, url)
     key = _norm(model)
     if not got or len(key) < 3:
         return False
-    return _heads_name(got[1], key)
+    if _heads_name(got[1], key):
+        return True
+    host = (urlparse(got[0]).hostname or "").lower()
+    path = (urlparse(got[0]).path + "?" + (urlparse(got[0]).query or "")).lower()
+    generic = any(word in path for word in ("download", "support", "service", "search", "suche", "?q="))
+    tokens = [tok for tok in re.split(r"[^a-z0-9]+", maker.lower()) if len(tok) >= 3]
+    return not generic and any(tok in host for tok in tokens) and any(_heads_name(got[1], tok) for tok in tokens)
 
 
-async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> tuple[str | None, str | None, str | None]:
+async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str, maker: str = "") -> tuple[str | None, str | None, str | None]:
     """Check the candidates one by one: a real PDF wins; a page is searched for a PDF link; otherwise the first page that names the model is kept: (address, "pdf" / "page", page the PDF was found on)."""
     fallback: str | None = None
     for url in urls:
@@ -826,7 +833,7 @@ async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> t
             pdf = await _find_pdf_on_page(hass, url, model)
             if pdf:
                 return pdf, "pdf", url
-            if not fallback and await _page_is_about(hass, url, model):
+            if not fallback and await _page_is_about(hass, url, model, maker):
                 fallback = url
     return (fallback, "page", None) if fallback else (None, None, None)
 
@@ -877,14 +884,14 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 error = error or err
                 missing += 1
                 continue  # not cached: a later run asks again
-            url, kind, page = await _resolve_manual(hass, urls, model)
+            url, kind, page = await _resolve_manual(hass, urls, model, maker)
             if kind != "pdf":  # second try: ask again for different pages, only counts when it brings a real PDF or any working page
                 urls2, image2, domain2, err2 = await _ai_find(hass, entity, maker, model, use_images and not image, urls)
                 if err2 and _is_quota_error(err2):
                     quota = True
                     error = err2
                 if not err2:
-                    url2, kind2, page2 = await _resolve_manual(hass, [u for u in urls2 if u not in urls], model)
+                    url2, kind2, page2 = await _resolve_manual(hass, [u for u in urls2 if u not in urls], model, maker)
                     if kind2 and (kind != "page" or kind2 == "pdf"):
                         url, kind, page = url2, kind2, page2
                     if not image and image2:

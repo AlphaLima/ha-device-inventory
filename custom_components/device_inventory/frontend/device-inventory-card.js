@@ -34,6 +34,7 @@ const T = {
     manualArchived: "archived on",
     manualDocs: "documents", manualAdd: "Add a manual (link or own PDF)", manualOwn: "Own document", manualUploaded: "uploaded", manualDocDel: "Delete this document?", manualUploadHint: "Upload your own PDFs (several at once, also old manuals that no longer exist on the internet). They are stored on your Home Assistant and are never replaced by the AI.",
     manualAiImages: "{n} product photos added (original images from the manufacturer only)",
+    aiProgress: "Searching manuals with AI …", aiCancel: "Cancel", aiFoundN: "{n} found", aiStopped: "Search cancelled.",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
@@ -52,6 +53,7 @@ const T = {
     manualArchived: "archiviert am",
     manualDocs: "Dokumente", manualAdd: "Anleitung hinzufügen (Link oder eigenes PDF)", manualOwn: "Eigenes Dokument", manualUploaded: "hochgeladen", manualDocDel: "Dieses Dokument löschen?", manualUploadHint: "Eigene PDFs hochladen (auch mehrere auf einmal, auch alte Anleitungen, die es im Internet nicht mehr gibt). Sie liegen auf deinem Home Assistant und werden nie von der KI ersetzt.",
     manualAiImages: "{n} Produktfotos hinzugefügt (nur Originalbilder des Herstellers)",
+    aiProgress: "Anleitungen werden per KI gesucht …", aiCancel: "Abbrechen", aiFoundN: "{n} gefunden", aiStopped: "Suche abgebrochen.",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
     uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
   fr: { all: "Tous les appareils", other: "Autres", status: "État", name: "Appareil", model: "Modèle", area: "Pièce", ip: "IP", mac: "MAC", maker: "Fabricant", fw: "Firmware", added: "Ajouté", seen: "Vu", battery: "Batt.", photos: "Photos", note: "Note", printColorOn: "Impression en couleur (cliquer pour noir et blanc)", printColorOff: "Impression en noir et blanc (cliquer pour la couleur)", denseOn: "Espacement des lignes plus large", denseOff: "Espacement des lignes plus serré", commentsOff: "Masquer le texte des commentaires dans la liste", commentsOn: "Afficher le texte des commentaires dans la liste", thumbsOff: "Masquer les miniatures dans la liste", thumbsOn: "Afficher les miniatures dans la liste", kidFilterOn: "Déplier uniquement les sous-lignes avec commentaire ou photo", kidFilterOff: "Déplier toutes les sous-lignes", blurOn: "Flouter les adresses IP / MAC (p. ex. pour des captures d'écran)", blurOff: "Afficher les adresses IP / MAC", print: "Imprimer / PDF", land: "Paysage", port: "Portrait", count: "appareils", online: "En ligne", offline: "Hors ligne", addPhoto: "Ajouter des photos", close: "Fermer", del: "Supprimer", save: "Enregistrer", cancel: "Annuler", hint: "Ctrl+Entrée = enregistrer, Échap = annuler", delPhoto: "Supprimer cette photo ?", delNote: "Supprimer la note ?", noPhotos: "Aucune photo pour l'instant.", noteOf: "Note", photosOf: "Photos", addedTip: "Enregistré dans Home Assistant le", addedUnknown: "Plus ancien que le champ de date du registre (avant oct. 2024) – inconnu", mesh: "Connecté à", conn: "Connexion", lanc: "Clients LAN", wific: "Clients WiFi", uploadFail: "Échec du téléversement", saveFail: "Échec de l'enregistrement", printFail: "Échec de l'impression", stand: "État au", printCols: "Modifier les colonnes (affichage et impression)", exportCsv: "Exporter en CSV", copyLayout: "Copier la disposition des colonnes (JSON)", layoutCopied: "Disposition des colonnes copiée dans le presse-papiers.", importLayout: "Importer une disposition de colonnes : collez le JSON ici", resetAsk: "Réinitialiser la configuration du tableau ? Tous les réglages de ce côté (colonnes affichées, ordre, largeurs, noms de colonnes) seront perdus.", parent: "Appareil principal", yes: "oui", rename: "Nom de la colonne (vide = par défaut)", tgtView: "Affichage", tgtPrint: "Impression", done: "Terminé", reset: "Réinitialiser", expand: "Afficher les canaux", collapse: "Masquer les canaux", channels: "canaux", distance: "Distance", home: "Présent", bleaddr: "MAC BLE", scanner: "Scanner", scannerip: "IP du scanner", signal: "Signal", temp: "Temp.", ble: "Bluetooth", importDone: "Importé depuis l'ancien tableau de bord réseau", importNotes: "notes", importPhotos: "photos", internet: "Internet", allowed: "Autorisé", blocked: "Bloqué", blockAsk: "Bloquer l'accès à Internet pour cet appareil ?", allowAsk: "Autoriser l'accès à Internet pour cet appareil ?", search: "Rechercher", copy: "Copier", refresh: "Actualiser", low: "Faible", ok: "OK", batteries: "Piles", adminOnly: "Droits d'administrateur requis" },
@@ -873,16 +875,36 @@ class DeviceInventoryCard extends HTMLElement {
 
   // ask the AI (the AI task entity chosen in the options) for the manuals of the given devices, in chunks; only manufacturer and model leave Home Assistant
   async _aiFind(ids, overwrite, onProgress) {
-    const t = this._t, tot = { found: 0, missing: 0, copied: 0, images: 0, quota: false, error: null }; let last = null;
-    for (let i = 0; i < ids.length && !tot.quota; i += 5) {
-      if (onProgress) onProgress(Math.min(i + 5, ids.length), ids.length);
-      last = await this._hass.callWS({ type: "device_inventory/find_manuals", device_ids: ids.slice(i, i + 5), overwrite: !!overwrite });
-      const st = last.stats;
-      tot.found += st.found; tot.missing += st.missing; tot.copied += st.copied || 0; tot.images += st.images || 0;
-      tot.quota = tot.quota || !!st.quota; tot.error = tot.error || st.error;
-    }
-    if (last) { this._freeze = true; this._apply(last); }
+    const t = this._t, tot = { found: 0, missing: 0, copied: 0, images: 0, quota: false, error: null, cancelled: false }; let last = null;
+    // progress window: bar, current device, running counts, cancel
+    const ov = el("div", "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center");
+    const bx = el("div", "background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:12px;padding:16px;width:min(420px,92vw);box-shadow:0 8px 32px rgba(0,0,0,.4);font-family:var(--ha-font-family-body,Roboto,sans-serif)");
+    const title = el("div", "font-weight:600;font-size:15px;margin-bottom:10px", t.aiProgress);
+    const track = el("div", "height:8px;border-radius:4px;background:var(--divider-color,#888);overflow:hidden"), fill = el("div", "height:100%;width:0;background:var(--primary-color);transition:width .3s");
+    track.appendChild(fill);
+    const cur = el("div", "margin-top:10px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"), cnt = el("div", "margin-top:4px;font-size:12px;opacity:.75");
+    const bc = this._btn(t.aiCancel); bc.onclick = () => { tot.cancelled = true; bc.disabled = true; };
+    const ft = el("div", "display:flex;justify-content:flex-end;margin-top:12px"); ft.appendChild(bc);
+    bx.append(title, track, cur, cnt, ft); ov.appendChild(bx); document.body.appendChild(ov);
+    const names = new Map((this._state.devices || []).map((d) => [d.id, d.name]));
+    const show = (i) => {
+      fill.style.width = `${Math.round(i / ids.length * 100)}%`;
+      cur.textContent = i < ids.length ? names.get(ids[i]) || "" : "";
+      cnt.textContent = `${Math.min(i + 1, ids.length)} / ${ids.length} – ${t.aiFoundN.replace("{n}", tot.found)}`;
+      if (onProgress) onProgress(i, ids.length);
+    };
+    try {
+      for (let i = 0; i < ids.length && !tot.quota && !tot.cancelled; i++) {
+        show(i);
+        last = await this._hass.callWS({ type: "device_inventory/find_manuals", device_ids: [ids[i]], overwrite: !!overwrite });
+        const st = last.stats;
+        tot.found += st.found; tot.missing += st.missing; tot.copied += st.copied || 0; tot.images += st.images || 0;
+        tot.quota = tot.quota || !!st.quota; tot.error = tot.error || st.error;
+        if (last) { this._freeze = true; this._apply(last); }
+      }
+    } finally { ov.remove(); }
     const lines = [];
+    if (tot.cancelled) lines.push(t.aiStopped);
     if (tot.quota) lines.push(t.manualAiQuota.replace("{found}", tot.found));
     else if (tot.error && !tot.found) lines.push(t.manualAiError.replace("{error}", String(tot.error).slice(0, 300)));
     if (!tot.quota) lines.push(tot.found ? t.manualAiDone.replace("{found}", tot.found).replace("{none}", tot.missing) : t.manualAiNoneFound);

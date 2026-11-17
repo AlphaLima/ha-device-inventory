@@ -37,6 +37,7 @@ const T = {
     aiProgress: "Searching manuals with AI …", aiCancel: "Cancel", aiFoundN: "{n} found", aiStopped: "Search cancelled.",
     autoPause: "Pause the automatic refresh (all tabs)", autoPaused: "Automatic refresh is paused – click to resume",
     manualLinkWeb: "Web page", manualLinkDel: "Remove this link?", manualMoreLink: "Add another link (knowledge base, data sheet …)", manualLinkTitle: "Title (optional)", manualLinkAdd: "Add link",
+    manualLinkSec: "Link to the manual", manualMoreSec: "More links",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
@@ -58,6 +59,7 @@ const T = {
     aiProgress: "Anleitungen werden per KI gesucht …", aiCancel: "Abbrechen", aiFoundN: "{n} gefunden", aiStopped: "Suche abgebrochen.",
     autoPause: "Automatische Aktualisierung pausieren (alle Tabs)", autoPaused: "Automatische Aktualisierung pausiert – klicken zum Fortsetzen",
     manualLinkWeb: "Webseite", manualLinkDel: "Diesen Link entfernen?", manualMoreLink: "Weiteren Link hinzufügen (Wissensdatenbank, Datenblatt …)", manualLinkTitle: "Titel (optional)", manualLinkAdd: "Link hinzufügen",
+    manualLinkSec: "Link zur Anleitung", manualMoreSec: "Weitere Links",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
     uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
   fr: { all: "Tous les appareils", other: "Autres", status: "État", name: "Appareil", model: "Modèle", area: "Pièce", ip: "IP", mac: "MAC", maker: "Fabricant", fw: "Firmware", added: "Ajouté", seen: "Vu", battery: "Batt.", photos: "Photos", note: "Note", printColorOn: "Impression en couleur (cliquer pour noir et blanc)", printColorOff: "Impression en noir et blanc (cliquer pour la couleur)", denseOn: "Espacement des lignes plus large", denseOff: "Espacement des lignes plus serré", commentsOff: "Masquer le texte des commentaires dans la liste", commentsOn: "Afficher le texte des commentaires dans la liste", thumbsOff: "Masquer les miniatures dans la liste", thumbsOn: "Afficher les miniatures dans la liste", kidFilterOn: "Déplier uniquement les sous-lignes avec commentaire ou photo", kidFilterOff: "Déplier toutes les sous-lignes", blurOn: "Flouter les adresses IP / MAC (p. ex. pour des captures d'écran)", blurOff: "Afficher les adresses IP / MAC", print: "Imprimer / PDF", land: "Paysage", port: "Portrait", count: "appareils", online: "En ligne", offline: "Hors ligne", addPhoto: "Ajouter des photos", close: "Fermer", del: "Supprimer", save: "Enregistrer", cancel: "Annuler", hint: "Ctrl+Entrée = enregistrer, Échap = annuler", delPhoto: "Supprimer cette photo ?", delNote: "Supprimer la note ?", noPhotos: "Aucune photo pour l'instant.", noteOf: "Note", photosOf: "Photos", addedTip: "Enregistré dans Home Assistant le", addedUnknown: "Plus ancien que le champ de date du registre (avant oct. 2024) – inconnu", mesh: "Connecté à", conn: "Connexion", lanc: "Clients LAN", wific: "Clients WiFi", uploadFail: "Échec du téléversement", saveFail: "Échec de l'enregistrement", printFail: "Échec de l'impression", stand: "État au", printCols: "Modifier les colonnes (affichage et impression)", exportCsv: "Exporter en CSV", copyLayout: "Copier la disposition des colonnes (JSON)", layoutCopied: "Disposition des colonnes copiée dans le presse-papiers.", importLayout: "Importer une disposition de colonnes : collez le JSON ici", resetAsk: "Réinitialiser la configuration du tableau ? Tous les réglages de ce côté (colonnes affichées, ordre, largeurs, noms de colonnes) seront perdus.", parent: "Appareil principal", yes: "oui", rename: "Nom de la colonne (vide = par défaut)", tgtView: "Affichage", tgtPrint: "Impression", done: "Terminé", reset: "Réinitialiser", expand: "Afficher les canaux", collapse: "Masquer les canaux", channels: "canaux", distance: "Distance", home: "Présent", bleaddr: "MAC BLE", scanner: "Scanner", scannerip: "IP du scanner", signal: "Signal", temp: "Temp.", ble: "Bluetooth", importDone: "Importé depuis l'ancien tableau de bord réseau", importNotes: "notes", importPhotos: "photos", internet: "Internet", allowed: "Autorisé", blocked: "Bloqué", blockAsk: "Bloquer l'accès à Internet pour cet appareil ?", allowAsk: "Autoriser l'accès à Internet pour cet appareil ?", search: "Rechercher", copy: "Copier", refresh: "Actualiser", low: "Faible", ok: "OK", batteries: "Piles", adminOnly: "Droits d'administrateur requis" },
@@ -118,6 +120,8 @@ const ICONS = {
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   manual: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H19v-5"/><path d="M9 8h6M9 12h6"/>',
   pdfdown: '<path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M12 11v6M9.5 14.5L12 17l2.5-2.5"/>',
+  pdfup: '<path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/><path d="M12 18v-6M9.5 14.5L12 12l2.5 2.5"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
   sparkles: '<path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/>',
   filter: '<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
   imageoff: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9M4 4l16 16"/>',
@@ -1012,19 +1016,25 @@ class DeviceInventoryCard extends HTMLElement {
     const t = this._t, o = this._overlay(), m = (this._state.manuals || {})[d.id] || {};
     const again = () => { o.close(); this._manualDialog(d); };
     const fail = (e) => alert(`${t.manualFail}: ${e.message || e.code || e}`);
-    o.bx.appendChild(el("div", "font-weight:600;font-size:16px;margin-bottom:10px", `${t.manualOf}: ${d.name}`));
+    const hd = el("div", "display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;margin-bottom:14px");
+    const hi = el("span", "display:inline-flex;color:var(--primary-color)"); hi.innerHTML = ico("manual", 26);
+    hd.append(hi, el("span", "", `${t.manualOf}: ${d.name}`)); o.bx.appendChild(hd);
+    const ib = (icon, label, primary) => { // button with symbol and text
+      const b = el("button", `display:inline-flex;align-items:center;gap:8px;padding:9px 16px;font-size:14px;border-radius:8px;cursor:pointer;${primary ? "background:var(--primary-color,#03a9f4);color:#fff;border-color:transparent" : ""}`);
+      b.innerHTML = `${ico(icon, 20)}<span></span>`; b.lbl = b.querySelector("span"); b.lbl.textContent = label; return b;
+    };
     // list of the documents
-    const docs = this._manualDocs(d), list = el("div", "display:flex;flex-direction:column;gap:6px;margin-bottom:12px");
+    const docs = this._manualDocs(d), list = el("div", "display:flex;flex-direction:column;gap:8px;margin-bottom:16px");
     if (!docs.length) list.appendChild(el("div", "opacity:.7;font-size:13px", t.manualNone));
     docs.forEach((x) => {
-      const row = el("div", "display:flex;align-items:center;gap:8px");
-      const a = el("a", "display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;flex:1;min-width:0");
+      const row = el("div", "display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--divider-color,#888);border-radius:10px;font-size:14px");
+      const a = el("a", "display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none;flex:1;min-width:0");
       a.href = x.href; a.target = "_blank"; a.rel = "noopener";
-      const ic = el("span", `display:inline-flex;color:${x.kind === "local" ? "var(--success-color,#43a047)" : x.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`); ic.innerHTML = ico(x.kind === "link" ? "globe" : "manual", 22);
+      const ic = el("span", `display:inline-flex;color:${x.kind === "local" ? "var(--success-color,#43a047)" : x.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`); ic.innerHTML = ico(x.kind === "link" ? "globe" : "manual", 26);
       a.append(ic, el("span", "overflow:hidden;text-overflow:ellipsis;white-space:nowrap", x.title));
       row.appendChild(a);
       if (x.id || x.linkId) {
-        const del = el("button", "padding:2px 8px", "✕"); del.title = t.del;
+        const del = el("button", "padding:6px 10px;border-radius:8px"); del.innerHTML = ico("trash", 18); del.title = t.del;
         del.onclick = async () => {
           if (!confirm(x.linkId ? t.manualLinkDel : t.manualDocDel)) return;
           try { this._freeze = true; this._apply(await this._hass.callWS(x.linkId ? { type: "device_inventory/delete_manual_link", device_id: d.id, link_id: x.linkId } : { type: "device_inventory/delete_manual_doc", device_id: d.id, doc_id: x.id })); again(); } catch (e) { fail(e); }
@@ -1035,25 +1045,29 @@ class DeviceInventoryCard extends HTMLElement {
     });
     o.bx.appendChild(list);
     // link, AI, local copy, own PDFs
-    const box = el("div", "padding-top:10px;border-top:1px solid var(--divider-color,#888)");
-    const row = el("div", "display:flex;gap:6px;flex-wrap:wrap;align-items:center");
-    const inp = el("input", "flex:1;min-width:220px;padding:6px 8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font:inherit");
+    const fld = "flex:1;min-width:200px;padding:9px 12px;border-radius:8px;font-size:14px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font-family:inherit";
+    const sec = (txt) => el("div", "font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;opacity:.65;margin:0 0 8px", txt);
+    const box = el("div", "padding-top:14px;border-top:1px solid var(--divider-color,#888)");
+    box.appendChild(sec(t.manualLinkSec));
+    const row = el("div", "display:flex;gap:8px;flex-wrap:wrap;align-items:center");
+    const inp = el("input", fld);
     inp.type = "url"; inp.placeholder = t.manualUrlHint; inp.value = m.link || "";
     inp.onkeydown = (ev) => ev.stopPropagation();
-    const bSave = this._btn(t.manualSave);
+    const bSave = ib("link", t.manualSave);
     row.append(inp, bSave); box.appendChild(row);
-    if (m.file) box.appendChild(el("div", "margin:8px 0 0;font-size:12px;opacity:.75", `${t.manualLocalCopy}: ${m.name || "PDF"}${m.archived ? ` – ${t.manualArchived} ${this._date(m.archived)}` : ""}`));
-    const row2 = el("div", "display:flex;gap:6px;flex-wrap:wrap;margin-top:8px");
-    const bUp = this._btn(t.manualUpload, true), bAi = this._btn(t.manualAiFind), bFetch = this._btn(t.manualFetch), bDel = this._btn(t.manualRemove);
+    const row2 = el("div", "display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;margin-top:12px");
+    const bUp = ib("pdfup", t.manualUpload, true), bAi = ib("sparkles", t.manualAiFind), bFetch = ib("pdfdown", t.manualFetch), bDel = ib("trash", t.manualRemove);
     row2.append(bUp, bAi, bFetch); if (m.file || m.link) row2.appendChild(bDel);
     box.appendChild(row2);
-    box.appendChild(el("div", "margin-top:8px;font-size:12px;opacity:.65", t.manualUploadHint));
-    const row3 = el("div", "display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px");
-    const lu = el("input", "flex:2;min-width:200px;padding:6px 8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font:inherit");
+    box.appendChild(el("div", "margin-top:10px;font-size:12px;opacity:.65;line-height:1.4", t.manualUploadHint));
+    const more = el("div", "margin-top:16px;padding-top:14px;border-top:1px solid var(--divider-color,#888)");
+    more.appendChild(sec(t.manualMoreSec));
+    const row3 = el("div", "display:flex;gap:8px;flex-wrap:wrap;align-items:center");
+    const lu = el("input", fld + ";flex:2");
     lu.type = "url"; lu.placeholder = t.manualMoreLink; lu.onkeydown = (ev) => ev.stopPropagation();
-    const lt = el("input", "flex:1;min-width:110px;padding:6px 8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font:inherit");
+    const lt = el("input", fld + ";min-width:120px");
     lt.type = "text"; lt.placeholder = t.manualLinkTitle; lt.maxLength = 80; lt.onkeydown = (ev) => ev.stopPropagation();
-    const bLink = this._btn(t.manualLinkAdd); row3.append(lu, lt, bLink); box.appendChild(row3);
+    const bLink = ib("link", t.manualLinkAdd); row3.append(lu, lt, bLink); more.appendChild(row3); box.appendChild(more);
     bLink.onclick = () => { if (lu.value.trim()) call(bLink, "add_manual_link", { url: lu.value.trim(), title: lt.value.trim() }); };
     o.bx.appendChild(box);
     const call = async (btn, type, extra) => {
@@ -1079,18 +1093,18 @@ class DeviceInventoryCard extends HTMLElement {
         bUp.disabled = true;
         try {
           for (let i = 0; i < files.length; i++) {
-            bUp.textContent = `… ${i + 1}/${files.length}`;
+            bUp.lbl.textContent = `… ${i + 1}/${files.length}`;
             const fd = new FormData(); fd.append("file", files[i], files[i].name);
             const r = await this._hass.fetchWithAuth(`/api/device_inventory/manual_upload/${d.id}`, { method: "POST", body: fd });
             if (!r.ok) throw new Error(`${files[i].name}: HTTP ${r.status} ${await r.text()}`);
           }
           this._freeze = true; await this._load(); again();
-        } catch (e) { bUp.disabled = false; bUp.textContent = t.manualUpload; fail(e); this._freeze = true; await this._load(); }
+        } catch (e) { bUp.disabled = false; bUp.lbl.textContent = t.manualUpload; fail(e); this._freeze = true; await this._load(); }
       };
       f.click();
     };
-    const ft = el("div", "display:flex;justify-content:flex-end;margin-top:12px");
-    const bClose = this._btn(t.close); bClose.onclick = o.close; ft.appendChild(bClose); o.bx.appendChild(ft);
+    const ft = el("div", "display:flex;justify-content:flex-end;margin-top:16px");
+    const bClose = ib("close", t.close); bClose.onclick = o.close; ft.appendChild(bClose); o.bx.appendChild(ft);
   }
 
   _editNote(d) {

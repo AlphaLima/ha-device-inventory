@@ -30,6 +30,10 @@ const LABEL = {
   es: { all: "Todos los dispositivos", other: "Otros", battery: "Baterías", showBadges: "Mostrar dispositivos ausentes (sin conexión) y contadores rojos", hideBadges: "Ocultar dispositivos ausentes y contadores rojos" },
   nl: { all: "Alle apparaten", other: "Overig", battery: "Batterijen", showBadges: "Ontbrekende (offline) apparaten en rode tellers tonen", hideBadges: "Ontbrekende apparaten en rode tellers verbergen" },
   it: { all: "Tutti i dispositivi", other: "Altro", battery: "Batterie", showBadges: "Mostra i dispositivi mancanti (offline) e i contatori rossi", hideBadges: "Nascondi i dispositivi mancanti e i contatori rossi" },
+  pl: { all: "Wszystkie urządzenia", other: "Inne", battery: "Baterie", showBadges: "Pokaż brakujące (offline) urządzenia i czerwone liczniki", hideBadges: "Ukryj brakujące urządzenia i czerwone liczniki" },
+  pt: { all: "Todos os dispositivos", other: "Outros", battery: "Baterias", showBadges: "Mostrar dispositivos em falta (offline) e contadores vermelhos", hideBadges: "Ocultar dispositivos em falta e contadores vermelhos" },
+  cs: { all: "Všechna zařízení", other: "Ostatní", battery: "Baterie", showBadges: "Zobrazit chybějící (offline) zařízení a červené počítadla", hideBadges: "Skrýt chybějící zařízení a červené počítadla" },
+  ru: { all: "Все устройства", other: "Прочее", battery: "Батареи", showBadges: "Показать отсутствующие (не в сети) устройства и красные счётчики", hideBadges: "Скрыть отсутствующие устройства и красные счётчики" },
 };
 
 class DeviceInventoryPanel extends HTMLElement {

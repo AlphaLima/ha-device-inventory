@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Device Inventory",
+        "description": "Dodaje sklasyfikowane tabele urządzeń (Shelly, ESPHome, ZigBee, ...) ze zdjęciami, notatkami i wydrukiem. Nic do skonfigurowania."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Już skonfigurowano."
+    }
+  }
+}

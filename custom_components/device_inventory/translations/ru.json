@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Device Inventory",
+        "description": "Добавляет таблицы устройств по классам (Shelly, ESPHome, ZigBee, ...) с фото, заметками и печатью. Настраивать нечего."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Уже настроено."
+    }
+  }
+}

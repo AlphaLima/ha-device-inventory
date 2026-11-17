@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Device Inventory",
+        "description": "Přidává třídění zařízení do tabulek (Shelly, ESPHome, ZigBee, ...) s fotkami, poznámkami a tiskem. Není co nastavovat."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Již nastaveno."
+    }
+  }
+}

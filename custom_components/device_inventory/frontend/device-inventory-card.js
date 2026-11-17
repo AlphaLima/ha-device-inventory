@@ -36,6 +36,7 @@ const T = {
     manualAiImages: "{n} product photos added (original images from the manufacturer only)",
     aiProgress: "Searching manuals with AI …", aiCancel: "Cancel", aiFoundN: "{n} found", aiStopped: "Search cancelled.",
     autoPause: "Pause the automatic refresh (all tabs)", autoPaused: "Automatic refresh is paused – click to resume",
+    manualLinkWeb: "Web page", manualLinkDel: "Remove this link?", manualMoreLink: "Add another link (knowledge base, data sheet …)", manualLinkTitle: "Title (optional)", manualLinkAdd: "Add link",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
     uploadFail: "Upload failed", saveFail: "Saving failed", printFail: "Printing failed", stand: "As of", printCols: "Edit columns (display and print)", exportCsv: "Export as CSV", copyLayout: "Copy the column layout (JSON)", layoutCopied: "Column layout copied to the clipboard.", importLayout: "Import a column layout: paste the JSON here", resetAsk: "Reset the table configuration? All settings of this side (columns shown, order, widths, column names) will be lost.", parent: "Main device", yes: "yes",  rename: "Column name (empty = default)", tgtView: "Display", tgtPrint: "Printout", done: "Done", reset: "Reset",  expand: "Show channels", collapse: "Hide channels", channels: "channels", distance: "Distance", home: "Home", bleaddr: "BLE MAC", scanner: "Scanner", scannerip: "Scanner IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Imported from the old network dashboard", importNotes: "notes", importPhotos: "photos",  internet: "Internet", allowed: "Allowed", blocked: "Blocked", blockAsk: "Block internet access for this device?", allowAsk: "Allow internet access for this device?",  search: "Search", copy: "Copy", refresh: "Refresh", low: "Low", ok: "OK", batteries: "Batteries", adminOnly: "Admin required" },
   de: { all: "Alle Geräte", other: "Sonstige", status: "Status", name: "Gerät", model: "Modell", area: "Raum", ip: "IP", mac: "MAC",
@@ -56,6 +57,7 @@ const T = {
     manualAiImages: "{n} Produktfotos hinzugefügt (nur Originalbilder des Herstellers)",
     aiProgress: "Anleitungen werden per KI gesucht …", aiCancel: "Abbrechen", aiFoundN: "{n} gefunden", aiStopped: "Suche abgebrochen.",
     autoPause: "Automatische Aktualisierung pausieren (alle Tabs)", autoPaused: "Automatische Aktualisierung pausiert – klicken zum Fortsetzen",
+    manualLinkWeb: "Webseite", manualLinkDel: "Diesen Link entfernen?", manualMoreLink: "Weiteren Link hinzufügen (Wissensdatenbank, Datenblatt …)", manualLinkTitle: "Titel (optional)", manualLinkAdd: "Link hinzufügen",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
     uploadFail: "Foto-Upload fehlgeschlagen", saveFail: "Speichern fehlgeschlagen", printFail: "Drucken fehlgeschlagen", stand: "Stand", printCols: "Spalten bearbeiten (Anzeige und Druck)", exportCsv: "Als CSV exportieren", copyLayout: "Spaltenlayout kopieren (JSON)", layoutCopied: "Spaltenlayout in die Zwischenablage kopiert.", importLayout: "Spaltenlayout importieren: JSON hier einfügen", resetAsk: "Tabellenkonfiguration zurücksetzen? Alle Einstellungen dieser Seite (sichtbare Spalten, Reihenfolge, Breiten, Spaltennamen) gehen verloren.", parent: "Hauptgerät", yes: "ja",  rename: "Spaltenname (leer = Standard)", tgtView: "Anzeige", tgtPrint: "Druck", done: "Fertig", reset: "Zurücksetzen",  expand: "Unterkanäle ausklappen", collapse: "Unterkanäle einklappen", channels: "Kanäle", distance: "Entfernung", home: "Zuhause", bleaddr: "BLE-MAC", scanner: "Scanner", scannerip: "Scanner-IP", signal: "Signal", temp: "Temp", ble: "Bluetooth", importDone: "Aus dem alten Netzwerk-Dashboard übernommen", importNotes: "Bemerkungen", importPhotos: "Fotos",  internet: "Internet", allowed: "Erlaubt", blocked: "Gesperrt", blockAsk: "Internetzugang für dieses Gerät sperren?", allowAsk: "Internetzugang für dieses Gerät erlauben?",  search: "Suchen", copy: "Kopieren", refresh: "Aktualisieren", low: "Niedrig", ok: "OK", batteries: "Batterien", adminOnly: "Admin-Rechte nötig" },
   fr: { all: "Tous les appareils", other: "Autres", status: "État", name: "Appareil", model: "Modèle", area: "Pièce", ip: "IP", mac: "MAC", maker: "Fabricant", fw: "Firmware", added: "Ajouté", seen: "Vu", battery: "Batt.", photos: "Photos", note: "Note", printColorOn: "Impression en couleur (cliquer pour noir et blanc)", printColorOff: "Impression en noir et blanc (cliquer pour la couleur)", denseOn: "Espacement des lignes plus large", denseOff: "Espacement des lignes plus serré", commentsOff: "Masquer le texte des commentaires dans la liste", commentsOn: "Afficher le texte des commentaires dans la liste", thumbsOff: "Masquer les miniatures dans la liste", thumbsOn: "Afficher les miniatures dans la liste", kidFilterOn: "Déplier uniquement les sous-lignes avec commentaire ou photo", kidFilterOff: "Déplier toutes les sous-lignes", blurOn: "Flouter les adresses IP / MAC (p. ex. pour des captures d'écran)", blurOff: "Afficher les adresses IP / MAC", print: "Imprimer / PDF", land: "Paysage", port: "Portrait", count: "appareils", online: "En ligne", offline: "Hors ligne", addPhoto: "Ajouter des photos", close: "Fermer", del: "Supprimer", save: "Enregistrer", cancel: "Annuler", hint: "Ctrl+Entrée = enregistrer, Échap = annuler", delPhoto: "Supprimer cette photo ?", delNote: "Supprimer la note ?", noPhotos: "Aucune photo pour l'instant.", noteOf: "Note", photosOf: "Photos", addedTip: "Enregistré dans Home Assistant le", addedUnknown: "Plus ancien que le champ de date du registre (avant oct. 2024) – inconnu", mesh: "Connecté à", conn: "Connexion", lanc: "Clients LAN", wific: "Clients WiFi", uploadFail: "Échec du téléversement", saveFail: "Échec de l'enregistrement", printFail: "Échec de l'impression", stand: "État au", printCols: "Modifier les colonnes (affichage et impression)", exportCsv: "Exporter en CSV", copyLayout: "Copier la disposition des colonnes (JSON)", layoutCopied: "Disposition des colonnes copiée dans le presse-papiers.", importLayout: "Importer une disposition de colonnes : collez le JSON ici", resetAsk: "Réinitialiser la configuration du tableau ? Tous les réglages de ce côté (colonnes affichées, ordre, largeurs, noms de colonnes) seront perdus.", parent: "Appareil principal", yes: "oui", rename: "Nom de la colonne (vide = par défaut)", tgtView: "Affichage", tgtPrint: "Impression", done: "Terminé", reset: "Réinitialiser", expand: "Afficher les canaux", collapse: "Masquer les canaux", channels: "canaux", distance: "Distance", home: "Présent", bleaddr: "MAC BLE", scanner: "Scanner", scannerip: "IP du scanner", signal: "Signal", temp: "Temp.", ble: "Bluetooth", importDone: "Importé depuis l'ancien tableau de bord réseau", importNotes: "notes", importPhotos: "photos", internet: "Internet", allowed: "Autorisé", blocked: "Bloqué", blockAsk: "Bloquer l'accès à Internet pour cet appareil ?", allowAsk: "Autoriser l'accès à Internet pour cet appareil ?", search: "Rechercher", copy: "Copier", refresh: "Actualiser", low: "Faible", ok: "OK", batteries: "Piles", adminOnly: "Droits d'administrateur requis" },
@@ -973,6 +975,7 @@ class DeviceInventoryCard extends HTMLElement {
       if (main.kind !== "local" && m.link) { try { name = new URL(m.link).hostname; } catch (e) { name = m.link; } }
       out.push({ href: main.href, kind: main.kind, name, title: main.title });
     }
+    (m.links || []).forEach((x) => { let h = x.url; try { h = new URL(x.url).hostname; } catch (e) { /* keep */ } out.push({ href: x.url, kind: "link", name: x.title || h, linkId: x.id, title: `${t.manualLinkWeb}: ${x.title || h}` }); });
     (m.docs || []).forEach((x) => out.push({ href: x.url, kind: "own", name: x.name || "PDF", id: x.id, title: `${t.manualOwn}: ${x.name || "PDF"}${x.ts ? ` (${t.manualUploaded} ${this._date(x.ts)})` : ""}` }));
     return out;
   }
@@ -989,14 +992,14 @@ class DeviceInventoryCard extends HTMLElement {
       const row = el("div", "display:flex;align-items:center;gap:8px");
       const a = el("a", "display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;flex:1;min-width:0");
       a.href = x.href; a.target = "_blank"; a.rel = "noopener";
-      const ic = el("span", `display:inline-flex;color:${x.kind === "local" ? "var(--success-color,#43a047)" : x.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`); ic.innerHTML = ico("manual", 22);
+      const ic = el("span", `display:inline-flex;color:${x.kind === "local" ? "var(--success-color,#43a047)" : x.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`); ic.innerHTML = ico(x.kind === "link" ? "globe" : "manual", 22);
       a.append(ic, el("span", "overflow:hidden;text-overflow:ellipsis;white-space:nowrap", x.title));
       row.appendChild(a);
-      if (x.id) {
+      if (x.id || x.linkId) {
         const del = el("button", "padding:2px 8px", "✕"); del.title = t.del;
         del.onclick = async () => {
-          if (!confirm(t.manualDocDel)) return;
-          try { this._freeze = true; this._apply(await this._hass.callWS({ type: "device_inventory/delete_manual_doc", device_id: d.id, doc_id: x.id })); again(); } catch (e) { fail(e); }
+          if (!confirm(x.linkId ? t.manualLinkDel : t.manualDocDel)) return;
+          try { this._freeze = true; this._apply(await this._hass.callWS(x.linkId ? { type: "device_inventory/delete_manual_link", device_id: d.id, link_id: x.linkId } : { type: "device_inventory/delete_manual_doc", device_id: d.id, doc_id: x.id })); again(); } catch (e) { fail(e); }
         };
         row.appendChild(del);
       }
@@ -1017,6 +1020,13 @@ class DeviceInventoryCard extends HTMLElement {
     row2.append(bUp, bAi, bFetch); if (m.file || m.link) row2.appendChild(bDel);
     box.appendChild(row2);
     box.appendChild(el("div", "margin-top:8px;font-size:12px;opacity:.65", t.manualUploadHint));
+    const row3 = el("div", "display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px");
+    const lu = el("input", "flex:2;min-width:200px;padding:6px 8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font:inherit");
+    lu.type = "url"; lu.placeholder = t.manualMoreLink; lu.onkeydown = (ev) => ev.stopPropagation();
+    const lt = el("input", "flex:1;min-width:110px;padding:6px 8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font:inherit");
+    lt.type = "text"; lt.placeholder = t.manualLinkTitle; lt.maxLength = 80; lt.onkeydown = (ev) => ev.stopPropagation();
+    const bLink = this._btn(t.manualLinkAdd); row3.append(lu, lt, bLink); box.appendChild(row3);
+    bLink.onclick = () => { if (lu.value.trim()) call(bLink, "add_manual_link", { url: lu.value.trim(), title: lt.value.trim() }); };
     o.bx.appendChild(box);
     const call = async (btn, type, extra) => {
       btn.disabled = true;

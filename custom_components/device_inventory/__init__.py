@@ -118,6 +118,7 @@ class InventoryManager:
                 "pdf": entry.get("pdf"),
                 "name": entry.get("name"),
                 "archived": entry.get("archived"),
+                "links": [{"id": link["id"], "url": link["url"], "title": link.get("title") or "", "ai": bool(link.get("ai"))} for link in entry.get("links", [])],
                 "docs": [
                     {"id": doc["id"], "name": doc.get("name"), "ts": doc.get("ts"), "url": self._signed_url(f"/api/{DOMAIN}/manual/{doc['id']}", refresh_token_id, now)}
                     for doc in entry.get("docs", [])
@@ -181,6 +182,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     websocket_api.async_register_command(hass, ws_fetch_manual)
     websocket_api.async_register_command(hass, ws_delete_manual)
     websocket_api.async_register_command(hass, ws_delete_manual_doc)
+    websocket_api.async_register_command(hass, ws_add_manual_link)
+    websocket_api.async_register_command(hass, ws_delete_manual_link)
     websocket_api.async_register_command(hass, ws_find_manuals)
     websocket_api.async_register_command(hass, ws_copy_manuals)
     websocket_api.async_register_command(hass, ws_import_legacy)
@@ -443,9 +446,60 @@ async def ws_delete_manual(hass: HomeAssistant, connection, msg: dict[str, Any])
         file_id = entry.get("file")
         for key in ("link", "ai", "pdf", "file", "name", "archived"):
             entry.pop(key, None)
-        if not entry.get("docs"):
+        if not entry.get("docs") and not entry.get("links"):
             manager.data["manuals"].pop(msg["device_id"], None)
         await _remove_manual_file(hass, manager, msg["device_id"], file_id)
+    manager.save()
+    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/add_manual_link",
+        vol.Required("device_id"): str,
+        vol.Required("url"): vol.All(str, vol.Length(max=1000)),
+        vol.Optional("title", default=""): vol.All(str, vol.Length(max=80)),
+    }
+)
+@websocket_api.require_admin
+@callback
+def ws_add_manual_link(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Add a further link (e.g. knowledge base, data sheet) to a device; several are possible."""
+    manager: InventoryManager = hass.data[DOMAIN]
+    url = msg["url"].strip()
+    if not _http_url_ok(url):
+        connection.send_error(msg["id"], "invalid_url", "Only http(s) addresses are allowed")
+        return
+    links = manager.data["manuals"].setdefault(msg["device_id"], {}).setdefault("links", [])
+    if len(links) >= MAX_DOCS_PER_DEVICE:
+        connection.send_error(msg["id"], "too_many", "Too many links for this device")
+        return
+    if not any(link["url"] == url for link in links):
+        links.append({"id": secrets.token_urlsafe(8), "url": url, "title": msg["title"].strip(), "ai": False})
+    manager.save()
+    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/delete_manual_link",
+        vol.Required("device_id"): str,
+        vol.Required("link_id"): str,
+    }
+)
+@websocket_api.require_admin
+@callback
+def ws_delete_manual_link(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Remove one additional link of a device."""
+    manager: InventoryManager = hass.data[DOMAIN]
+    entry = manager.data["manuals"].get(msg["device_id"], {})
+    keep = [link for link in entry.get("links", []) if link["id"] != msg["link_id"]]
+    if keep:
+        entry["links"] = keep
+    else:
+        entry.pop("links", None)
+        if not (entry.get("link") or entry.get("file") or entry.get("docs")):
+            manager.data["manuals"].pop(msg["device_id"], None)
     manager.save()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
@@ -472,7 +526,7 @@ async def ws_delete_manual_doc(hass: HomeAssistant, connection, msg: dict[str, A
             entry["docs"] = keep
         else:
             entry.pop("docs", None)
-            if not entry:
+            if not entry.get("links") and not entry.get("link") and not entry.get("file"):
                 manager.data["manuals"].pop(msg["device_id"], None)
         manager.save()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
@@ -761,20 +815,20 @@ async def _page_is_about(hass: HomeAssistant, url: str, model: str) -> bool:
     return _heads_name(got[1], key)
 
 
-async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> tuple[str | None, str | None]:
-    """Check the candidates one by one: a real PDF wins; a page is searched for a PDF link; otherwise the first page that names the model is kept."""
+async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> tuple[str | None, str | None, str | None]:
+    """Check the candidates one by one: a real PDF wins; a page is searched for a PDF link; otherwise the first page that names the model is kept: (address, "pdf" / "page", page the PDF was found on)."""
     fallback: str | None = None
     for url in urls:
         kind = await _verify_manual_url(hass, url)
         if kind == "pdf":
-            return url, "pdf"
+            return url, "pdf", None
         if kind == "page":
             pdf = await _find_pdf_on_page(hass, url, model)
             if pdf:
-                return pdf, "pdf"
+                return pdf, "pdf", url
             if not fallback and await _page_is_about(hass, url, model):
                 fallback = url
-    return (fallback, "page") if fallback else (None, None)
+    return (fallback, "page", None) if fallback else (None, None, None)
 
 
 @websocket_api.websocket_command(
@@ -805,8 +859,8 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         if dev is None:
             continue
         entry = manager.data["manuals"].get(device_id, {})
-        upgrade = bool(entry.get("ai") and entry.get("link") and not entry.get("pdf") and not entry.get("file") and not entry.get("docs"))  # AI found only a web page: try again for a real PDF
-        need_manual = msg["overwrite"] or upgrade or not (entry.get("link") or entry.get("file") or entry.get("docs"))
+        upgrade = bool(entry.get("ai") and entry.get("link") and not entry.get("pdf") and not entry.get("file") and not entry.get("docs") and not entry.get("links"))  # AI found only a web page: try again for a real PDF
+        need_manual = msg["overwrite"] or upgrade or not (entry.get("link") or entry.get("file") or entry.get("docs") or entry.get("links"))
         need_image = use_images and not manager.data["photos"].get(device_id)
         maker, model = str(dev.get("manufacturer") or ""), str(dev.get("model") or "")
         if not (need_manual or need_image) or not model or "~" in device_id or "tracked device" in model.lower() or model == "Mesh":
@@ -823,21 +877,21 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 error = error or err
                 missing += 1
                 continue  # not cached: a later run asks again
-            url, kind = await _resolve_manual(hass, urls, model)
+            url, kind, page = await _resolve_manual(hass, urls, model)
             if kind != "pdf":  # second try: ask again for different pages, only counts when it brings a real PDF or any working page
                 urls2, image2, domain2, err2 = await _ai_find(hass, entity, maker, model, use_images and not image, urls)
                 if err2 and _is_quota_error(err2):
                     quota = True
                     error = err2
                 if not err2:
-                    url2, kind2 = await _resolve_manual(hass, [u for u in urls2 if u not in urls], model)
+                    url2, kind2, page2 = await _resolve_manual(hass, [u for u in urls2 if u not in urls], model)
                     if kind2 and (kind != "page" or kind2 == "pdf"):
-                        url, kind = url2, kind2
+                        url, kind, page = url2, kind2, page2
                     if not image and image2:
                         image, domain = image2, domain2
             image = image if image and _manufacturer_image_ok(image, domain or "", maker, url) else ""  # original manufacturer images only
             pages = [u for u in ([url] if kind == "page" else []) + urls if not u.lower().split("?")[0].endswith(".pdf")]
-            cache[key] = {"v": 2, "url": url or "", "pdf": kind == "pdf", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
+            cache[key] = {"v": 2, "url": url or "", "pdf": kind == "pdf", "page": page or "", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
         hit = cache[key]
         if need_image and not hit.get("image") and not hit.get("img_tried"):  # the manufacturer's own product page names its photo
             hit["img_tried"] = True
@@ -847,7 +901,10 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                     break
         if need_manual:
             if hit["url"]:
-                manager.data["manuals"].setdefault(device_id, {}).update({"link": hit["url"], "ai": True, "pdf": hit["pdf"]})
+                entry_now = manager.data["manuals"].setdefault(device_id, {})
+                entry_now.update({"link": hit["url"], "ai": True, "pdf": hit["pdf"]})
+                if hit.get("pdf") and hit.get("page") and not any(link["url"] == hit["page"] for link in entry_now.get("links", [])):
+                    entry_now.setdefault("links", []).append({"id": secrets.token_urlsafe(8), "url": hit["page"], "title": "", "ai": True})  # the page the PDF came from stays available (e.g. knowledge base)
                 found += 1
                 if copy_local and hit["pdf"] and await _try_copy(hass, manager, device_id, hit["url"]):
                     copied += 1

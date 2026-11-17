@@ -462,20 +462,34 @@ async def ws_delete_manual(hass: HomeAssistant, connection, msg: dict[str, Any])
     }
 )
 @websocket_api.require_admin
-@callback
-def ws_add_manual_link(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    """Add a further link (e.g. knowledge base, data sheet) to a device; several are possible."""
+@websocket_api.async_response
+async def ws_add_manual_link(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Add a link to a device: a PDF is stored locally as an own document (works offline), any other address stays a link (e.g. knowledge base, data sheet page)."""
     manager: InventoryManager = hass.data[DOMAIN]
     url = msg["url"].strip()
     if not _http_url_ok(url):
         connection.send_error(msg["id"], "invalid_url", "Only http(s) addresses are allowed")
         return
-    links = manager.data["manuals"].setdefault(msg["device_id"], {}).setdefault("links", [])
-    if len(links) >= MAX_DOCS_PER_DEVICE:
-        connection.send_error(msg["id"], "too_many", "Too many links for this device")
+    entry = manager.data["manuals"].setdefault(msg["device_id"], {})
+    title = msg["title"].strip()
+    if len(entry.get("links", [])) + len(entry.get("docs", [])) >= MAX_DOCS_PER_DEVICE:
+        connection.send_error(msg["id"], "too_many", "Too many documents for this device")
         return
-    if not any(link["url"] == url for link in links):
-        links.append({"id": secrets.token_urlsafe(8), "url": url, "title": msg["title"].strip(), "ai": False})
+    stored = False
+    if await _verify_manual_url(hass, url) == "pdf":
+        try:
+            data = await _download_pdf(hass, url)
+        except (ValueError, OSError, asyncio.TimeoutError):
+            data = None
+        if data:
+            doc_id = secrets.token_urlsafe(16)
+            await hass.async_add_executor_job((manager.manual_dir / f"{doc_id}.pdf").write_bytes, data)
+            raw = title or unquote(urlparse(url).path.rsplit("/", 1)[-1]) or "document.pdf"
+            name = "".join(ch for ch in raw if ch.isalnum() or ch in "._- ")[:80] or "document.pdf"
+            entry.setdefault("docs", []).append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat(), "src": url})
+            stored = True
+    if not stored and not any(link["url"] == url for link in entry.get("links", [])):
+        entry.setdefault("links", []).append({"id": secrets.token_urlsafe(8), "url": url, "title": title, "ai": False})
     manager.save()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 

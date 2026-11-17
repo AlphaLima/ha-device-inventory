@@ -36,7 +36,7 @@ const T = {
     manualAiImages: "{n} product photos added (original images from the manufacturer only)",
     aiProgress: "Searching manuals with AI …", aiCancel: "Cancel", aiFoundN: "{n} found", aiStopped: "Search cancelled.",
     autoPause: "Pause the automatic refresh (all tabs)", autoPaused: "Automatic refresh is paused – click to resume",
-    manualLinkWeb: "Web page", manualLinkDel: "Remove this link?", manualMoreLink: "Add another link (knowledge base, data sheet …)", manualLinkTitle: "Title (optional)", manualLinkAdd: "Add link",
+    manualLinkWeb: "Web page", manualLinkDel: "Remove this link?", manualMoreLink: "Paste a link (web page or PDF – PDFs are stored locally)", manualLinkTitle: "Title (optional)", manualLinkAdd: "Add link",
     manualLinkSec: "Link to the manual", manualMoreSec: "More links",
     sSave: "Save", sUpload: "Upload", sAi: "AI search", sArchive: "Archive", sRemove: "Remove", sAdd: "Add",
     mesh: "Connected to", conn: "Connection", lanc: "LAN clients", wific: "WiFi clients",
@@ -59,7 +59,7 @@ const T = {
     manualAiImages: "{n} Produktfotos hinzugefügt (nur Originalbilder des Herstellers)",
     aiProgress: "Anleitungen werden per KI gesucht …", aiCancel: "Abbrechen", aiFoundN: "{n} gefunden", aiStopped: "Suche abgebrochen.",
     autoPause: "Automatische Aktualisierung pausieren (alle Tabs)", autoPaused: "Automatische Aktualisierung pausiert – klicken zum Fortsetzen",
-    manualLinkWeb: "Webseite", manualLinkDel: "Diesen Link entfernen?", manualMoreLink: "Weiteren Link hinzufügen (Wissensdatenbank, Datenblatt …)", manualLinkTitle: "Titel (optional)", manualLinkAdd: "Link hinzufügen",
+    manualLinkWeb: "Webseite", manualLinkDel: "Diesen Link entfernen?", manualMoreLink: "Link einfügen (Webseite oder PDF – PDFs werden lokal gespeichert)", manualLinkTitle: "Titel (optional)", manualLinkAdd: "Link hinzufügen",
     manualLinkSec: "Link zur Anleitung", manualMoreSec: "Weitere Links",
     sSave: "Speichern", sUpload: "Hochladen", sAi: "KI-Suche", sArchive: "Archivieren", sRemove: "Entfernen", sAdd: "Hinzufügen",
     mesh: "Verbunden mit", conn: "Verbindung", lanc: "LAN-Geräte", wific: "WiFi-Geräte",
@@ -1053,20 +1053,13 @@ class DeviceInventoryCard extends HTMLElement {
     const fld = "flex:1;min-width:200px;padding:9px 12px;border-radius:8px;font-size:14px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit;font-family:inherit";
     const sec = (txt) => el("div", "font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;opacity:.65;margin:0 0 8px", txt);
     const box = el("div", "padding-top:14px;border-top:1px solid var(--divider-color,#888)");
-    box.appendChild(sec(t.manualLinkSec));
-    const row = el("div", "display:flex;gap:8px;flex-wrap:wrap;align-items:center");
-    const inp = el("input", fld);
-    inp.type = "url"; inp.placeholder = t.manualUrlHint; inp.value = m.link || "";
-    inp.onkeydown = (ev) => ev.stopPropagation();
-    const bSave = ib("link", t.sSave, false, t.manualSave);
-    row.append(inp, bSave); box.appendChild(row);
-    const row2 = el("div", "display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;margin-top:12px");
+    const row2 = el("div", "display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start");
     const bUp = ib("pdfup", t.sUpload, true, t.manualUpload), bAi = ib("sparkles", t.sAi, false, t.manualAiFind), bFetch = ib("pdfdown", t.sArchive, false, t.manualFetch), bDel = ib("trash", t.sRemove, false, t.manualRemove);
-    row2.append(bUp, bAi, bFetch); if (m.file || m.link) row2.appendChild(bDel);
+    row2.append(bAi, bUp); if (m.link && !m.file) row2.appendChild(bFetch); if (m.file || m.link) row2.appendChild(bDel);
     box.appendChild(row2);
     box.appendChild(el("div", "margin-top:10px;font-size:12px;opacity:.65;line-height:1.4", t.manualUploadHint));
     const more = el("div", "margin-top:16px;padding-top:14px;border-top:1px solid var(--divider-color,#888)");
-    more.appendChild(sec(t.manualMoreSec));
+    more.appendChild(sec(t.manualLinkAdd));
     const row3 = el("div", "display:flex;gap:8px;flex-wrap:wrap;align-items:center");
     const lu = el("input", fld + ";flex:2");
     lu.type = "url"; lu.placeholder = t.manualMoreLink; lu.onkeydown = (ev) => ev.stopPropagation();
@@ -1080,11 +1073,7 @@ class DeviceInventoryCard extends HTMLElement {
       try { this._freeze = true; this._apply(await this._hass.callWS(Object.assign({ type: `device_inventory/${type}`, device_id: d.id }, extra || {}))); again(); }
       catch (e) { btn.disabled = false; fail(e); }
     };
-    bSave.onclick = () => call(bSave, "set_manual", { link: inp.value });
-    bFetch.onclick = async () => {
-      if (inp.value.trim() !== (m.link || "")) { try { await this._hass.callWS({ type: "device_inventory/set_manual", device_id: d.id, link: inp.value }); } catch (e) { fail(e); return; } }
-      call(bFetch, "fetch_manual");
-    };
+    bFetch.onclick = () => call(bFetch, "fetch_manual");
     bDel.onclick = () => call(bDel, "delete_manual");
     bAi.onclick = async () => {
       if (!this._state.ai) { alert(t.manualAiNone); return; }

@@ -936,7 +936,7 @@ class DeviceInventoryCard extends HTMLElement {
   async _aiAll(btn) {
     const t = this._t, s = this._state;
     if (!s.ai) { alert(t.manualAiNone); return; }
-    const ids = s.devices.filter((d) => !this._manualDocs(d).length && d.model && !String(d.id).includes("~") && !/tracked device|^mesh$/i.test(String(d.model))).map((d) => d.id);
+    const ids = s.devices.filter((d) => { const m = (s.manuals || {})[d.id] || {}; return (!this._manualDocs(d).length || (m.ai && m.link && !m.pdf && !m.file && !(m.docs || []).length)) && d.model && !String(d.id).includes("~") && !/tracked device|^mesh$/i.test(String(d.model)); }).map((d) => d.id);
     if (!ids.length) { alert(t.manualAiNothing); return; }
     if (!confirm(t.manualAiAsk.replace("{n}", ids.length))) return;
     btn.disabled = true;

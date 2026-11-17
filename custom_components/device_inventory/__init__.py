@@ -12,7 +12,7 @@ import secrets
 import socket
 import time
 from typing import Any
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 from aiohttp import ClientTimeout, web
 import voluptuous as vol
@@ -666,6 +666,18 @@ async def _find_pdf_on_page(hass: HomeAssistant, page_url: str, model: str) -> s
     for guess in guesses[:8]:
         if await _verify_manual_url(hass, guess) == "pdf":
             return guess
+    # a page that is about exactly this product: its "user guide" download (often without .pdf in the address, e.g. an attachment)
+    if _heads_name(text, key):
+        guide_words = ("user guide", "user manual", "manual", "anleitung", "handbuch", "bedienungs", "guide", "instructions")
+        generic: list[str] = []
+        for match in re.finditer(r"href=[\"']([^\"'#]+)[\"']", text, re.IGNORECASE):
+            link = urljoin(url, match.group(1).replace("&amp;", "&"))
+            low = unquote(link).lower()
+            if link not in generic and any(word in low for word in guide_words) and not any(word in low for word in bad) and "/attachments/" in low.replace("__", ""):
+                generic.append(link)
+        for link in sorted(generic, key=lambda link: -sum(word in unquote(link).lower() for word in ("user guide", "printed", "manual", "anleitung")))[:5]:
+            if await _verify_manual_url(hass, link) == "pdf":
+                return link
     return None
 
 
@@ -734,14 +746,19 @@ def _norm(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
 
+def _heads_name(text: str, key: str) -> bool:
+    """True when the title or a headline of the page names the model (key = normalised model)."""
+    heads = re.findall(r"<title[^>]*>(.*?)</title>|<h1[^>]*>(.*?)</h1>|property=[\"']og:title[\"'][^>]*content=[\"']([^\"']*)", text, re.IGNORECASE | re.DOTALL)
+    return bool(key) and any(key in _norm(re.sub(r"<[^>]+>", "", part)) for group in heads for part in group if part)
+
+
 async def _page_is_about(hass: HomeAssistant, url: str, model: str) -> bool:
     """A page only counts as a manual link when its title or headline names the model: general download / search pages that merely echo the address or list many products do not."""
     got = await _fetch_html(hass, url)
     key = _norm(model)
     if not got or len(key) < 3:
         return False
-    heads = re.findall(r"<title[^>]*>(.*?)</title>|<h1[^>]*>(.*?)</h1>|property=[\"']og:title[\"'][^>]*content=[\"']([^\"']*)", got[1], re.IGNORECASE | re.DOTALL)
-    return any(key in _norm(re.sub(r"<[^>]+>", "", part)) for group in heads for part in group if part)
+    return _heads_name(got[1], key)
 
 
 async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> tuple[str | None, str | None]:
@@ -788,14 +805,15 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         if dev is None:
             continue
         entry = manager.data["manuals"].get(device_id, {})
-        need_manual = msg["overwrite"] or not (entry.get("link") or entry.get("file") or entry.get("docs"))
+        upgrade = bool(entry.get("ai") and entry.get("link") and not entry.get("pdf") and not entry.get("file") and not entry.get("docs"))  # AI found only a web page: try again for a real PDF
+        need_manual = msg["overwrite"] or upgrade or not (entry.get("link") or entry.get("file") or entry.get("docs"))
         need_image = use_images and not manager.data["photos"].get(device_id)
         maker, model = str(dev.get("manufacturer") or ""), str(dev.get("model") or "")
         if not (need_manual or need_image) or not model or "~" in device_id or "tracked device" in model.lower() or model == "Mesh":
             continue
         key = f"{maker.lower()}|{model.lower()}"
         cache: dict[str, Any] = manager.data["ai_cache"]
-        if key not in cache or msg["overwrite"]:
+        if key not in cache or msg["overwrite"] or cache[key].get("v", 1) < 2:
             urls, image, domain, err = await _ai_find(hass, entity, maker, model, use_images)
             if err:
                 if _is_quota_error(err):
@@ -819,7 +837,7 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                         image, domain = image2, domain2
             image = image if image and _manufacturer_image_ok(image, domain or "", maker, url) else ""  # original manufacturer images only
             pages = [u for u in ([url] if kind == "page" else []) + urls if not u.lower().split("?")[0].endswith(".pdf")]
-            cache[key] = {"url": url or "", "pdf": kind == "pdf", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
+            cache[key] = {"v": 2, "url": url or "", "pdf": kind == "pdf", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
         hit = cache[key]
         if need_image and not hit.get("image") and not hit.get("img_tried"):  # the manufacturer's own product page names its photo
             hit["img_tried"] = True
@@ -833,7 +851,7 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 found += 1
                 if copy_local and hit["pdf"] and await _try_copy(hass, manager, device_id, hit["url"]):
                     copied += 1
-            else:
+            elif not entry.get("link"):
                 missing += 1
         if need_image and hit.get("image"):
             if hit["image"] not in image_data:

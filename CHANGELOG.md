@@ -2,6 +2,12 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.0b1 – 2026-11-17
+- Documents per device: AI search for manuals (PDF first, archived locally), own PDFs, several links, product photos from the manufacturer
+- AI setup guide (Google Gemini, free key) in the README
+- Pause button, grouped toolbar, translations of all new texts
+- Needs an AI provider with an AI task entity; optional, off by default
+
 ## 1.18.9 – 2026-11-17
 - Security: photos are only served to logged-in users; the list returns signed, expiring photo URLs (async_sign_path)
 - Security: the IRK of Private BLE devices is no longer read from other integrations' config entries; the IRK column is gone

@@ -690,10 +690,13 @@ def _norm(text: str) -> str:
 
 
 async def _page_is_about(hass: HomeAssistant, url: str, model: str) -> bool:
-    """A page only counts as a manual link when it really names the model (no general download overview or search pages)."""
+    """A page only counts as a manual link when its title or headline names the model: general download / search pages that merely echo the address or list many products do not."""
     got = await _fetch_html(hass, url)
     key = _norm(model)
-    return bool(got and len(key) >= 3 and key in _norm(got[1]))
+    if not got or len(key) < 3:
+        return False
+    heads = re.findall(r"<title[^>]*>(.*?)</title>|<h1[^>]*>(.*?)</h1>|property=[\"']og:title[\"'][^>]*content=[\"']([^\"']*)", got[1], re.IGNORECASE | re.DOTALL)
+    return any(key in _norm(re.sub(r"<[^>]+>", "", part)) for group in heads for part in group if part)
 
 
 async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str) -> tuple[str | None, str | None]:

@@ -45,7 +45,7 @@ Hovering the photo symbol shows the photos of the device right in the table (her
 
 <p align="center"><a href="docs/example-printout.pdf"><img src="docs/example-printout-page1.png" width="560" alt="Example printout, page 1"></a></p>
 
-**Languages:** English, German, French, Spanish, Dutch, Italian, Polish, Portuguese, Czech and Russian (taken from the language of the logged-in user; every other language shows English). All languages except English and German are machine translations – corrections as pull requests are welcome (the texts are in `frontend/device-inventory-card.js`, object `T`).
+**Languages:** English, German, French, Spanish, Dutch, Italian, Polish, Portuguese, Czech, Russian, Swedish, Norwegian, Danish and Afrikaans (taken from the language of the logged-in user; every other language shows English). All languages except English and German are machine translations – corrections as pull requests are welcome (the texts are in `frontend/device-inventory-card.js`, object `T`).
 
 ## Install
 

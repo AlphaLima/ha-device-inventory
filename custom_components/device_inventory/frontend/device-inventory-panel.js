@@ -34,7 +34,12 @@ const LABEL = {
   pt: { all: "Todos os dispositivos", other: "Outros", battery: "Baterias", showBadges: "Mostrar dispositivos em falta (offline) e contadores vermelhos", hideBadges: "Ocultar dispositivos em falta e contadores vermelhos" },
   cs: { all: "Všechna zařízení", other: "Ostatní", battery: "Baterie", showBadges: "Zobrazit chybějící (offline) zařízení a červené počítadla", hideBadges: "Skrýt chybějící zařízení a červené počítadla" },
   ru: { all: "Все устройства", other: "Прочее", battery: "Батареи", showBadges: "Показать отсутствующие (не в сети) устройства и красные счётчики", hideBadges: "Скрыть отсутствующие устройства и красные счётчики" },
+  sv: { all: "Alla enheter", other: "Övrigt", battery: "Batterier", showBadges: "Visa saknade (offline) enheter och röda räknare", hideBadges: "Dölj saknade enheter och röda räknare" },
+  nb: { all: "Alle enheter", other: "Annet", battery: "Batterier", showBadges: "Vis manglende (offline) enheter og røde tellere", hideBadges: "Skjul manglende enheter og røde tellere" },
+  da: { all: "Alle enheder", other: "Andet", battery: "Batterier", showBadges: "Vis manglende (offline) enheder og røde tællere", hideBadges: "Skjul manglende enheder og røde tællere" },
+  af: { all: "Alle toestelle", other: "Ander", battery: "Batterye", showBadges: "Wys ontbrekende (aflyn) toestelle en rooi tellers", hideBadges: "Versteek ontbrekende toestelle en rooi tellers" },
 };
+LABEL.no = LABEL.nb; LABEL.nn = LABEL.nb;
 
 class DeviceInventoryPanel extends HTMLElement {
   set hass(hass) {

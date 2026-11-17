@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Device Inventory",
+        "description": "Tilføjer klassificerede enhedstabeller (Shelly, ESPHome, ZigBee, ...) med billeder, noter og udskrift. Intet at konfigurere."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Allerede konfigureret."
+    }
+  }
+}

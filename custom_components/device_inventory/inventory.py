@@ -308,6 +308,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "battery": battery,
                 "battery_low": battery_low,
                 "last_seen": last_seen.isoformat() if last_seen else None,
+                "added": dev.created_at.isoformat() if getattr(dev, "created_at", None) and dev.created_at.year > 1970 else None,  # when HA registered the device (1970 = older than this registry field)
                 "entity": primary_entity,
                 "internet_switch": internet_switch,
                 "ble_switch": ble_switch,

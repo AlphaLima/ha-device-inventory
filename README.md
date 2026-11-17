@@ -96,6 +96,7 @@ Click a column heading to sort. Columns without any value in the current tab are
 | <img src="docs/icons/ruler.svg" height="16" alt="ruler"> Distance, <img src="docs/icons/home.svg" height="16" alt="home"> Home | Bluetooth presence: estimated distance in m, home <img src="docs/icons/checkc.svg" height="16" alt="checkc"> / away <img src="docs/icons/block.svg" height="16" alt="block"> |
 | IP | link to `http://<IP>` (opens the web page of the device) |
 | MAC | MAC address, click copies it |
+| Added | date the device was **registered in Home Assistant** (from the device registry); "–" for devices older than that registry field (before October 2024), the tooltip says so; hidden in the printout by default |
 | BLE MAC, Scanner, Scanner IP | Bluetooth presence (Private BLE Device and Bermuda): address, the scanner that sees the device (e.g. a Shelly or ESP proxy), its IP as link |
 | Manufacturer, Firmware | from the device registry |
 | <img src="docs/icons/signal.svg" height="16" alt="signal"> Signal | WiFi signal in dBm (green ≥ −60, orange ≥ −75, red below) |

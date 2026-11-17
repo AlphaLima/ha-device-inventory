@@ -969,14 +969,15 @@ class DeviceInventoryCard extends HTMLElement {
   // all documents of a device: the found / linked manual first, then the own uploaded PDFs
   _manualDocs(d) {
     const t = this._t, m = (this._state.manuals || {})[d.id] || {}, out = [];
+    const sh = (n, l = 26) => { n = String(n || "").replace(/\.pdf$/i, "").replace(/^www\./, ""); return n.length > l ? `${n.slice(0, 13)}…${n.slice(-10)}` : n; };
     const main = this._manualInfo(d);
     if (main) {
       let name = m.name || "PDF";
       if (main.kind !== "local" && m.link) { try { name = new URL(m.link).hostname; } catch (e) { name = m.link; } }
-      out.push({ href: main.href, kind: main.kind, name, title: main.title });
+      out.push({ href: main.href, kind: main.kind, name, short: main.kind === "local" ? `PDF · ${sh(name, 22)}` : sh(name), title: main.title });
     }
-    (m.links || []).forEach((x) => { let h = x.url; try { h = new URL(x.url).hostname; } catch (e) { /* keep */ } out.push({ href: x.url, kind: "link", name: x.title || h, linkId: x.id, title: `${t.manualLinkWeb}: ${x.title || h}` }); });
-    (m.docs || []).forEach((x) => out.push({ href: x.url, kind: "own", name: x.name || "PDF", id: x.id, title: `${t.manualOwn}: ${x.name || "PDF"}${x.ts ? ` (${t.manualUploaded} ${this._date(x.ts)})` : ""}` }));
+    (m.links || []).forEach((x) => { let h = x.url; try { h = new URL(x.url).hostname; } catch (e) { /* keep */ } out.push({ href: x.url, kind: "link", name: x.title || h, short: sh(x.title || h), linkId: x.id, title: `${t.manualLinkWeb}: ${x.title || h}` }); });
+    (m.docs || []).forEach((x) => out.push({ href: x.url, kind: "own", name: x.name || "PDF", short: `PDF · ${sh(x.name || "PDF", 22)}`, id: x.id, title: `${t.manualOwn}: ${x.name || "PDF"}${x.ts ? ` (${t.manualUploaded} ${this._date(x.ts)})` : ""}` }));
     return out;
   }
 
@@ -985,13 +986,14 @@ class DeviceInventoryCard extends HTMLElement {
     if (ev) ev.stopPropagation();
     document.querySelectorAll(".di-mmenu").forEach((n) => n.remove());
     const r = anchor.getBoundingClientRect();
-    const box = el("div", `position:fixed;z-index:10000;min-width:240px;max-width:min(520px,92vw);background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.4);padding:6px;font-family:var(--ha-font-family-body,Roboto,sans-serif);font-size:13px`);
+    const box = el("div", `position:fixed;z-index:10000;min-width:170px;max-width:min(320px,92vw);background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.4);padding:6px;font-family:var(--ha-font-family-body,Roboto,sans-serif);font-size:13px`);
     box.className = "di-mmenu";
     docs.forEach((x) => {
       const a = el("a", "display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;color:inherit;text-decoration:none;cursor:pointer");
       a.href = x.href; a.target = "_blank"; a.rel = "noopener";
       const ic = el("span", `display:inline-flex;flex:none;color:${x.kind === "local" ? "var(--success-color,#43a047)" : x.kind === "ai" ? "#a07cf0" : "var(--primary-color)"}`); ic.innerHTML = ico(x.kind === "link" ? "globe" : "manual", 20);
-      a.append(ic, el("span", "overflow:hidden;text-overflow:ellipsis;white-space:nowrap", x.title));
+      a.title = x.title;
+      a.append(ic, el("span", "overflow:hidden;text-overflow:ellipsis;white-space:nowrap", x.short || x.title));
       a.onmouseenter = () => { a.style.background = "var(--secondary-background-color,#eee)"; }; a.onmouseleave = () => { a.style.background = ""; };
       a.onclick = () => close();
       box.appendChild(a);

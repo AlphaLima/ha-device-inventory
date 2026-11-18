@@ -666,7 +666,10 @@ class DeviceInventoryCard extends HTMLElement {
     card.appendChild(wrap);
     if (wrapPos) { wrap.scrollTop = wrapPos[0]; wrap.scrollLeft = wrapPos[1]; }
     scrolls.forEach(([n, y, x]) => { n.scrollTop = y; n.scrollLeft = x; });
-    if (keep) { qi.focus(); try { qi.setSelectionRange(keep[0], keep[1]); } catch (e) { /* ignore */ } }
+    if (keep) { // keep typing in the search field: in Home Assistant the focus only sticks once the new table is on screen, so ask again in the next frame
+      const refocus = () => { const n = this._root.querySelector("input.q"); if (!n || this._root.activeElement === n) return; n.focus(); try { n.setSelectionRange(keep[0], keep[1]); } catch (e) { /* ignore */ } };
+      refocus(); requestAnimationFrame(refocus); setTimeout(refocus, 60);
+    }
   }
 
   _row(d, n, hide) {

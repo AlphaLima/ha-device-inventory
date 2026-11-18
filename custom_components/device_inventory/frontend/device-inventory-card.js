@@ -672,8 +672,12 @@ class DeviceInventoryCard extends HTMLElement {
       wrap.style.outline = `3px solid rgb(${rgb})`; wrap.style.outlineOffset = "-3px";
     }
     card.appendChild(wrap);
-    if (wrapPos) { wrap.scrollTop = wrapPos[0]; wrap.scrollLeft = wrapPos[1]; }
-    scrolls.forEach(([n, y, x]) => { n.scrollTop = y; n.scrollLeft = x; });
+    // the new table is laid out a moment later: set the scroll positions again in the next frame (otherwise the list jumps back to the left)
+    const restoreScroll = () => {
+      if (wrapPos) { if (wrap.scrollTop !== wrapPos[0]) wrap.scrollTop = wrapPos[0]; if (wrap.scrollLeft !== wrapPos[1]) wrap.scrollLeft = wrapPos[1]; }
+      scrolls.forEach(([n, y, x]) => { if (n.scrollTop !== y) n.scrollTop = y; if (n.scrollLeft !== x) n.scrollLeft = x; });
+    };
+    restoreScroll(); requestAnimationFrame(restoreScroll); setTimeout(restoreScroll, 60);
     if (keep) { // keep typing in the search field: in Home Assistant the focus only sticks once the new table is on screen, so ask again in the next frame
       const refocus = () => { const n = this._root.querySelector("input.q"); if (!n || this._root.activeElement === n) return; n.focus(); try { n.setSelectionRange(keep[0], keep[1]); } catch (e) { /* ignore */ } };
       refocus(); requestAnimationFrame(refocus); setTimeout(refocus, 60);
@@ -1253,8 +1257,10 @@ class DeviceInventoryCard extends HTMLElement {
     const base = COLS.filter((k) => k !== "kids");
     const known = (c.order || []).filter((k) => base.includes(k));
     const order = [...known]; // columns added in later versions go right behind their predecessor, not to the far end
-    base.forEach((k, i) => { if (order.includes(k)) return; let j = i - 1; while (j >= 0 && !order.includes(base[j])) j--; order.splice(j >= 0 ? order.indexOf(base[j]) + 1 : 0, 0, k); });
-    return { order, off: new Set(c.off || []), w: c.w || {}, n: c.n || {} };
+    const off = new Set(c.off || []);
+    const dflt = (DEFAULT_LAYOUT[tgt === "print" ? "print" : "view"].off) || [];
+    base.forEach((k, i) => { if (order.includes(k)) return; let j = i - 1; while (j >= 0 && !order.includes(base[j])) j--; order.splice(j >= 0 ? order.indexOf(base[j]) + 1 : 0, 0, k); if (dflt.includes(k)) off.add(k); }); // a column added by a later version starts hidden when the defaults hide it
+    return { order, off, w: c.w || {}, n: c.n || {} };
   }
 
   _layoutKey(tgt) { return (tgt === "print" ? "diPrint" : "diView") + (this._config.class === "fritz" ? "_fritz" : ""); }

@@ -94,7 +94,8 @@ class InventoryManager:
         """Older uploads lie as <id>.bin / <id>.pdf: give them their readable place manuals/<device>/<name> (once, after the first refresh)."""
         todo = [(device_id, doc) for device_id, entry in self.data["manuals"].items() for doc in entry.get("docs", []) if not doc.get("path")]
         pics = [(device_id, pic) for device_id, items in self.data["photos"].items() for pic in items if not pic.get("path")]
-        if not todo and not pics:
+        old_style = any(rel.split("/")[0].endswith("_" + _safe_part(device_id, 6)) for device_id in set(self.data["photos"]) | set(self.data["manuals"]) for rel in _device_paths(self, device_id))
+        if not todo and not pics and not old_style:
             return
 
         def _move() -> int:
@@ -123,6 +124,29 @@ class InventoryManager:
                     moved += 1
                 except OSError as err:
                     _LOGGER.warning("Could not move picture %s: %s", pic.get("id"), err)
+            # folders written as "<name>_<id>" (first versions) become "<name>"
+            for device_id in set(self.data["photos"]) | set(self.data["manuals"]):
+                suffix = "_" + _safe_part(device_id, 6)
+                old_folders = {rel.split("/")[0] for rel in _device_paths(self, device_id)}
+                for old_folder in old_folders:
+                    if not old_folder.endswith(suffix):
+                        continue
+                    new_folder = _device_folder(self, device_id, old_folder[: -len(suffix)], skip_own=True)
+                    old_dir, new_dir = self.manual_dir / old_folder, self.manual_dir / new_folder
+                    try:
+                        if old_dir.is_dir() and not new_dir.exists():
+                            old_dir.rename(new_dir)
+                        elif not old_dir.is_dir():
+                            continue
+                        else:
+                            continue  # the new name is in use by files we do not know: leave this folder alone
+                    except OSError as err:
+                        _LOGGER.warning("Could not rename folder %s: %s", old_folder, err)
+                        continue
+                    for item in [*self.data["photos"].get(device_id, []), *self.data["manuals"].get(device_id, {}).get("docs", [])]:
+                        if item.get("path", "").startswith(old_folder + "/"):
+                            item["path"] = new_folder + item["path"][len(old_folder):]
+                    moved += 1
             return moved
 
         if await self.hass.async_add_executor_job(_move):
@@ -1282,9 +1306,30 @@ def _safe_part(text: str, limit: int = 60) -> str:
     return "".join(ch for ch in text if ch.isalnum() or ch in "._- ").strip(" .")[:limit]
 
 
+def _device_paths(manager: InventoryManager, device_id: str) -> list[str]:
+    """Stored paths (relative to the documents folder) of all documents and photos of one device."""
+    paths = [item["path"] for item in manager.data["photos"].get(device_id, []) if item.get("path")]
+    paths += [doc["path"] for doc in manager.data["manuals"].get(device_id, {}).get("docs", []) if doc.get("path")]
+    return paths
+
+
+def _device_folder(manager: InventoryManager, device_id: str, dev_name: str, skip_own: bool = False) -> str:
+    """Folder of a device inside the documents folder: the device name (kept for good once chosen, even when the device is renamed); a number is added when another device already uses the name."""
+    if not skip_own:
+        for rel in _device_paths(manager, device_id):
+            return rel.split("/")[0]
+    taken = {rel.split("/")[0].lower() for other in set(manager.data["photos"]) | set(manager.data["manuals"]) if other != device_id for rel in _device_paths(manager, other)}
+    base = _safe_part(dev_name, 60) or "device"
+    candidate, n = base, 1
+    while candidate.lower() in taken:
+        n += 1
+        candidate = f"{base} ({n})"
+    return candidate
+
+
 def _store_doc(manager: InventoryManager, device_id: str, dev_name: str, filename: str, data: bytes) -> str:
-    """Write a document as manuals/<device name>_<id>/<original file name> (a number is added when the name exists) and return the path relative to the manuals folder."""
-    folder = f"{_safe_part(dev_name, 40) or 'device'}_{_safe_part(device_id, 6)}"
+    """Write a document as documents/<device name>/<original file name> (a number is added when the name exists) and return the path relative to the documents folder."""
+    folder = _device_folder(manager, device_id, dev_name)
     directory = manager.manual_dir / folder
     directory.mkdir(parents=True, exist_ok=True)
     name = _safe_part(filename, 80) or "document"

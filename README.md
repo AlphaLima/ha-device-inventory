@@ -150,6 +150,11 @@ Type into the <img src="docs/icons/search.svg" height="16" alt="search"> field: 
 
 ## Photos, notes, printing
 
+> [!WARNING]
+> **Documents, photos and notes are not a place for credentials.** Do not store passwords, access data, tokens, API keys or private keys there (not even in a spreadsheet or a configuration backup that contains them).
+> Every logged-in Home Assistant user can open these files via the panel, and they lie **unencrypted** in `config/device_inventory/documents/` – and therefore also in your backups and on the Samba share. The dialog shows the same warning.
+
+
 **Photos** (column <img src="docs/icons/image.svg" height="16" alt="image">)
 - <img src="docs/icons/camera.svg" height="16" alt="camera"> **add**: pick one or several images (JPG/PNG, resized to 1600 px in the browser).
 - <img src="docs/icons/image.svg" height="16" alt="image"> appears once a device has photos (a number = how many). **Hover** = thumbnail preview, **click** = gallery: click a photo to open it full size, **<img src="docs/icons/close.svg" height="16" alt="close">** on a photo deletes it, *Add photo(s)* adds more.
@@ -231,6 +236,9 @@ Example automation: notify when `sensor.all_devices_offline` stays above 0 for 3
 - The inventory is rebuilt every 2 minutes and on request (at most every 15 s). A warning is logged if building it ever takes longer than 0.5 s.
 
 ## Deutsch (Kurzfassung)
+
+> [!WARNING]
+> **Keine Ablage für Zugangsdaten:** In Dokumenten, Fotos und Bemerkungen bitte keine Passwörter, Zugangsdaten, Tokens oder Schlüssel speichern (auch nicht in einer Tabelle oder einem Konfigurations-Backup, das sie enthält). Jeder angemeldete Home-Assistant-Nutzer kann diese Dateien über das Panel öffnen, und sie liegen **unverschlüsselt** in `config/device_inventory/documents/` – damit auch in deinen Backups und auf der Samba-Freigabe.
 
 **Was es ist:** Eine Übersicht über alle Geräte im Haus, nach Klassen sortiert (Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Bluetooth, Batterien …), mit Status-LED, IP-Adresse als Link zur Geräte-Webseite, MAC, Fotos, Bemerkungen und Papierdokumentation. Nach der Installation (HACS bzw. Marketplace als eigenes Repository, HA neu starten, Integration hinzufügen) erscheint „Device Inventory“ in der Seitenleiste. Der runde Schalter rechts in der Tab-Leiste steuert die **Problemansicht**: **aus** (Standard) blendet die **roten Zähler und die fehlenden (offline) Geräte in den Listen** aus, **an** zeigt beides. Auch der Zähler und die Tab-Tooltips folgen dem Schalter. Mit `custom:device-inventory-card` lässt sich eine Tabelle auch in ein eigenes Dashboard setzen.
 

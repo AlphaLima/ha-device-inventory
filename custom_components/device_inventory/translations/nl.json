@@ -21,7 +21,7 @@
           "ai_images": "Ook een door de AI gevonden productfoto opslaan"
         },
         "data_description": {
-          "ai_copy_local": "Slaat elke door de AI gevonden PDF-handleiding op in je Home Assistant (config/device_inventory/manuals). Het archief bewaart de huidige staat van de handleiding, werkt zonder internet en behoudt de handleidingen van oude apparaten, ook als ze van de website van de fabrikant verdwijnen.",
+          "ai_copy_local": "Slaat elke door de AI gevonden PDF-handleiding op in je Home Assistant (config/device_inventory/documents). Het archief bewaart de huidige staat van de handleiding, werkt zonder internet en behoudt de handleidingen van oude apparaten, ook als ze van de website van de fabrikant verdwijnen.",
           "ai_images": "Voor apparaten zonder foto zoekt de AI ook een origineel productfoto op de eigen website van de fabrikant (nooit webwinkels of beeldsites); het wordt net als je eigen foto's in je Home Assistant opgeslagen. Gebruik het alleen voor je eigen documentatie."
         }
       }

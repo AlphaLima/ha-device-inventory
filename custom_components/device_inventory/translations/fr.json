@@ -21,7 +21,7 @@
           "ai_images": "Enregistrer aussi une photo de produit trouvée par l'IA"
         },
         "data_description": {
-          "ai_copy_local": "Enregistre chaque manuel PDF trouvé par l'IA sur votre Home Assistant (config/device_inventory/manuals). L'archive conserve l'état du manuel d'aujourd'hui, fonctionne sans Internet et garde les manuels des anciens appareils même s'ils disparaissent du site du fabricant.",
+          "ai_copy_local": "Enregistre chaque manuel PDF trouvé par l'IA sur votre Home Assistant (config/device_inventory/documents). L'archive conserve l'état du manuel d'aujourd'hui, fonctionne sans Internet et garde les manuels des anciens appareils même s'ils disparaissent du site du fabricant.",
           "ai_images": "Pour les appareils sans photo, l'IA cherche aussi une photo de produit originale sur le site du fabricant (jamais des boutiques ou sites d'images) ; elle est enregistrée sur votre Home Assistant comme vos propres photos. À utiliser uniquement pour votre propre documentation."
         }
       }

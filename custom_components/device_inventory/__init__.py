@@ -66,7 +66,7 @@ class InventoryManager:
         self.last_refresh = 0.0
         self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
-        self.manual_dir = Path(hass.config.path(DOMAIN, "manuals"))
+        self.manual_dir = Path(hass.config.path(DOMAIN, "documents"))  # manuals, wiring diagrams, configuration backups ... (was "manuals" before 1.19)
         self.coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
@@ -121,9 +121,25 @@ class InventoryManager:
             self.data["manuals"] = stored.get("manuals", {})
             self.data["ai_cache"] = stored.get("ai_cache", {})
             self.data["manual_files"] = stored.get("manual_files", {})
-        await self.hass.async_add_executor_job(
-            lambda: (self.photo_dir.mkdir(parents=True, exist_ok=True), self.manual_dir.mkdir(parents=True, exist_ok=True))
-        )
+        await self.hass.async_add_executor_job(self._prepare_folders)
+
+    def _prepare_folders(self) -> None:
+        """Create the folders; the former "manuals" folder becomes "documents" (renamed once, merged when both exist)."""
+        self.photo_dir.mkdir(parents=True, exist_ok=True)
+        legacy = Path(self.hass.config.path(DOMAIN, "manuals"))
+        if legacy.is_dir():
+            if not self.manual_dir.exists():
+                legacy.rename(self.manual_dir)
+            else:
+                for child in legacy.iterdir():
+                    target = self.manual_dir / child.name
+                    if not target.exists():
+                        child.rename(target)
+                try:
+                    legacy.rmdir()
+                except OSError:
+                    pass
+        self.manual_dir.mkdir(parents=True, exist_ok=True)
 
     @callback
     def save(self) -> None:

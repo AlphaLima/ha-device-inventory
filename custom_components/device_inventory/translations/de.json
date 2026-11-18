@@ -21,7 +21,7 @@
           "ai_images": "Auch ein Produktfoto der KI speichern"
         },
         "data_description": {
-          "ai_copy_local": "Speichert jede von der KI gefundene PDF-Anleitung auf deinem Home Assistant (config/device_inventory/manuals). Das Archiv hält den heutigen Stand der Anleitung fest, funktioniert ohne Internet und behält die Anleitungen alter Geräte, auch wenn sie von der Herstellerseite verschwinden.",
+          "ai_copy_local": "Speichert jede von der KI gefundene PDF-Anleitung auf deinem Home Assistant (config/device_inventory/documents). Das Archiv hält den heutigen Stand der Anleitung fest, funktioniert ohne Internet und behält die Anleitungen alter Geräte, auch wenn sie von der Herstellerseite verschwinden.",
           "ai_images": "Für Geräte ohne Foto sucht die KI zusätzlich ein Original-Produktfoto auf der eigenen Herstellerseite (nie Shops oder Bildseiten); es wird wie deine eigenen Fotos auf deinem Home Assistant gespeichert. Bitte nur für deine eigene Dokumentation verwenden."
         }
       }

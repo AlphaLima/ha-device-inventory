@@ -21,7 +21,7 @@
           "ai_images": "Uložit také fotografii produktu nalezenou AI"
         },
         "data_description": {
-          "ai_copy_local": "Ukládá každý návod v PDF nalezený AI do vašeho Home Assistantu (config/device_inventory/manuals). Archiv uchovává dnešní stav návodu, funguje bez internetu a zachová návody starých zařízení, i když zmizí z webu výrobce.",
+          "ai_copy_local": "Ukládá každý návod v PDF nalezený AI do vašeho Home Assistantu (config/device_inventory/documents). Archiv uchovává dnešní stav návodu, funguje bez internetu a zachová návody starých zařízení, i když zmizí z webu výrobce.",
           "ai_images": "U zařízení bez fotografie hledá AI také originální fotografii produktu na webu samotného výrobce (nikdy obchody ani obrazové servery); uloží se do vašeho Home Assistantu jako vaše vlastní fotografie. Používejte jen pro vlastní dokumentaci."
         }
       }

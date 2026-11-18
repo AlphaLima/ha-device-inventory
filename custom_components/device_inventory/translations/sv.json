@@ -21,7 +21,7 @@
           "ai_images": "Spara också ett produktfoto som AI hittat"
         },
         "data_description": {
-          "ai_copy_local": "Sparar varje PDF-manual som AI hittar i din Home Assistant (config/device_inventory/manuals). Arkivet bevarar manualens nuvarande skick, fungerar utan internet och behåller manualerna för gamla enheter även om de försvinner från tillverkarens webbplats.",
+          "ai_copy_local": "Sparar varje PDF-manual som AI hittar i din Home Assistant (config/device_inventory/documents). Arkivet bevarar manualens nuvarande skick, fungerar utan internet och behåller manualerna för gamla enheter även om de försvinner från tillverkarens webbplats.",
           "ai_images": "För enheter utan foto letar AI även efter ett originalfoto av produkten på tillverkarens egen webbplats (aldrig butiker eller bildsajter); det sparas i din Home Assistant som dina egna foton. Använd endast för din egen dokumentation."
         }
       }

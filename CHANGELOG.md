@@ -2,6 +2,12 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.0b3 – 2026-11-18
+- Documents of any file type per device (Excel, Word, CSV, images ...), stored with their names in config/device_inventory/<tab>/<device>/, photos in the same place; warning: no credentials
+- New column Files (names of all documents and links) for printout and CSV
+- AI search: hint field and local web page of the device for single devices, asks for more information when nothing is found, device name search for network clients
+- Shorter button texts, selection box for several documents, pause button, search field keeps its focus
+
 ## 1.19.0b2 – 2026-11-18
 - AI search for network clients without a model uses the device name
 - AI search and PDF copy only for the devices matching the search filter

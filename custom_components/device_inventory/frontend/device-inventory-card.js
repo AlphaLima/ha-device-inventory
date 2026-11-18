@@ -985,7 +985,7 @@ class DeviceInventoryCard extends HTMLElement {
   async _aiAll(btn) {
     const t = this._t, s = this._state;
     if (!s.ai) { alert(t.manualAiNone); return; }
-    const ids = this._filtered().filter((d) => { const m = (s.manuals || {})[d.id] || {}; return (!this._manualDocs(d).length || (m.ai && m.link && !m.pdf && !m.file && !(m.docs || []).length)) && d.model && !String(d.id).includes("~") && !/^mesh$/i.test(String(d.model)); }).map((d) => d.id);
+    const ids = this._filtered().filter((d) => { const m = (s.manuals || {})[d.id] || {}; const noPhoto = !((s.photos || {})[d.id] || []).length; return (!this._manualDocs(d).length || noPhoto || (m.ai && m.link && !m.pdf && !m.file && !(m.docs || []).length)) && !String(d.id).includes("~") && !/^mesh$/i.test(String(d.model)); }).map((d) => d.id); // no manual yet, or no photo yet, or only a web page as manual
     if (!ids.length) { alert(t.manualAiNothing); return; }
     if (!confirm(t.manualAiAsk.replace("{n}", ids.length))) return;
     btn.disabled = true;

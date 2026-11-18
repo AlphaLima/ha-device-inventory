@@ -1099,7 +1099,7 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         need_manual = msg["overwrite"] or upgrade or not (entry.get("link") or entry.get("file") or entry.get("docs") or entry.get("links"))
         need_image = use_images and not manager.data["photos"].get(device_id)
         maker, model = str(dev.get("manufacturer") or ""), str(dev.get("model") or "")
-        by_name = "tracked device" in model.lower()  # network client without a real model: search by the device name instead
+        by_name = not model.strip() or "tracked device" in model.lower()  # no real model (network client, device without model): search by the device name instead
         if by_name:
             maker, model = "", str(dev.get("name") or "").strip()
         if hint and not model:

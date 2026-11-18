@@ -93,7 +93,8 @@ class InventoryManager:
     async def async_migrate_docs(self) -> None:
         """Older uploads lie as <id>.bin / <id>.pdf: give them their readable place manuals/<device>/<name> (once, after the first refresh)."""
         todo = [(device_id, doc) for device_id, entry in self.data["manuals"].items() for doc in entry.get("docs", []) if not doc.get("path")]
-        if not todo:
+        pics = [(device_id, pic) for device_id, items in self.data["photos"].items() for pic in items if not pic.get("path")]
+        if not todo and not pics:
             return
 
         def _move() -> int:
@@ -108,6 +109,20 @@ class InventoryManager:
                     moved += 1
                 except OSError as err:
                     _LOGGER.warning("Could not move document %s: %s", doc.get("name"), err)
+            for device_id, pic in pics:
+                old = self.photo_dir / f"{pic['id']}.jpg"
+                if not old.is_file():
+                    continue
+                try:
+                    data = old.read_bytes()
+                    ext = _photo_ext(data)
+                    name = f"Produktfoto.{ext}" if pic.get("ai") else _photo_name(None, ext, pic.get("ts"))
+                    pic["path"] = _store_doc(self, device_id, _doc_name_of(self, device_id), name, data)
+                    pic["ext"] = ext
+                    old.unlink()
+                    moved += 1
+                except OSError as err:
+                    _LOGGER.warning("Could not move picture %s: %s", pic.get("id"), err)
             return moved
 
         if await self.hass.async_add_executor_job(_move):
@@ -293,8 +308,9 @@ async def ws_delete_photo(hass: HomeAssistant, connection, msg: dict[str, Any]) 
     photos = manager.data["photos"].get(msg["device_id"], [])
     keep = [p for p in photos if p["id"] != msg["photo_id"]]
     if len(keep) != len(photos):
-        path = manager.photo_dir / f"{msg['photo_id']}.jpg"
-        await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
+        gone = next((p for p in photos if p["id"] == msg["photo_id"]), {"id": msg["photo_id"]})
+        path = _photo_location(manager, gone)
+        await hass.async_add_executor_job(_remove_stored, manager, path)
         if keep:
             manager.data["photos"][msg["device_id"]] = keep
         else:
@@ -1105,8 +1121,9 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                         break
             if picture:
                 photo_id = secrets.token_urlsafe(16)
-                await hass.async_add_executor_job((manager.photo_dir / f"{photo_id}.jpg").write_bytes, picture)
-                manager.data["photos"].setdefault(device_id, []).append({"id": photo_id, "ts": dt_util.utcnow().isoformat(), "ai": True, "src": hit["image"]})
+                ext = _photo_ext(picture)
+                rel = await hass.async_add_executor_job(_store_doc, manager, device_id, _doc_name_of(manager, device_id), f"Produktfoto.{ext}", picture)
+                manager.data["photos"].setdefault(device_id, []).append({"id": photo_id, "ts": dt_util.utcnow().isoformat(), "ai": True, "src": hit["image"], "path": rel, "ext": ext})
                 images += 1
     manager.save()
     result = manager.payload(connection.refresh_token_id)
@@ -1243,10 +1260,10 @@ class PhotoUploadView(HomeAssistantView):
             return self.json_message("Only JPEG or PNG", 415)
 
         photo_id = secrets.token_urlsafe(16)
-        path = manager.photo_dir / f"{photo_id}.jpg"
-        await hass.async_add_executor_job(path.write_bytes, bytes(data))
+        ext = _photo_ext(bytes(data))
+        rel = await hass.async_add_executor_job(_store_doc, manager, device_id, _doc_name_of(manager, device_id), _photo_name(field.filename, ext), bytes(data))
         manager.data["photos"].setdefault(device_id, []).append(
-            {"id": photo_id, "ts": dt_util.utcnow().isoformat()}
+            {"id": photo_id, "ts": dt_util.utcnow().isoformat(), "path": rel, "ext": ext}
         )
         manager.save()
         return self.json({"id": photo_id})
@@ -1301,6 +1318,44 @@ def _doc_name_of(manager: InventoryManager, device_id: str) -> str:
 def _doc_file(manager: InventoryManager, doc_id: str, ext: str = "pdf") -> Path:
     """Place of a stored document: PDFs as .pdf, everything else as .bin (the type only matters for the name shown to the user)."""
     return manager.manual_dir / f"{doc_id}.{'pdf' if ext == 'pdf' else 'bin'}"
+
+
+def _photo_ext(data: bytes) -> str:
+    """Extension of a picture from its content (jpg / png / webp)."""
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    return "jpg"
+
+
+def _photo_name(filename: str | None, ext: str, ts: str | None = None) -> str:
+    """Readable file name of a picture: the original name (with the right extension) or "Foto <date time>"."""
+    base = _safe_part(filename.rsplit(".", 1)[0], 60) if filename and "." in filename else _safe_part(filename or "", 60)
+    if not base:
+        stamp = (ts or dt_util.now().isoformat())[:19].replace("T", " ").replace(":", ".")
+        base = f"Foto {stamp}"
+    return f"{base}.{ext}"
+
+
+def _photo_location(manager: InventoryManager, item: dict[str, Any]) -> Path:
+    """Where a picture lies: its stored path (inside the documents folder only), older ones by their id in the photos folder."""
+    rel = item.get("path")
+    if rel:
+        root = manager.manual_dir.resolve()
+        path = (manager.manual_dir / rel).resolve()
+        if root in path.parents:
+            return path
+    return manager.photo_dir / f"{item['id']}.jpg"
+
+
+def _remove_stored(manager: InventoryManager, path: Path) -> None:
+    path.unlink(missing_ok=True)
+    try:
+        if path.parent != manager.manual_dir and manager.manual_dir in path.parents:
+            path.parent.rmdir()  # the device folder goes away when it is empty now
+    except OSError:
+        pass
 
 
 class ManualUploadView(HomeAssistantView):
@@ -1384,7 +1439,11 @@ class PhotoServeView(HomeAssistantView):
         manager: InventoryManager = hass.data.get(DOMAIN)
         if manager is None or not photo_id.replace("-", "").replace("_", "").isalnum():
             return web.Response(status=404)
-        path = manager.photo_dir / f"{photo_id}.jpg"
+        item = next((pic for pics in manager.data["photos"].values() for pic in pics if pic["id"] == photo_id), None)
+        if item is None:
+            return web.Response(status=404)
+        path = _photo_location(manager, item)
         if not await hass.async_add_executor_job(path.is_file):
             return web.Response(status=404)
-        return web.FileResponse(path, headers={"Cache-Control": "private, max-age=86400"})
+        media = {"png": "image/png", "webp": "image/webp"}.get(item.get("ext", "jpg"), "image/jpeg")
+        return web.FileResponse(path, headers={"Content-Type": media, "X-Content-Type-Options": "nosniff", "Cache-Control": "private, max-age=86400"})

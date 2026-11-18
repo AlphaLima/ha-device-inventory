@@ -2,6 +2,12 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.0b2 – 2026-11-18
+- AI search for network clients without a model uses the device name
+- AI search and PDF copy only for the devices matching the search filter
+- AI requests time out after 90 s and are retried once when the service is busy
+- Search field: no more lost focus, debounced table update, keys no longer trigger Home Assistant shortcuts
+
 ## 1.19.0b1 – 2026-11-17
 - Documents per device: AI search for manuals (PDF first, archived locally), own PDFs, several links, product photos from the manufacturer
 - AI setup guide (Google Gemini, free key) in the README

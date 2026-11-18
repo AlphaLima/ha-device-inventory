@@ -755,12 +755,14 @@ async def _fetch_html(hass: HomeAssistant, url: str) -> tuple[str, str] | None:
     return None
 
 
-async def _page_image(hass: HomeAssistant, page_url: str, maker: str) -> str | None:
+async def _page_image(hass: HomeAssistant, page_url: str, maker: str, model: str = "") -> str | None:
     """The product photo the manufacturer itself names on its product page (og:image): real, not guessed by the AI."""
     got = await _fetch_html(hass, page_url)
     if not got:
         return None
     url, text = got
+    if model and not _heads_name(text, _norm(model)):
+        return None  # not a page of this product (home page, overview): its picture is no product photo
     page_host = (urlparse(url).hostname or "").lower()
     base = ".".join(page_host.split(".")[-2:])
     tokens = [tok for tok in re.split(r"[^a-z0-9]+", maker.lower()) if len(tok) >= 3]
@@ -774,7 +776,7 @@ async def _page_image(hass: HomeAssistant, page_url: str, maker: str) -> str | N
             found.append(urljoin(url, match.group(1).replace("&amp;", "&")))
     for link in found:
         host = (urlparse(link).hostname or "").lower()
-        if not host or any(shop in host for shop in SHOP_HOSTS) or "logo" in link.lower():
+        if not host or any(shop in host for shop in SHOP_HOSTS) or any(word in link.lower() for word in ("logo", "banner", "hero", "placeholder", "default", "favicon", "icon", "share", "general", "social", "opengraph")):
             continue
         if host.endswith(base) or any(tok in host for tok in tokens):
             return link
@@ -950,7 +952,12 @@ async def _page_is_about(hass: HomeAssistant, url: str, model: str, maker: str =
     path = (urlparse(got[0]).path + "?" + (urlparse(got[0]).query or "")).lower()
     generic = any(word in path for word in ("download", "support", "service", "search", "suche", "?q="))
     tokens = [tok for tok in re.split(r"[^a-z0-9]+", maker.lower()) if len(tok) >= 3]
-    return not generic and any(tok in host for tok in tokens) and any(_heads_name(got[1], tok) for tok in tokens)
+    distinctive = len(key) >= 6 or any(ch.isdigit() for ch in key)  # "Shelly 2.5", "HmIP-BWTH" name one product, "FOSS" does not
+    if distinctive:
+        return False  # a model that names one product must show up in the title: never the manufacturer's home page
+    at_root = urlparse(got[0]).path.strip("/") == ""
+    docs_site = host.split(".")[0] in ("docs", "doc", "kb", "kno", "wiki", "help", "manual", "manuals", "documentation")
+    return not generic and (not at_root or docs_site) and any(tok in host for tok in tokens) and any(_heads_name(got[1], tok) for tok in tokens)
 
 
 async def _resolve_manual(hass: HomeAssistant, urls: list[str], model: str, maker: str = "") -> tuple[str | None, str | None, str | None]:
@@ -1121,12 +1128,13 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                         image, domain = image2, domain2
             image = image if image and _manufacturer_image_ok(image, domain or "", maker, url) else ""  # original manufacturer images only
             pages = [u for u in ([url] if kind == "page" else []) + urls if not u.lower().split("?")[0].endswith(".pdf")]
-            cache[key] = {"v": 2, "scan": scan, "url": url or "", "pdf": kind == "pdf", "page": page or "", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
+            cache[key] = {"v": 2, "scan": scan, "cm": cm, "url": url or "", "pdf": kind == "pdf", "page": page or "", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
         hit = cache[key]
+        cm = hit.get("cm") or model  # the name the pages of this product must show
         if need_image and not hit.get("image") and hit.get("img_scan") != scan:  # the manufacturer's own product page names its photo (tried once per scan)
             hit["img_scan"] = scan
             for page in hit.get("pages") or ([hit["url"]] if hit.get("url") and not hit.get("pdf") else []):
-                hit["image"] = await _page_image(hass, page, maker) or ""
+                hit["image"] = await _page_image(hass, page, maker, cm) or ""
                 if hit["image"]:
                     break
         if need_manual:
@@ -1148,7 +1156,7 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                 hit["img_scan"] = scan
                 hit["image"] = ""
                 for page in hit.get("pages") or ([hit["url"]] if hit.get("url") and not hit.get("pdf") else []):
-                    hit["image"] = await _page_image(hass, page, maker) or ""
+                    hit["image"] = await _page_image(hass, page, maker, cm) or ""
                     if hit["image"]:
                         image_data.setdefault(hit["image"], await _download_image(hass, hit["image"]))
                         picture = image_data[hit["image"]]

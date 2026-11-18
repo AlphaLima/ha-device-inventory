@@ -21,7 +21,7 @@
           "ai_images": "Stoor ook 'n produkfoto wat die KI gevind het"
         },
         "data_description": {
-          "ai_copy_local": "Stoor elke PDF-handleiding wat die KI vind op jou Home Assistant (config/device_inventory/documents). Die argief hou die huidige toestand van die handleiding, werk sonder internet en behou die handleidings van ou toestelle selfs al verdwyn hulle van die vervaardiger se webwerf.",
+          "ai_copy_local": "Stoor elke PDF-handleiding wat die KI vind op jou Home Assistant (config/device_inventory/_archive). Die argief hou die huidige toestand van die handleiding, werk sonder internet en behou die handleidings van ou toestelle selfs al verdwyn hulle van die vervaardiger se webwerf.",
           "ai_images": "Vir toestelle sonder foto soek die KI ook 'n oorspronklike produkfoto op die vervaardiger se eie webwerf (nooit winkels of beeldwebwerwe nie); dit word op jou Home Assistant gestoor soos jou eie foto's. Gebruik dit slegs vir jou eie dokumentasie."
         }
       }

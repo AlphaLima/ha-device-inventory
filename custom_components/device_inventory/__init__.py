@@ -66,7 +66,8 @@ class InventoryManager:
         self.last_refresh = 0.0
         self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
-        self.manual_dir = Path(hass.config.path(DOMAIN, "documents"))  # manuals, wiring diagrams, configuration backups ... (was "manuals" before 1.19)
+        self.manual_dir = Path(hass.config.path(DOMAIN))  # one folder per device directly in here: documents, wiring diagrams, configuration backups, photos ...
+        self.archive_dir = self.manual_dir / "_archive"  # PDFs found by the AI (shared by identical devices, named by an id)
         self.coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
@@ -163,22 +164,38 @@ class InventoryManager:
         await self.hass.async_add_executor_job(self._prepare_folders)
 
     def _prepare_folders(self) -> None:
-        """Create the folders; the former "manuals" folder becomes "documents" (renamed once, merged when both exist)."""
-        self.photo_dir.mkdir(parents=True, exist_ok=True)
-        legacy = Path(self.hass.config.path(DOMAIN, "manuals"))
-        if legacy.is_dir():
-            if not self.manual_dir.exists():
-                legacy.rename(self.manual_dir)
-            else:
-                for child in legacy.iterdir():
-                    target = self.manual_dir / child.name
-                    if not target.exists():
-                        child.rename(target)
-                try:
-                    legacy.rmdir()
-                except OSError:
-                    pass
+        """Create the folders. Older versions kept everything in config/device_inventory/manuals (later documents): device folders move up one level, id-named PDFs go to _archive."""
         self.manual_dir.mkdir(parents=True, exist_ok=True)
+        self.archive_dir.mkdir(parents=True, exist_ok=True)
+        for name in ("manuals", "documents"):
+            legacy = self.manual_dir / name
+            if not legacy.is_dir():
+                continue
+            for child in list(legacy.iterdir()):
+                try:
+                    if child.is_file():
+                        target = self.archive_dir / child.name
+                        if not target.exists():
+                            child.rename(target)
+                    elif child.is_dir():
+                        target = self.manual_dir / child.name
+                        if not target.exists():
+                            child.rename(target)
+                        else:  # the same folder name exists already: move the files one by one
+                            for item in list(child.iterdir()):
+                                if not (target / item.name).exists():
+                                    item.rename(target / item.name)
+                            child.rmdir()
+                except OSError as err:
+                    _LOGGER.warning("Could not move %s: %s", child, err)
+            try:
+                legacy.rmdir()
+            except OSError:
+                pass
+        try:
+            self.photo_dir.rmdir()  # the old pictures folder is empty once the pictures were moved
+        except OSError:
+            pass
 
     @callback
     def save(self) -> None:
@@ -426,7 +443,7 @@ async def _remove_manual_file(hass: HomeAssistant, manager: InventoryManager, de
     """Delete a stored PDF unless another device still uses the same file."""
     if not file_id or _file_in_use(manager, file_id, device_id):
         return
-    path = manager.manual_dir / f"{file_id}.pdf"
+    path = manager.archive_dir / f"{file_id}.pdf"
     await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
     for url, stored_id in list(manager.data["manual_files"].items()):
         if stored_id == file_id:
@@ -439,7 +456,7 @@ async def _store_manual(hass: HomeAssistant, manager: InventoryManager, device_i
     manual_id = files.get(url) if url else None
     if manual_id is None:
         manual_id = secrets.token_urlsafe(16)
-        path = manager.manual_dir / f"{manual_id}.pdf"
+        path = manager.archive_dir / f"{manual_id}.pdf"
         await hass.async_add_executor_job(path.write_bytes, data)
         if url:
             files[url] = manual_id
@@ -1209,6 +1226,7 @@ async def ws_import_legacy(hass: HomeAssistant, connection, msg: dict[str, Any])
     def copy_image(src: Path, dst: Path) -> bool:
         if not src.is_file():
             return False
+        dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(src.read_bytes())
         return True
 
@@ -1318,7 +1336,7 @@ def _device_folder(manager: InventoryManager, device_id: str, dev_name: str, ski
     if not skip_own:
         for rel in _device_paths(manager, device_id):
             return rel.split("/")[0]
-    taken = {rel.split("/")[0].lower() for other in set(manager.data["photos"]) | set(manager.data["manuals"]) if other != device_id for rel in _device_paths(manager, other)}
+    taken = {"_archive", "photos", "documents", "manuals"} | {rel.split("/")[0].lower() for other in set(manager.data["photos"]) | set(manager.data["manuals"]) if other != device_id for rel in _device_paths(manager, other)}
     base = _safe_part(dev_name, 60) or "device"
     candidate, n = base, 1
     while candidate.lower() in taken:
@@ -1362,7 +1380,7 @@ def _doc_name_of(manager: InventoryManager, device_id: str) -> str:
 
 def _doc_file(manager: InventoryManager, doc_id: str, ext: str = "pdf") -> Path:
     """Place of a stored document: PDFs as .pdf, everything else as .bin (the type only matters for the name shown to the user)."""
-    return manager.manual_dir / f"{doc_id}.{'pdf' if ext == 'pdf' else 'bin'}"
+    return manager.archive_dir / f"{doc_id}.{'pdf' if ext == 'pdf' else 'bin'}"
 
 
 def _photo_ext(data: bytes) -> str:

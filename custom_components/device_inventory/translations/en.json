@@ -21,7 +21,7 @@
           "ai_images": "Also store a product photo found by the AI"
         },
         "data_description": {
-          "ai_copy_local": "Stores every PDF manual the AI finds on your Home Assistant (config/device_inventory/documents). The archive keeps the state of the manual of today, works without internet and keeps the manuals of old devices even if they disappear from the website of the manufacturer.",
+          "ai_copy_local": "Stores every PDF manual the AI finds on your Home Assistant (config/device_inventory/_archive). The archive keeps the state of the manual of today, works without internet and keeps the manuals of old devices even if they disappear from the website of the manufacturer.",
           "ai_images": "For devices without any photo, the AI also looks for an original product photo on the own website of the manufacturer (never shops or image sites); it is stored on your Home Assistant like your own photos. Please use it only for your own documentation."
         }
       }

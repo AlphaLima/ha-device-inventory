@@ -21,7 +21,7 @@
           "ai_images": "Lagre også et produktbilde funnet av KI"
         },
         "data_description": {
-          "ai_copy_local": "Lagrer hver PDF-manual KI finner i din Home Assistant (config/device_inventory/documents). Arkivet bevarer manualens nåværende tilstand, fungerer uten internett og beholder manualene til gamle enheter selv om de forsvinner fra produsentens nettside.",
+          "ai_copy_local": "Lagrer hver PDF-manual KI finner i din Home Assistant (config/device_inventory/_archive). Arkivet bevarer manualens nåværende tilstand, fungerer uten internett og beholder manualene til gamle enheter selv om de forsvinner fra produsentens nettside.",
           "ai_images": "For enheter uten bilde leter KI også etter et originalt produktbilde på produsentens egen nettside (aldri nettbutikker eller bildesider); det lagres i din Home Assistant som dine egne bilder. Bruk det bare til din egen dokumentasjon."
         }
       }

@@ -550,9 +550,7 @@ class DeviceInventoryCard extends HTMLElement {
     dnb.onclick = () => { this._dense = !this._dense; try { localStorage.setItem("diWide", this._dense ? "1" : "0"); } catch (e) { /* ignore */ } this._render(); };
         const aib = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
         aib.innerHTML = ico("sparkles", 20); aib.title = t.manualAiBtn; aib.onclick = () => this._aiAll(aib);
-        const cpb = el("button", "padding:4px 9px;display:inline-flex;align-items:center");
-        cpb.innerHTML = ico("pdfdown", 20); cpb.title = t.manualCopyBtn; cpb.onclick = () => this._copyAll(cpb);
-        bar.append(refPair, printPair, bl, thb, cmb, dnb, aib, cpb);
+        bar.append(refPair, printPair, bl, thb, cmb, dnb, aib);
     const editGroup = el("span", "display:inline-flex;gap:6px;align-items:center;margin-left:auto");
     editGroup.appendChild(pcb);
     if (edit) {

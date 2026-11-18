@@ -15,7 +15,7 @@ Made for installations with many devices where nobody remembers any more *which 
 - **Weak batteries are easy to find:** the *Batteries* tab lists the lowest batteries first; the photo (where is the sensor?) and the note (battery type, how to open it) show you the device and what to do, and the printed list can be taken along on the round.
 - `sensor.*_devices_offline` per class (and one for all) with the names of the offline devices – ready for notifications.
 
-Photos and notes are stored on the server (`.storage/device_inventory`, `config/device_inventory/photos/`): shared by all users and part of your backups.
+Photos and notes are stored on the server (`.storage/device_inventory`, `config/device_inventory/documents/<device>/`): shared by all users and part of your backups.
 
 > Status: **v1.x** – in daily use on the author's system (300+ devices, Home Assistant **2026.11**). The integration needs Home Assistant 2024.7 or newer, but it has so far **only been tested on 2026.11** – on older versions some details (e.g. IP / Bluetooth scanner data) may be missing; please report problems as an [issue](https://github.com/AlphaLima/ha-device-inventory/issues) with your Home Assistant version. Bug reports and pull requests are welcome.
 

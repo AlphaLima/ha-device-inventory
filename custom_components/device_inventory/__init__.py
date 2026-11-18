@@ -90,6 +90,29 @@ class InventoryManager:
             if time.monotonic() - self.last_refresh > max_age:
                 await self.coordinator.async_refresh()
 
+    async def async_migrate_docs(self) -> None:
+        """Older uploads lie as <id>.bin / <id>.pdf: give them their readable place manuals/<device>/<name> (once, after the first refresh)."""
+        todo = [(device_id, doc) for device_id, entry in self.data["manuals"].items() for doc in entry.get("docs", []) if not doc.get("path")]
+        if not todo:
+            return
+
+        def _move() -> int:
+            moved = 0
+            for device_id, doc in todo:
+                old = _doc_file(self, doc["id"], doc.get("ext", "pdf"))
+                if not old.is_file():
+                    continue
+                try:
+                    doc["path"] = _store_doc(self, device_id, _doc_name_of(self, device_id), doc.get("name") or "document", old.read_bytes())
+                    old.unlink()
+                    moved += 1
+                except OSError as err:
+                    _LOGGER.warning("Could not move document %s: %s", doc.get("name"), err)
+            return moved
+
+        if await self.hass.async_add_executor_job(_move):
+            self.save()
+
     async def async_load(self) -> None:
         stored = await self.store.async_load()
         if stored:
@@ -153,6 +176,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     manager = InventoryManager(hass)
     await manager.async_load()
     await manager.coordinator.async_config_entry_first_refresh()
+    await manager.async_migrate_docs()
     hass.data[DOMAIN] = manager
 
     hass.http.register_view(FrontendFileView)
@@ -486,10 +510,12 @@ async def ws_add_manual_link(hass: HomeAssistant, connection, msg: dict[str, Any
             data = None
         if data:
             doc_id = secrets.token_urlsafe(16)
-            await hass.async_add_executor_job((manager.manual_dir / f"{doc_id}.pdf").write_bytes, data)
             raw = title or unquote(urlparse(url).path.rsplit("/", 1)[-1]) or "document.pdf"
-            name = "".join(ch for ch in raw if ch.isalnum() or ch in "._- ")[:80] or "document.pdf"
-            entry.setdefault("docs", []).append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat(), "src": url})
+            name = _safe_part(raw, 80) or "document.pdf"
+            if not name.lower().endswith(".pdf"):
+                name = f"{name}.pdf"
+            rel = await hass.async_add_executor_job(_store_doc, manager, msg["device_id"], _doc_name_of(manager, msg["device_id"]), name, data)
+            entry.setdefault("docs", []).append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat(), "src": url, "ext": "pdf", "path": rel})
             stored = True
     if not stored and not any(link["url"] == url for link in entry.get("links", [])):
         entry.setdefault("links", []).append({"id": secrets.token_urlsafe(8), "url": url, "title": title, "ai": False})
@@ -538,8 +564,17 @@ async def ws_delete_manual_doc(hass: HomeAssistant, connection, msg: dict[str, A
     keep = [doc for doc in docs if doc["id"] != msg["doc_id"]]
     if len(keep) != len(docs):
         gone = next((item for item in docs if item["id"] == msg["doc_id"]), {})
-        path = _doc_file(manager, msg["doc_id"], gone.get("ext", "pdf"))
-        await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
+        path = _doc_location(manager, gone) if gone else _doc_file(manager, msg["doc_id"])
+
+        def _remove() -> None:
+            path.unlink(missing_ok=True)
+            try:
+                if path.parent != manager.manual_dir:
+                    path.parent.rmdir()  # only when the device folder is empty now
+            except OSError:
+                pass
+
+        await hass.async_add_executor_job(_remove)
         if keep:
             entry["docs"] = keep
         else:
@@ -1209,6 +1244,44 @@ def _doc_ext(name: str, data: bytes) -> str:
     return ext if ext and ext != "pdf" else "bin"
 
 
+def _safe_part(text: str, limit: int = 60) -> str:
+    """A file or folder name made of letters, digits and . _ - space only (no path separators, no leading dots)."""
+    return "".join(ch for ch in text if ch.isalnum() or ch in "._- ").strip(" .")[:limit]
+
+
+def _store_doc(manager: InventoryManager, device_id: str, dev_name: str, filename: str, data: bytes) -> str:
+    """Write a document as manuals/<device name>_<id>/<original file name> (a number is added when the name exists) and return the path relative to the manuals folder."""
+    folder = f"{_safe_part(dev_name, 40) or 'device'}_{_safe_part(device_id, 6)}"
+    directory = manager.manual_dir / folder
+    directory.mkdir(parents=True, exist_ok=True)
+    name = _safe_part(filename, 80) or "document"
+    stem, dot, ext = name.rpartition(".")
+    if not dot or not stem:
+        stem, ext = name, ""
+    target, n = directory / name, 1
+    while target.exists():
+        n += 1
+        target = directory / (f"{stem} ({n}).{ext}" if ext else f"{stem} ({n})")
+    target.write_bytes(data)
+    return f"{folder}/{target.name}"
+
+
+def _doc_location(manager: InventoryManager, doc: dict[str, Any]) -> Path:
+    """Where a document lies on the server: the stored path (inside the manuals folder only), older uploads by their id."""
+    rel = doc.get("path")
+    if rel:
+        root = manager.manual_dir.resolve()
+        path = (manager.manual_dir / rel).resolve()
+        if root in path.parents:
+            return path
+    return _doc_file(manager, doc["id"], doc.get("ext", "pdf"))
+
+
+def _doc_name_of(manager: InventoryManager, device_id: str) -> str:
+    dev = next((item for item in (manager.coordinator.data or []) if item["id"] == device_id), None)
+    return str((dev or {}).get("name") or "")
+
+
 def _doc_file(manager: InventoryManager, doc_id: str, ext: str = "pdf") -> Path:
     """Place of a stored document: PDFs as .pdf, everything else as .bin (the type only matters for the name shown to the user)."""
     return manager.manual_dir / f"{doc_id}.{'pdf' if ext == 'pdf' else 'bin'}"
@@ -1248,8 +1321,8 @@ class ManualUploadView(HomeAssistantView):
         if len(docs) >= MAX_DOCS_PER_DEVICE:
             return self.json_message("Too many documents for this device", 409)
         doc_id = secrets.token_urlsafe(16)
-        await hass.async_add_executor_job(_doc_file(manager, doc_id, ext).write_bytes, bytes(data))
-        docs.append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat(), "ext": ext})
+        rel = await hass.async_add_executor_job(_store_doc, manager, device_id, _doc_name_of(manager, device_id), name, bytes(data))
+        docs.append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat(), "ext": ext, "path": rel})
         manager.save()
         return self.json({"id": doc_id})
 
@@ -1268,7 +1341,7 @@ class ManualServeView(HomeAssistantView):
             return web.Response(status=404)
         doc = next((item for entry in manager.data["manuals"].values() for item in entry.get("docs", []) if item["id"] == manual_id), None)
         ext = (doc or {}).get("ext", "pdf")
-        path = _doc_file(manager, manual_id, ext)
+        path = _doc_location(manager, doc) if doc else _doc_file(manager, manual_id, ext)
         if not await hass.async_add_executor_job(path.is_file):
             return web.Response(status=404)
         if ext == "pdf":

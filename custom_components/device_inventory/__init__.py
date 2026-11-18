@@ -14,7 +14,7 @@ import secrets
 import socket
 import time
 from typing import Any
-from urllib.parse import unquote, urljoin, urlparse
+from urllib.parse import quote, unquote, urljoin, urlparse
 
 from aiohttp import ClientError, ClientTimeout, web
 import voluptuous as vol
@@ -123,7 +123,7 @@ class InventoryManager:
                 "hint": entry.get("hint") or "",
                 "links": [{"id": link["id"], "url": link["url"], "title": link.get("title") or "", "ai": bool(link.get("ai"))} for link in entry.get("links", [])],
                 "docs": [
-                    {"id": doc["id"], "name": doc.get("name"), "ts": doc.get("ts"), "url": self._signed_url(f"/api/{DOMAIN}/manual/{doc['id']}", refresh_token_id, now)}
+                    {"id": doc["id"], "name": doc.get("name"), "ext": doc.get("ext", "pdf"), "ts": doc.get("ts"), "url": self._signed_url(f"/api/{DOMAIN}/manual/{doc['id']}", refresh_token_id, now)}
                     for doc in entry.get("docs", [])
                 ],
                 "file": self._signed_url(f"/api/{DOMAIN}/manual/{entry['file']}", refresh_token_id, now) if entry.get("file") else None,
@@ -537,7 +537,8 @@ async def ws_delete_manual_doc(hass: HomeAssistant, connection, msg: dict[str, A
     docs = entry.get("docs", [])
     keep = [doc for doc in docs if doc["id"] != msg["doc_id"]]
     if len(keep) != len(docs):
-        path = manager.manual_dir / f"{msg['doc_id']}.pdf"
+        gone = next((item for item in docs if item["id"] == msg["doc_id"]), {})
+        path = _doc_file(manager, msg["doc_id"], gone.get("ext", "pdf"))
         await hass.async_add_executor_job(lambda: path.unlink(missing_ok=True))
         if keep:
             entry["docs"] = keep
@@ -1200,8 +1201,21 @@ class PhotoUploadView(HomeAssistantView):
         return self.json({"id": photo_id})
 
 
+def _doc_ext(name: str, data: bytes) -> str:
+    """Extension recorded for an uploaded document: "pdf" only when the content really is a PDF, otherwise the (cleaned) extension of the file name or "bin"."""
+    if name.lower().endswith(".pdf") and data.startswith(b"%PDF"):
+        return "pdf"
+    ext = "".join(ch for ch in (name.rsplit(".", 1)[-1] if "." in name else "").lower() if ch.isalnum())[:8]
+    return ext if ext and ext != "pdf" else "bin"
+
+
+def _doc_file(manager: InventoryManager, doc_id: str, ext: str = "pdf") -> Path:
+    """Place of a stored document: PDFs as .pdf, everything else as .bin (the type only matters for the name shown to the user)."""
+    return manager.manual_dir / f"{doc_id}.{'pdf' if ext == 'pdf' else 'bin'}"
+
+
 class ManualUploadView(HomeAssistantView):
-    """POST /api/device_inventory/manual_upload/<device_id> (admin only, PDF)."""
+    """POST /api/device_inventory/manual_upload/<device_id> (admin only; any file up to the size limit)."""
 
     url = f"/api/{DOMAIN}/manual_upload/{{device_id}}"
     name = f"api:{DOMAIN}:manual_upload"
@@ -1225,16 +1239,17 @@ class ManualUploadView(HomeAssistantView):
             data.extend(chunk)
             if len(data) > MAX_MANUAL_BYTES:
                 return self.json_message("File too large", 413)
-        if not data.startswith(b"%PDF"):
-            return self.json_message("Only PDF files", 415)
+        if not data:
+            return self.json_message("Empty file", 400)
+        name = "".join(ch for ch in (field.filename or "document") if ch.isalnum() or ch in "._- ")[:80] or "document"
+        ext = _doc_ext(name, bytes(data))
         entry = manager.data["manuals"].setdefault(device_id, {})
         docs = entry.setdefault("docs", [])
         if len(docs) >= MAX_DOCS_PER_DEVICE:
             return self.json_message("Too many documents for this device", 409)
         doc_id = secrets.token_urlsafe(16)
-        await hass.async_add_executor_job((manager.manual_dir / f"{doc_id}.pdf").write_bytes, bytes(data))
-        name = "".join(ch for ch in (field.filename or "document.pdf") if ch.isalnum() or ch in "._- ")[:80] or "document.pdf"
-        docs.append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat()})
+        await hass.async_add_executor_job(_doc_file(manager, doc_id, ext).write_bytes, bytes(data))
+        docs.append({"id": doc_id, "name": name, "ts": dt_util.utcnow().isoformat(), "ext": ext})
         manager.save()
         return self.json({"id": doc_id})
 
@@ -1251,18 +1266,18 @@ class ManualServeView(HomeAssistantView):
         manager: InventoryManager = hass.data.get(DOMAIN)
         if manager is None or not manual_id.replace("-", "").replace("_", "").isalnum():
             return web.Response(status=404)
-        path = manager.manual_dir / f"{manual_id}.pdf"
+        doc = next((item for entry in manager.data["manuals"].values() for item in entry.get("docs", []) if item["id"] == manual_id), None)
+        ext = (doc or {}).get("ext", "pdf")
+        path = _doc_file(manager, manual_id, ext)
         if not await hass.async_add_executor_job(path.is_file):
             return web.Response(status=404)
-        return web.FileResponse(
-            path,
-            headers={
-                "Content-Type": "application/pdf",
-                "Content-Disposition": "inline",
-                "X-Content-Type-Options": "nosniff",
-                "Cache-Control": "private, max-age=86400",
-            },
-        )
+        if ext == "pdf":
+            headers = {"Content-Type": "application/pdf", "Content-Disposition": "inline"}
+        else:  # never rendered by the browser: no HTML / script / SVG can run from a stored file
+            headers = {"Content-Type": "application/octet-stream", "Content-Disposition": "attachment; filename*=UTF-8''" + quote((doc or {}).get("name") or f"document.{ext}")}
+            headers["Content-Security-Policy"] = "sandbox"  # (not for PDFs: the browser's PDF viewer would not start)
+        headers.update({"X-Content-Type-Options": "nosniff", "Cache-Control": "private, max-age=86400"})
+        return web.FileResponse(path, headers=headers)
 
 
 class PhotoServeView(HomeAssistantView):

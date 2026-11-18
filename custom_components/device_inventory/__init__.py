@@ -95,7 +95,7 @@ class InventoryManager:
         """Older uploads lie as <id>.bin / <id>.pdf: give them their readable place manuals/<device>/<name> (once, after the first refresh)."""
         todo = [(device_id, doc) for device_id, entry in self.data["manuals"].items() for doc in entry.get("docs", []) if not doc.get("path")]
         pics = [(device_id, pic) for device_id, items in self.data["photos"].items() for pic in items if not pic.get("path")]
-        old_style = any(rel.split("/")[0].endswith("_" + _safe_part(device_id, 6)) for device_id in set(self.data["photos"]) | set(self.data["manuals"]) for rel in _device_paths(self, device_id))
+        old_style = any(len(rel.split("/")) < 3 for device_id in set(self.data["photos"]) | set(self.data["manuals"]) for rel in _device_paths(self, device_id))
         if not todo and not pics and not old_style:
             return
 
@@ -125,24 +125,20 @@ class InventoryManager:
                     moved += 1
                 except OSError as err:
                     _LOGGER.warning("Could not move picture %s: %s", pic.get("id"), err)
-            # folders written as "<name>_<id>" (first versions) become "<name>"
+            # folders written as "<name>_<id>" or "<name>" (earlier versions) become "<tab>/<name>"
             for device_id in set(self.data["photos"]) | set(self.data["manuals"]):
                 suffix = "_" + _safe_part(device_id, 6)
-                old_folders = {rel.split("/")[0] for rel in _device_paths(self, device_id)}
-                for old_folder in old_folders:
-                    if not old_folder.endswith(suffix):
-                        continue
-                    new_folder = _device_folder(self, device_id, old_folder[: -len(suffix)], skip_own=True)
+                for old_folder in {_rel_folder(rel) for rel in _device_paths(self, device_id) if len(rel.split("/")) < 3}:
+                    name = old_folder[: -len(suffix)] if old_folder.endswith(suffix) else old_folder
+                    new_folder = _device_folder(self, device_id, name, skip_own=True)
                     old_dir, new_dir = self.manual_dir / old_folder, self.manual_dir / new_folder
                     try:
-                        if old_dir.is_dir() and not new_dir.exists():
-                            old_dir.rename(new_dir)
-                        elif not old_dir.is_dir():
-                            continue
-                        else:
-                            continue  # the new name is in use by files we do not know: leave this folder alone
+                        if not old_dir.is_dir() or new_dir.exists():
+                            continue  # nothing there, or the new place is in use by files we do not know: leave it alone
+                        new_dir.parent.mkdir(parents=True, exist_ok=True)
+                        old_dir.rename(new_dir)
                     except OSError as err:
-                        _LOGGER.warning("Could not rename folder %s: %s", old_folder, err)
+                        _LOGGER.warning("Could not move folder %s: %s", old_folder, err)
                         continue
                     for item in [*self.data["photos"].get(device_id, []), *self.data["manuals"].get(device_id, {}).get("docs", [])]:
                         if item.get("path", "").startswith(old_folder + "/"):
@@ -639,15 +635,7 @@ async def ws_delete_manual_doc(hass: HomeAssistant, connection, msg: dict[str, A
         gone = next((item for item in docs if item["id"] == msg["doc_id"]), {})
         path = _doc_location(manager, gone) if gone else _doc_file(manager, msg["doc_id"])
 
-        def _remove() -> None:
-            path.unlink(missing_ok=True)
-            try:
-                if path.parent != manager.manual_dir:
-                    path.parent.rmdir()  # only when the device folder is empty now
-            except OSError:
-                pass
-
-        await hass.async_add_executor_job(_remove)
+        await hass.async_add_executor_job(_remove_stored, manager, path)
         if keep:
             entry["docs"] = keep
         else:
@@ -1324,24 +1312,47 @@ def _safe_part(text: str, limit: int = 60) -> str:
     return "".join(ch for ch in text if ch.isalnum() or ch in "._- ").strip(" .")[:limit]
 
 
+CLASS_FOLDERS = {  # tab (device class) -> folder name; the order decides where a device lies that is listed in several tabs
+    "shelly": "Shelly", "esphome": "ESPHome", "zigbee": "ZigBee", "homematic": "Homematic", "mqtt": "MQTT", "matter": "Matter",
+    "wled": "WLED", "sonoff": "Sonoff", "zwave": "Z-Wave", "tasmota": "Tasmota", "hue": "Hue", "tuya": "Tuya", "blink": "Blink",
+    "alexa": "Alexa", "modbus": "Modbus", "fritz": "FRITZBox", "apple": "Apple", "mesh": "Router-Mesh", "bluetooth": "Bluetooth", "battery": "Battery",
+}
+OTHER_FOLDER = "Other"
+_CLASS_FOLDER_NAMES = {name.lower() for name in CLASS_FOLDERS.values()} | {OTHER_FOLDER.lower()}
+
+
 def _device_paths(manager: InventoryManager, device_id: str) -> list[str]:
-    """Stored paths (relative to the documents folder) of all documents and photos of one device."""
+    """Stored paths (relative to the device_inventory folder) of all documents and photos of one device."""
     paths = [item["path"] for item in manager.data["photos"].get(device_id, []) if item.get("path")]
     paths += [doc["path"] for doc in manager.data["manuals"].get(device_id, {}).get("docs", []) if doc.get("path")]
     return paths
 
 
+def _rel_folder(rel: str) -> str:
+    """Folder part of a stored path: <tab>/<device> (older paths had only <device>)."""
+    parts = rel.split("/")
+    return "/".join(parts[:2]) if len(parts) >= 3 else parts[0]
+
+
+def _class_folder(manager: InventoryManager, device_id: str) -> str:
+    """Tab folder of a device: the first of its tabs in the fixed order of CLASS_FOLDERS."""
+    dev = next((item for item in (manager.coordinator.data or []) if item["id"] == device_id), None)
+    classes = (dev or {}).get("classes") or []
+    return next((name for cls, name in CLASS_FOLDERS.items() if cls in classes), OTHER_FOLDER)
+
+
 def _device_folder(manager: InventoryManager, device_id: str, dev_name: str, skip_own: bool = False) -> str:
-    """Folder of a device inside the documents folder: the device name (kept for good once chosen, even when the device is renamed); a number is added when another device already uses the name."""
+    """Folder of a device: <tab>/<device name>. Kept for good once chosen (also when the device is renamed or listed in another tab later); a number is added when another device of that tab has the same name."""
     if not skip_own:
         for rel in _device_paths(manager, device_id):
-            return rel.split("/")[0]
-    taken = {"_archive", "photos", "documents", "manuals"} | {rel.split("/")[0].lower() for other in set(manager.data["photos"]) | set(manager.data["manuals"]) if other != device_id for rel in _device_paths(manager, other)}
+            return _rel_folder(rel)
+    cls = _class_folder(manager, device_id)
+    taken = {_rel_folder(rel).lower() for other in set(manager.data["photos"]) | set(manager.data["manuals"]) if other != device_id for rel in _device_paths(manager, other)}
     base = _safe_part(dev_name, 60) or "device"
-    candidate, n = base, 1
+    candidate, n = f"{cls}/{base}", 1
     while candidate.lower() in taken:
         n += 1
-        candidate = f"{base} ({n})"
+        candidate = f"{cls}/{base} ({n})"
     return candidate
 
 
@@ -1414,9 +1425,11 @@ def _photo_location(manager: InventoryManager, item: dict[str, Any]) -> Path:
 
 def _remove_stored(manager: InventoryManager, path: Path) -> None:
     path.unlink(missing_ok=True)
+    parent = path.parent
     try:
-        if path.parent != manager.manual_dir and manager.manual_dir in path.parents:
-            path.parent.rmdir()  # the device folder goes away when it is empty now
+        while parent != manager.manual_dir and manager.manual_dir in parent.parents:
+            parent.rmdir()  # empty device / tab folders go away
+            parent = parent.parent
     except OSError:
         pass
 

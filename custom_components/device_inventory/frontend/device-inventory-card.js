@@ -940,6 +940,7 @@ class DeviceInventoryCard extends HTMLElement {
 
   // ask the AI (the AI task entity chosen in the options) for the manuals of the given devices, in chunks; only manufacturer and model leave Home Assistant
   async _aiFind(ids, overwrite, onProgress, hint) {
+    const scan = Date.now().toString(36); // one id per scan: a second scan asks again for what was not found
     const t = this._t, tot = { found: 0, missing: 0, copied: 0, images: 0, quota: false, error: null, cancelled: false, local: "" }; let last = null;
     // progress window: bar, current device, running counts, cancel
     const ov = el("div", "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center");
@@ -964,7 +965,7 @@ class DeviceInventoryCard extends HTMLElement {
     try {
       for (let i = 0; i < ids.length && !tot.quota && !tot.cancelled; i++) {
         show(i);
-        last = await this._hass.callWS(Object.assign({ type: "device_inventory/find_manuals", device_ids: [ids[i]], overwrite: !!overwrite }, hint === undefined ? {} : { hint }));
+        last = await this._hass.callWS(Object.assign({ type: "device_inventory/find_manuals", device_ids: [ids[i]], overwrite: !!overwrite, scan }, hint === undefined ? {} : { hint }));
         const st = last.stats;
         tot.found += st.found; tot.missing += st.missing; tot.copied += st.copied || 0; tot.images += st.images || 0;
         tot.quota = tot.quota || !!st.quota; tot.error = tot.error || st.error; tot.local = st.local || tot.local;

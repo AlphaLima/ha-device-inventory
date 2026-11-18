@@ -1037,6 +1037,7 @@ async def _probe_local(hass: HomeAssistant, ip: str) -> str:
         vol.Required("device_ids"): vol.All([str], vol.Length(max=25)),
         vol.Optional("overwrite", default=False): bool,
         vol.Optional("hint"): vol.All(str, vol.Length(max=300)),
+        vol.Optional("scan"): vol.All(str, vol.Length(max=40)),  # id of one scan of a tab: "nothing found" is remembered only inside the same scan
     }
 )
 @websocket_api.require_admin
@@ -1089,7 +1090,11 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
             continue
         key = f"{'name' if by_name else maker.lower()}|{model.lower()}" + (f"|{hint.lower()}" if hint else "") + ("|local" if local else "")
         cache: dict[str, Any] = manager.data["ai_cache"]
-        if key not in cache or msg["overwrite"] or cache[key].get("v", 1) < 2:
+        scan = str(msg.get("scan") or "")
+        cached = cache.get(key)
+        # a hit is shared by identical models; "nothing found" only counts inside the same scan - a new scan asks again
+        reuse = cached is not None and not msg["overwrite"] and cached.get("v", 1) >= 2 and bool(cached.get("url") or cached.get("scan", "") == scan)
+        if not reuse:
             urls, image, domain, err, product = await _ai_find(hass, entity, maker, model, use_images, None, by_name, hint, local)
             cm = product if (by_name or hint or local) and product else model  # name that the manual pages must show
             if by_name and not product and not err:
@@ -1116,10 +1121,10 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
                         image, domain = image2, domain2
             image = image if image and _manufacturer_image_ok(image, domain or "", maker, url) else ""  # original manufacturer images only
             pages = [u for u in ([url] if kind == "page" else []) + urls if not u.lower().split("?")[0].endswith(".pdf")]
-            cache[key] = {"v": 2, "url": url or "", "pdf": kind == "pdf", "page": page or "", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
+            cache[key] = {"v": 2, "scan": scan, "url": url or "", "pdf": kind == "pdf", "page": page or "", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
         hit = cache[key]
-        if need_image and not hit.get("image") and not hit.get("img_tried"):  # the manufacturer's own product page names its photo
-            hit["img_tried"] = True
+        if need_image and not hit.get("image") and hit.get("img_scan") != scan:  # the manufacturer's own product page names its photo (tried once per scan)
+            hit["img_scan"] = scan
             for page in hit.get("pages") or ([hit["url"]] if hit.get("url") and not hit.get("pdf") else []):
                 hit["image"] = await _page_image(hass, page, maker) or ""
                 if hit["image"]:
@@ -1139,8 +1144,8 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
             if hit["image"] not in image_data:
                 image_data[hit["image"]] = await _download_image(hass, hit["image"])
             picture = image_data[hit["image"]]
-            if not picture and not hit.get("img_tried"):  # the AI's guess failed: take the photo of the product page instead
-                hit["img_tried"] = True
+            if not picture and hit.get("img_scan") != scan:  # the AI's guess failed: take the photo of the product page instead
+                hit["img_scan"] = scan
                 hit["image"] = ""
                 for page in hit.get("pages") or ([hit["url"]] if hit.get("url") and not hit.get("pdf") else []):
                     hit["image"] = await _page_image(hass, page, maker) or ""

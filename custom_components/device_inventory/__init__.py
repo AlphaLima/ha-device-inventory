@@ -689,8 +689,19 @@ AI_LAST_KEY = "device_inventory_ai_last"
 SHOP_HOSTS = ("amazon", "ebay", "aliexpress", "alibaba", "idealo", "pinterest", "wikipedia", "wikimedia", "google", "bing", "shutterstock", "getty", "alamy", "etsy", "facebook", "instagram", "geizhals", "otto.", "conrad", "reichelt", "mediamarkt", "saturn.", "bol.com", "walmart")
 
 
+GENERIC_IMAGE_WORDS = ("logo", "banner", "hero", "placeholder", "default", "favicon", "icon", "share", "general", "social", "opengraph")
+
+
+def _generic_image(url: str) -> bool:
+    """General pictures of a web site (logo, banner, share image) are never a product photo."""
+    low = url.lower()
+    return any(word in low for word in GENERIC_IMAGE_WORDS)
+
+
 def _manufacturer_image_ok(image_url: str, domain: str, maker: str, manual_url: str | None) -> bool:
     """Only original images of the manufacturer: the picture must come from the manufacturer's own domain (no shops, marketplaces or search engines)."""
+    if _generic_image(image_url):
+        return False
     host = (urlparse(image_url).hostname or "").lower()
     dom = domain.lower().replace("https://", "").replace("http://", "").split("/")[0].removeprefix("www.").strip()
     if not host or not dom or "." not in dom or any(shop in host for shop in SHOP_HOSTS):
@@ -776,7 +787,7 @@ async def _page_image(hass: HomeAssistant, page_url: str, maker: str, model: str
             found.append(urljoin(url, match.group(1).replace("&amp;", "&")))
     for link in found:
         host = (urlparse(link).hostname or "").lower()
-        if not host or any(shop in host for shop in SHOP_HOSTS) or any(word in link.lower() for word in ("logo", "banner", "hero", "placeholder", "default", "favicon", "icon", "share", "general", "social", "opengraph")):
+        if not host or any(shop in host for shop in SHOP_HOSTS) or _generic_image(link):
             continue
         if host.endswith(base) or any(tok in host for tok in tokens):
             return link
@@ -1131,6 +1142,8 @@ async def ws_find_manuals(hass: HomeAssistant, connection, msg: dict[str, Any]) 
             cache[key] = {"v": 2, "scan": scan, "cm": cm, "url": url or "", "pdf": kind == "pdf", "page": page or "", "image": image, "pages": list(dict.fromkeys(pages))[:3]}
         hit = cache[key]
         cm = hit.get("cm") or model  # the name the pages of this product must show
+        if hit.get("image") and _generic_image(hit["image"]):
+            hit["image"] = ""  # a general picture kept from an earlier search
         if need_image and not hit.get("image") and hit.get("img_scan") != scan:  # the manufacturer's own product page names its photo (tried once per scan)
             hit["img_scan"] = scan
             for page in hit.get("pages") or ([hit["url"]] if hit.get("url") and not hit.get("pdf") else []):

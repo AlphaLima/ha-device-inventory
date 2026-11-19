@@ -127,7 +127,7 @@ def _entry_ids(dev: dr.DeviceEntry) -> tuple[str, ...]:
     return tuple(dev.config_entries)
 
 
-MAC_NAME_RE = re.compile(r"^([0-9a-f]{2}[:-]?){5}[0-9a-f]{2}$", re.IGNORECASE)
+MAC_NAME_RE = re.compile(r"^([0-9a-f]{2}[:_ -]?){5}[0-9a-f]{2}$", re.IGNORECASE)  # AA:BB:.., AA-BB-.., AA_BB_.. (Synology / UPnP names)
 
 
 def _to_celsius(value: float, unit: Any) -> float:
@@ -145,7 +145,7 @@ def _norm_mac(value: Any) -> str | None:
     text = str(value or "").strip()
     if not MAC_NAME_RE.match(text):
         return None
-    raw = text.replace(":", "").replace("-", "").upper()
+    raw = re.sub(r"[:_ -]", "", text).upper()
     return ":".join(raw[i : i + 2] for i in range(0, 12, 2))
 
 
@@ -158,7 +158,7 @@ def _mac_from_identifiers(dev: dr.DeviceEntry) -> str | None:
     return None
 
 
-def _near_mac(a: str | None, b: str | None, span: int = 2) -> bool:
+def _near_mac(a: str | None, b: str | None, span: int = 4) -> bool:
     """Same hardware, other interface: first five bytes equal and the last byte only a little apart (Wi-Fi / Bluetooth / Ethernet MAC of one board)."""
     if not a or not b or a == b:
         return False
@@ -344,7 +344,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
             ip = _valid_ip(host)
         mac = next((v for k, v in dev.connections if k == "mac"), None) or next(
             (v for k, v in dev.connections if k == "bluetooth"), None
-        ) or _mac_from_identifiers(dev)
+        ) or _mac_from_identifiers(dev) or _norm_mac(dev.name_by_user or dev.name)  # a device that is named by its MAC address
         if ip is None and mac:  # a device that only has a switch (FRITZ!Box internet access): the IP is on the device tracker with the same MAC
             ip = tracker_ip_by_mac.get(_norm_mac(mac) or "")
         suggest: list[dict[str, str | None]] = []
@@ -417,19 +417,22 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         )
 
     # drop network/Bluetooth mirror devices when a real device has the same MAC
-    reals = [d for d in result if not d["_weak"]]
+    def mac_named(d: dict[str, Any]) -> bool:
+        return bool(d["mac"]) and bool(MAC_NAME_RE.match(str(d["name"]).strip()))  # a row that is called nothing but its MAC address, whatever integration it comes from
+
+    reals = [d for d in result if not d["_weak"] and not mac_named(d)]
     real_by_mac = {d["mac"]: d for d in reals if d["mac"]}
     real_by_ip = {d["ip"]: d for d in reals if d["ip"]}
 
     def real_twin(d: dict[str, Any]) -> dict[str, Any] | None:
         """The real device that a mirror (FRITZ!Box / Bluetooth / network scanner entry) belongs to."""
-        if not d["_weak"]:
+        if not d["_weak"] and not mac_named(d):
             return None
         if d["mac"] and d["mac"] in real_by_mac:
             return real_by_mac[d["mac"]]
         if d["ip"] and d["ip"] in real_by_ip:
             return real_by_ip[d["ip"]]
-        if d["mac"] and MAC_NAME_RE.match(str(d["name"]).strip()):  # a mirror that is shown with nothing but its MAC address
+        if mac_named(d):  # a mirror that is shown with nothing but its MAC address (a NAS has several network ports with neighbouring addresses)
             for real in reals:
                 if _near_mac(d["mac"], real["mac"]):
                     return real

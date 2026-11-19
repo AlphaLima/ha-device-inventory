@@ -58,6 +58,63 @@ Manual: copy `custom_components/device_inventory` to your `config/custom_compone
 Then *Settings → Devices & services → Add integration → Device Inventory* (one click, nothing to configure).
 Reload the browser page (Ctrl+F5) after an update – the card JavaScript is loaded automatically.
 
+## The tabs
+
+The tab bar lists the **general** tabs first, then the **companies**. Hover over a tab to see this description; the "show / hide tabs" dialog shows it too.
+
+**General**
+
+| Tab | What you see |
+|---|---|
+| All devices | Every device Home Assistant knows |
+| Energy | Solar inverters, storage, wallboxes, meters and heat pumps |
+| Vehicles | Cars and their connections (BMW, Audi, Tesla …) |
+| Media | TVs, speakers, receivers and streaming devices |
+| Home appliances | Dishwasher, washing machine, robot vacuum, coffee machine and other household appliances |
+| Cameras / doorbells | IP cameras, video doorbells and their recorders |
+| Network & office | Printers, NAS, PCs, laptops, switches and other network devices – without AVM hardware |
+| Router Mesh | Every device of the FRITZ! mesh as a tree: master, repeaters and their clients with signal and connection type |
+| Bluetooth | Bluetooth devices seen by scanners (presence, distance, room) |
+| Batteries | Every device with a battery, the weakest first |
+| ZigBee | Devices in Zigbee networks (ZHA, deCONZ) |
+| Matter | Devices added through Matter |
+| MQTT | Devices that report through MQTT (also Zigbee2MQTT and own boards) |
+| Z-Wave | Z-Wave devices |
+| KNX | KNX devices and group-address entities |
+| Modbus | Entities read through Modbus (heat pump, inverter, meters …), one row each |
+| Other | Devices that fit no other tab |
+
+**Companies**
+
+| Tab | What you see |
+|---|---|
+| Shelly | Shelly devices with their channels, IP, Bluetooth switch and signal |
+| Homematic | Homematic and Homematic IP devices |
+| Philips Hue | Philips Hue lamps, remotes and bridges (also over Zigbee or Matter) |
+| ESPHome | ESPHome devices with IP, firmware and signal |
+| WLED | WLED light controllers |
+| Sonoff | Sonoff / eWeLink devices, also Zigbee ones |
+| Tasmota | Tasmota devices |
+| Tuya | Tuya and Smart Life devices |
+| Amazon Echo | Amazon Echo speakers and displays |
+| Blink | Blink cameras and sync modules |
+| FRITZ! | AVM hardware: FRITZ!Box, repeaters and DECT devices with firmware, temperature and connection |
+| Apple | Apple devices (iPhone, iPad, Mac, Watch, Apple TV) |
+| Sonos | Sonos speakers |
+| IKEA | IKEA smart devices (Tradfri, Dirigera, Zigbee) |
+| Home Connect | Bosch / Siemens home appliances through Home Connect |
+| tado° | tado° thermostats and bridges |
+| Somfy | Somfy shutters, blinds and gateways |
+| Loxone | Loxone Miniserver and its devices |
+| Aqara | Aqara sensors, switches and hubs |
+| Xiaomi | Xiaomi devices (Mi Home, Bluetooth sensors, robot vacuums) |
+| TP-Link | TP-Link devices (Tapo, Omada, routers) |
+| Kasa | TP-Link Kasa plugs, switches and bulbs |
+| Netatmo | Netatmo weather stations, thermostats and cameras |
+| Google Nest | Google Nest thermostats, cameras and speakers |
+| Samsung SmartThings | Samsung SmartThings devices and hubs |
+| *(integration name)* | All devices of this integration (the tab appears automatically from three devices) |
+
 ## The sidebar panel
 
 After setup a **Device Inventory** entry appears in the sidebar: a complete dashboard, no Lovelace configuration needed. Its symbol is the integration logo in one colour: the Bluetooth and Matter symbols above a list with three lines.

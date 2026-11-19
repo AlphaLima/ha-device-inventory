@@ -1,5 +1,10 @@
 /* Device Inventory sidebar panel: one tab per device class, each showing the table card. */
 
+const TABDESC = { // short description of every tab (tooltip and dialog); other languages show the English text
+  en: {"all": "Every device Home Assistant knows", "energy": "Solar inverters, storage, wallboxes, meters and heat pumps", "vehicles": "Cars and their connections (BMW, Audi, Tesla …)", "media": "TVs, speakers, receivers and streaming devices", "appliances": "Dishwasher, washing machine, robot vacuum, coffee machine and other household appliances", "cameras": "IP cameras, video doorbells and their recorders", "network": "Printers, NAS, PCs, laptops, switches and other network devices – without AVM hardware", "mesh": "Every device of the FRITZ! mesh as a tree: master, repeaters and their clients with signal and connection type", "bluetooth": "Bluetooth devices seen by scanners (presence, distance, room)", "battery": "Every device with a battery, the weakest first", "zigbee": "Devices in Zigbee networks (ZHA, deCONZ)", "matter": "Devices added through Matter", "mqtt": "Devices that report through MQTT (also Zigbee2MQTT and own boards)", "zwave": "Z-Wave devices", "knx": "KNX devices and group-address entities", "modbus": "Entities read through Modbus (heat pump, inverter, meters …), one row each", "other": "Devices that fit no other tab", "shelly": "Shelly devices with their channels, IP, Bluetooth switch and signal", "homematic": "Homematic and Homematic IP devices", "hue": "Philips Hue lamps, remotes and bridges (also over Zigbee or Matter)", "esphome": "ESPHome devices with IP, firmware and signal", "wled": "WLED light controllers", "sonoff": "Sonoff / eWeLink devices, also Zigbee ones", "tasmota": "Tasmota devices", "tuya": "Tuya and Smart Life devices", "alexa": "Amazon Echo speakers and displays", "blink": "Blink cameras and sync modules", "fritz": "AVM hardware: FRITZ!Box, repeaters and DECT devices with firmware, temperature and connection", "apple": "Apple devices (iPhone, iPad, Mac, Watch, Apple TV)", "sonos": "Sonos speakers", "ikea": "IKEA smart devices (Tradfri, Dirigera, Zigbee)", "homeconnect": "Bosch / Siemens home appliances through Home Connect", "tado": "tado° thermostats and bridges", "somfy": "Somfy shutters, blinds and gateways", "loxone": "Loxone Miniserver and its devices", "aqara": "Aqara sensors, switches and hubs", "xiaomi": "Xiaomi devices (Mi Home, Bluetooth sensors, robot vacuums)", "tplink": "TP-Link devices (Tapo, Omada, routers)", "kasa": "TP-Link Kasa plugs, switches and bulbs", "netatmo": "Netatmo weather stations, thermostats and cameras", "nest": "Google Nest thermostats, cameras and speakers", "smartthings": "Samsung SmartThings devices and hubs"},
+  de: {"all": "Alle Geräte, die Home Assistant kennt", "energy": "Wechselrichter, Speicher, Wallboxen, Zähler und Wärmepumpen", "vehicles": "Fahrzeuge und ihre Anbindungen (BMW, Audi, Tesla …)", "media": "Fernseher, Lautsprecher, Receiver und Streaming-Geräte", "appliances": "Geschirrspüler, Waschmaschine, Saugroboter, Kaffeemaschine und weitere Haushaltsgeräte", "cameras": "IP-Kameras, Video-Türklingeln und Rekorder", "network": "Drucker, NAS, PCs, Laptops, Switches und andere Netzwerkgeräte – ohne AVM-Hardware", "mesh": "Alle Geräte im FRITZ!-Mesh als Baum: Master, Repeater und ihre Clients mit Signal und Verbindungsart", "bluetooth": "Bluetooth-Geräte, die Scanner sehen (Anwesenheit, Entfernung, Raum)", "battery": "Alle Geräte mit Batterie, die schwächsten zuerst", "zigbee": "Geräte in Zigbee-Netzen (ZHA, deCONZ)", "matter": "Geräte, die über Matter eingebunden sind", "mqtt": "Geräte, die per MQTT melden (auch Zigbee2MQTT und eigene Boards)", "zwave": "Z-Wave-Geräte", "knx": "KNX-Geräte und Gruppenadressen-Entitäten", "modbus": "Über Modbus gelesene Entitäten (Wärmepumpe, Wechselrichter, Zähler …), eine Zeile je Entität", "other": "Geräte, die zu keinem anderen Tab passen", "shelly": "Shelly-Geräte mit Kanälen, IP, Bluetooth-Schalter und Signal", "homematic": "Homematic- und Homematic-IP-Geräte", "hue": "Philips-Hue-Lampen, -Fernbedienungen und -Bridges (auch über Zigbee oder Matter)", "esphome": "ESPHome-Geräte mit IP, Firmware und Signal", "wled": "WLED-Lichtsteuerungen", "sonoff": "Sonoff-/eWeLink-Geräte, auch Zigbee", "tasmota": "Tasmota-Geräte", "tuya": "Tuya- und Smart-Life-Geräte", "alexa": "Amazon-Echo-Lautsprecher und -Displays", "blink": "Blink-Kameras und Sync-Module", "fritz": "AVM-Hardware: FRITZ!Box, Repeater und DECT-Geräte mit Firmware, Temperatur und Verbindung", "apple": "Apple-Geräte (iPhone, iPad, Mac, Watch, Apple TV)", "sonos": "Sonos-Lautsprecher", "ikea": "IKEA-Smart-Geräte (Tradfri, Dirigera, Zigbee)", "homeconnect": "Bosch-/Siemens-Haushaltsgeräte über Home Connect", "tado": "tado°-Thermostate und -Bridges", "somfy": "Somfy-Rollläden, -Jalousien und -Gateways", "loxone": "Loxone-Miniserver und seine Geräte", "aqara": "Aqara-Sensoren, -Schalter und -Hubs", "xiaomi": "Xiaomi-Geräte (Mi Home, Bluetooth-Sensoren, Saugroboter)", "tplink": "TP-Link-Geräte (Tapo, Omada, Router)", "kasa": "TP-Link-Kasa-Steckdosen, -Schalter und -Lampen", "netatmo": "Netatmo-Wetterstationen, -Thermostate und -Kameras", "nest": "Google-Nest-Thermostate, -Kameras und -Lautsprecher", "smartthings": "Samsung-SmartThings-Geräte und -Hubs"},
+  auto: { en: "All devices of this integration (the tab appears automatically from three devices)", de: "Alle Geräte dieser Integration (der Tab erscheint automatisch ab drei Geräten)" },
+};
 const GENERAL = ["all", "energy", "vehicles", "media", "appliances", "cameras", "network", "mesh", "bluetooth", "battery", "zigbee", "matter", "mqtt", "zwave", "knx", "modbus", "other"]; // first group: functions, protocols, batteries; everything else follows as companies / integrations
 const PREFERRED = [...GENERAL, ["shelly", "homematic", "hue", "esphome", "wled", "sonoff", "tasmota", "tuya", "alexa", "blink", "fritz", "apple", "sonos", "ikea", "homeconnect", "tado", "somfy", "loxone", "aqara", "xiaomi", "tplink", "kasa", "netatmo", "nest", "smartthings"].map((k) => k)].flat();
 const MDI = {
@@ -175,6 +180,12 @@ class DeviceInventoryPanel extends HTMLElement {
     this._card.hass = this._hass;
   }
 
+  _desc(k) {
+    const l = (this._hass.language || "en").slice(0, 2);
+    if (k.startsWith("int:")) return TABDESC.auto[l] || TABDESC.auto.en;
+    return (TABDESC[l] && TABDESC[l][k]) || TABDESC.en[k] || "";
+  }
+
   // symbol of a tab (brand logo, picture logo or Material icon)
   _tabIconNode(k) {
       if (SVG[k]) {
@@ -211,7 +222,7 @@ class DeviceInventoryPanel extends HTMLElement {
     shown.forEach((k) => {
       if (!sepDone && !GENERAL.includes(k)) { sepDone = true; if (this._tabs.children.length) { const sp = document.createElement("span"); sp.className = "sep"; this._tabs.appendChild(sp); } }
       const b = document.createElement("button"); b.className = "tab" + (k === this._active ? " on" : ""); b.dataset.k = k;
-      b.title = `${this._lbl[k] || NAMES[k] || (this._classLabels || {})[k] || k} (${this._badges ? stats[k].n : stats[k].on})`;
+      b.title = `${this._lbl[k] || NAMES[k] || (this._classLabels || {})[k] || k} (${this._badges ? stats[k].n : stats[k].on})${this._desc(k) ? "\n" + this._desc(k) : ""}`;
       b.appendChild(this._tabIconNode(k));
       if (stats[k].off) { const bd = document.createElement("span"); bd.className = "badge"; bd.textContent = stats[k].off; b.appendChild(bd); }
       b.onclick = () => this._select(k);
@@ -225,7 +236,7 @@ class DeviceInventoryPanel extends HTMLElement {
     const L = this._lbl, ov = document.createElement("div");
     ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center";
     const bx = document.createElement("div");
-    bx.style.cssText = "background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:12px;padding:16px;width:min(520px,92vw);max-height:85vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);font-family:var(--ha-font-family-body,Roboto,sans-serif)";
+    bx.style.cssText = "background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:12px;padding:16px;width:min(680px,94vw);max-height:85vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);font-family:var(--ha-font-family-body,Roboto,sans-serif)";
     const close = () => { ov.remove(); document.removeEventListener("keydown", kd, true); };
     const kd = (e) => { if (e.key === "Escape") { e.stopPropagation(); close(); } };
     document.addEventListener("keydown", kd, true);
@@ -234,7 +245,7 @@ class DeviceInventoryPanel extends HTMLElement {
     const save = () => { try { localStorage.setItem("diTabsOff", JSON.stringify([...this._hidden])); } catch (e) { /* ignore */ } this._loadTabs(); };
     const mkList = (title) => {
       if (title) { const g = document.createElement("div"); g.style.cssText = "font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;opacity:.65;margin:12px 0 4px"; g.textContent = title; bx.appendChild(g); }
-      const l = document.createElement("div"); l.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px 8px"; bx.appendChild(l); return l;
+      const l = document.createElement("div"); l.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px 8px"; bx.appendChild(l); return l;
     };
     const generalList = mkList(L.tabsGeneral), companyList = mkList(L.tabsCompanies);
     const rows = [];
@@ -246,8 +257,9 @@ class DeviceInventoryPanel extends HTMLElement {
       const node = this._tabIconNode(k); ic.appendChild(node);
       if (node.tagName && node.tagName.toLowerCase() === "svg") { if (!node.style.width) { node.style.width = "24px"; node.style.height = "24px"; } node.style.fill = "currentColor"; } // the tab styles of the bar do not apply here
       else node.style.setProperty("--mdc-icon-size", "24px");
-      const nm = document.createElement("span"); nm.style.cssText = "flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
-      nm.textContent = this._lbl[k] || NAMES[k] || (this._classLabels || {})[k] || k;
+      const nm = document.createElement("span"); nm.style.cssText = "flex:1;min-width:0";
+      const nt = document.createElement("div"); nt.style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap"; nt.textContent = this._lbl[k] || NAMES[k] || (this._classLabels || {})[k] || k;
+      const nd = document.createElement("div"); nd.style.cssText = "font-size:11px;opacity:.6;line-height:1.25;margin-top:1px"; nd.textContent = this._desc(k); nm.append(nt, nd);
       const n = document.createElement("span"); n.style.cssText = "opacity:.6;font-size:12px"; n.textContent = (this._stats && this._stats[k]) ? this._stats[k].n : "";
       lab.append(cb, ic, nm, n); (GENERAL.includes(k) ? generalList : companyList).appendChild(lab); rows.push([k, cb]);
     });

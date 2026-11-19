@@ -47,7 +47,7 @@ from .const import (
     SCAN_INTERVAL_SECONDS,
     STORAGE_VERSION,
 )
-from .inventory import build_inventory, router_trackers
+from .inventory import build_inventory
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor"]
@@ -318,7 +318,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     websocket_api.async_register_command(hass, ws_list)
     websocket_api.async_register_command(hass, ws_set_note)
     websocket_api.async_register_command(hass, ws_set_ip)
-    websocket_api.async_register_command(hass, ws_suggest_ip_ai)
     websocket_api.async_register_command(hass, ws_delete_photo)
     websocket_api.async_register_command(hass, ws_set_manual)
     websocket_api.async_register_command(hass, ws_fetch_manual)
@@ -405,49 +404,6 @@ async def ws_set_ip(hass: HomeAssistant, connection, msg: dict[str, Any]) -> Non
     async with manager._lock:
         await manager.coordinator.async_refresh()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
-
-
-@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/suggest_ip_ai", vol.Required("device_id"): str})
-@websocket_api.require_admin
-@websocket_api.async_response
-async def ws_suggest_ip_ai(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
-    """Ask the AI which network client of the router is this device. Only names go out (device name, maker, model and the NAMES of the clients), never IP or MAC addresses."""
-    manager: InventoryManager = hass.data[DOMAIN]
-    entity = _ai_entity(hass)
-    dev = next((d for d in manager.coordinator.data or [] if d["id"] == msg["device_id"]), None)
-    if not entity or dev is None:
-        connection.send_error(msg["id"], "no_ai", "No AI task set up")
-        return
-    clients = router_trackers(hass)[:300]
-    if not clients:
-        connection.send_result(msg["id"], {"suggest": []})
-        return
-    listing = "\n".join(f"{i + 1}. {c['name']}" for i, c in enumerate(clients))
-    instructions = (
-        "A smart home device has no network address in Home Assistant. Find which of the network clients of the router is most likely this device. "
-        f"Device: name \"{dev['name']}\", manufacturer \"{dev.get('manufacturer') or ''}\", model \"{dev.get('model') or ''}\".\n"
-        f"Network clients (host names):\n{listing}\n"
-        "Give the numbers of up to three clients that probably are this device, most likely first, separated by commas. Give nothing if none fits; never guess wildly."
-    )
-    try:
-        resp = await asyncio.wait_for(
-            hass.services.async_call(
-                "ai_task", "generate_data",
-                {"entity_id": entity, "task_name": "device address", "instructions": instructions,
-                 "structure": {"numbers": {"description": "Comma separated numbers of the matching clients, empty if none", "required": False, "selector": {"text": {}}}}},
-                blocking=True, return_response=True,
-            ),
-            timeout=90,
-        )
-    except (HomeAssistantError, asyncio.TimeoutError, OSError) as err:
-        connection.send_error(msg["id"], "ai_failed", str(err) or err.__class__.__name__)
-        return
-    picked: list[dict[str, Any]] = []
-    for token in re.findall(r"\d+", str(((resp or {}).get("data") or {}).get("numbers") or "")):
-        idx = int(token) - 1
-        if 0 <= idx < len(clients) and clients[idx] not in picked:
-            picked.append(clients[idx])
-    connection.send_result(msg["id"], {"suggest": [{"name": c["name"], "ip": c["ip"], "mac": c["mac"], "ai": True} for c in picked[:3]]})
 
 
 @websocket_api.websocket_command(

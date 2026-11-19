@@ -140,18 +140,6 @@ def _to_celsius(value: float, unit: Any) -> float:
     return round(value, 1)
 
 
-def router_trackers(hass: HomeAssistant) -> list[dict[str, str | None]]:
-    """Device trackers that know an IP address (FRITZ!Box Tools, Nmap, ...): name, IP and MAC."""
-    out: list[dict[str, str | None]] = []
-    for tstate in hass.states.async_all("device_tracker"):
-        tip = _lan_ip(tstate.attributes.get("ip") or tstate.attributes.get("ip_address"))
-        name = str(tstate.attributes.get("friendly_name") or tstate.attributes.get("host_name") or "").strip()
-        if tip and name:
-            tmac = _norm_mac(tstate.attributes.get("mac"))
-            out.append({"name": name, "ip": tip, "mac": tmac})
-    return out
-
-
 def _norm_mac(value: Any) -> str | None:
     """Normalised MAC address (AA:BB:CC:DD:EE:FF) or None."""
     text = str(value or "").strip()

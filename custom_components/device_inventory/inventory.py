@@ -29,6 +29,7 @@ from .const import (
     ENERGY_HINT,
     ENERGY_INTEGRATIONS,
     FRITZ_HINTS,
+    FUNCTION_TABS,
     OTHER,
     SONOFF_HINTS,
     WEAK_INTEGRATIONS,
@@ -36,6 +37,10 @@ from .const import (
 
 UNAVAILABLE = ("unavailable", "unknown")
 ENERGY_RE = re.compile(ENERGY_HINT, re.IGNORECASE)
+FUNCTION_RE = {
+    key: (re.compile(spec["maker"], re.IGNORECASE), re.compile(spec["text"], re.IGNORECASE) if spec.get("text") else None)
+    for key, spec in FUNCTION_TABS.items()
+}
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
 BLE_SWITCH = re.compile(r"aioshelly_ble_integration")
 INTERNET_SWITCH = re.compile(r"internet_?access|internetzugang")
@@ -623,6 +628,24 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         text = f"{d.get('manufacturer') or ''} {d.get('model') or ''} {d.get('name') or ''}"
         if set(d.get("integrations") or []) & ENERGY_INTEGRATIONS or ENERGY_RE.search(text):
             d["classes"] = sorted((set(d["classes"]) - {OTHER}) | {"energy"})
+    # function tabs (vehicles, media, appliances, cameras, network): by integration, by maker / model, or by words in the name
+    for d in result:
+        if "~" in d["id"]:
+            continue
+        weak = bool(d.get("_weak"))  # mirrors of network clients (FRITZ!Box, Bluetooth ...): only the words in their name count, not "FRITZ!Box" as maker
+        integrations = set() if weak else set(d.get("integrations") or [])
+        maker_model = "" if weak else f"{d.get('manufacturer') or ''} {d.get('model') or ''}"
+        name = str(d.get("name") or "")
+        extra = set()
+        name_ok = set(d["classes"]) <= {OTHER, "bluetooth", "apple", "fritz", "mesh"}  # words in the name only count for devices that are no typed hardware (a Shelly called "TV light" is a light)
+        for key, spec in FUNCTION_TABS.items():
+            maker_re, text_re = FUNCTION_RE[key]
+            if integrations & spec["integrations"] or maker_re.search(maker_model) or (text_re and ((not weak and text_re.search(str(d.get("model") or ""))) or (name_ok and text_re.search(name)))):
+                extra.add(key)
+        if "fritz" in d["classes"]:
+            extra.add("network")
+        if extra:
+            d["classes"] = sorted((set(d["classes"]) - {OTHER}) | extra)
     # automatic tabs: every integration with enough devices and no tab of its own
     skip = set(CLASS_MAP) | WEAK_INTEGRATIONS | AUTO_TAB_EXCLUDED | ENERGY_INTEGRATIONS
     counts: dict[str, int] = {}

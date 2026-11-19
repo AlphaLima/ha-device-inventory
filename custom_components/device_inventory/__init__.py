@@ -1363,7 +1363,7 @@ def _safe_part(text: str, limit: int = 60) -> str:
 CLASS_FOLDERS = {  # tab (device class) -> folder name; the order decides where a device lies that is listed in several tabs
     "shelly": "Shelly", "hue": "Hue", "sonos": "Sonos", "ikea": "IKEA", "homeconnect": "HomeConnect", "tado": "tado", "somfy": "Somfy", "loxone": "Loxone", "aqara": "Aqara", "xiaomi": "Xiaomi", "tplink": "TP-Link", "kasa": "Kasa", "netatmo": "Netatmo", "nest": "GoogleNest", "smartthings": "SmartThings", "esphome": "ESPHome", "zigbee": "ZigBee", "homematic": "Homematic", "mqtt": "MQTT", "matter": "Matter",
     "wled": "WLED", "sonoff": "Sonoff", "zwave": "Z-Wave", "tasmota": "Tasmota", "tuya": "Tuya", "blink": "Blink",
-    "alexa": "Alexa", "modbus": "Modbus", "knx": "KNX", "energy": "Energy", "fritz": "FRITZBox", "apple": "Apple", "mesh": "Router-Mesh", "bluetooth": "Bluetooth", "battery": "Battery",
+    "alexa": "Alexa", "modbus": "Modbus", "knx": "KNX", "energy": "Energy", "fritz": "FRITZBox", "apple": "Apple", "vehicles": "Vehicles", "media": "Media", "appliances": "Appliances", "cameras": "Cameras", "network": "Network", "mesh": "Router-Mesh", "bluetooth": "Bluetooth", "battery": "Battery",
 }
 OTHER_FOLDER = "Other"
 _CLASS_FOLDER_NAMES = {name.lower() for name in CLASS_FOLDERS.values()} | {OTHER_FOLDER.lower()}

@@ -187,6 +187,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         for brand, words in BRAND_HINTS.items():
             if any(word in maker_low for word in words):
                 class_set.add(brand)
+        if re.match(r"(HS|KP|EP|KL|KS|ES|KD|KE|KH)\d", (dev.model or "").strip(), re.IGNORECASE) and "tp-link" in maker_low:
+            class_set.add("kasa")  # Kasa smart plugs, bulbs and switches of TP-Link (Tapo devices stay in the TP-Link tab)
         apple_name = APPLE_RE.search(dev.name_by_user or dev.name or "")
         if apple_name or APPLE_RE.search(f"{dev.manufacturer or ''} {dev.model or ''}"):
             class_set.add("apple")

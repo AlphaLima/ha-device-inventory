@@ -167,6 +167,9 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         maker_model = f"{dev.manufacturer or ''} {dev.model or ''}".lower()
         if any(h in maker_model for h in SONOFF_HINTS):
             class_set.add("sonoff")
+        # Philips Hue lamps, remotes and bridges, whatever integration they use (Hue bridge, Zigbee, Matter ...): Signify, or Philips without being a TV
+        if "signify" in maker_model or ("philips" in maker_model and "philips_js" not in domains and " tv" not in maker_model) or "hue " in f"{maker_model} ":
+            class_set.add("hue")
         apple_name = APPLE_RE.search(dev.name_by_user or dev.name or "")
         if apple_name or APPLE_RE.search(f"{dev.manufacturer or ''} {dev.model or ''}"):
             class_set.add("apple")

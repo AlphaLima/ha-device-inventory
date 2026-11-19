@@ -5,7 +5,7 @@
 One overview of **all devices in your smart home**, sorted by device class – with IP and MAC address, status, photos, notes and a printable documentation.
 Made for installations with many devices where nobody remembers any more *which device sits where, under which address*, e.g. when an electrician has to take over or when you search for a fault.
 
-- **One tab per device class:** All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Z-Wave, Philips Hue (also Hue lamps and remotes that run over Zigbee or Matter: every Signify / Philips Hue device), Tuya, Blink, Amazon Echo, Modbus, FRITZ!, Router Mesh, Apple, Bluetooth, Batteries, Other (only classes that exist in your system are shown, each with a red badge for offline devices).
+- **One tab per device class:** All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Z-Wave, Philips Hue (also Hue lamps and remotes that run over Zigbee or Matter: every Signify / Philips Hue device), Tuya, Blink, Amazon Echo, Modbus, KNX, FRITZ!, Router Mesh, Apple, Bluetooth, Batteries, Other (only classes that exist in your system are shown, each with a red badge for offline devices).
 - **Status LED** 🟢/🔴 per device (online = at least one live entity).
 - **IP address as a link** to the web page of the device, **MAC address** (click = copy).
 - **Several photos and a note per device** – where it is installed, which fuse, what is connected.
@@ -210,7 +210,7 @@ Other providers that offer an *AI Task* in Home Assistant (OpenAI, Anthropic, lo
 
 ```yaml
 type: custom:device-inventory-card
-class: esphome        # all | shelly | esphome | mqtt | matter | wled | sonoff | tasmota | zigbee | zwave | homematic | hue | tuya | blink | alexa | modbus | bluetooth | battery | other
+class: esphome        # all | shelly | esphome | mqtt | matter | wled | sonoff | tasmota | zigbee | zwave | homematic | hue | tuya | blink | alexa | modbus | knx | bluetooth | battery | other
 title: My ESPHome devices   # optional, default is the category name
 hide: [maker, fw]      # optional, columns to hide (keys below)
 max_height: 70vh       # optional, height of the scroll area (default: window height - 170 px)

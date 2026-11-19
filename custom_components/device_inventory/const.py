@@ -63,6 +63,8 @@ CLASS_MAP: dict[str, str] = {
 
     "tuya": "tuya",
 
+    "knx": "knx",
+
     "blink": "blink",
 
     "alexa_media": "alexa",

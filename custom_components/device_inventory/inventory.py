@@ -373,9 +373,9 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 }
             )
     result.extend(kids)
-    # Modbus (YAML) creates entities but no devices: every Modbus entity gets one row of its own in the Modbus tab
+    # Modbus (YAML) and KNX group addresses create entities but no devices: every such entity gets one row of its own in the Modbus / KNX tab
     for ent in list(ent_reg.entities.values()):
-        if ent.platform != "modbus" or ent.device_id or ent.disabled_by or ent.hidden_by:
+        if ent.platform not in ("modbus", "knx") or ent.device_id or ent.disabled_by or ent.hidden_by:
             continue
         state = hass.states.get(ent.entity_id)
         if state is None:
@@ -383,7 +383,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         area = area_reg.async_get_area(ent.area_id) if ent.area_id else None
         result.append(
             {
-                "id": f"modbus~{ent.entity_id}",
+                "id": f"{ent.platform}~{ent.entity_id}",
                 "parent": None,
                 "name": str(state.attributes.get("friendly_name") or ent.original_name or ent.entity_id),
                 "manufacturer": None,
@@ -392,8 +392,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "area": area.name if area else None,
                 "mac": None,
                 "ip": None,
-                "classes": ["modbus"],
-                "integrations": ["modbus"],
+                "classes": [ent.platform],
+                "integrations": [ent.platform],
                 "online": state.state != "unavailable",
                 "battery": None,
                 "battery_low": None,

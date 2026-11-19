@@ -87,7 +87,7 @@ const T = {
 };
 T.no = T.nb; T.nn = T.nb; // Norwegian codes used by Home Assistant
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
-  wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", mesh: "Router Mesh", fritz: "FRITZ!", apple: "Apple", bluetooth: "Bluetooth" };
+  wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Philips Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", mesh: "Router Mesh", fritz: "FRITZ!", apple: "Apple", bluetooth: "Bluetooth" };
 const COLS = ["#", "status", "internet", "conn", "kids", "name", "model", "lanc", "wific", "area", "distance", "home", "ip", "mesh", "mac", "bleaddr", "scanner", "scannerip", "maker", "fw", "signal", "temp", "ble", "battery", "added", "seen", "manual", "files", "photos", "note"];
 const TREE_SVG = (on) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="${on ? "color:var(--primary-color)" : ""}"><rect x="3" y="2" width="9" height="5" rx="1.5"/><g ${on ? "" : 'stroke-dasharray="2 2.2" opacity=".55"'}><path d="M7.5 7v10a2.5 2.5 0 0 0 2.5 2.5H13M7.5 12H13"/><rect x="13" y="9.5" width="8" height="5" rx="1.5"/><rect x="13" y="17" width="8" height="5" rx="1.5"/></g></svg>`;
 // Default column layouts (used until a user saves his own): order = [] keeps the built-in order, w = widths (display: px, printout: mm), n = column names
@@ -462,7 +462,7 @@ class DeviceInventoryCard extends HTMLElement {
     root.appendChild(st);
     const card = document.createElement("ha-card");
     const head = el("div", "font-size:16px;font-weight:600;margin:2px 2px 4px;display:flex;align-items:center;gap:8px");
-    const hico = el("span", "display:inline-flex;width:22px;height:22px;flex:none"); hico.className = "hico";
+    const hico = el("span", "display:inline-flex;min-width:22px;height:22px;flex:none;align-items:center"); hico.className = "hico";
     head.append(hico, document.createTextNode(this._label()));
     card.appendChild(head);
     this._hico = hico;
@@ -1331,8 +1331,9 @@ class DeviceInventoryCard extends HTMLElement {
     if (sv) {
       // logos that are drawn smaller in the tab bar (explicit width there) are shown proportionally smaller here too
       const tw = parseFloat(sv.style.width) || 24, th = parseFloat(sv.style.height) || tw, k = tw < 24 ? tw / 24 : 1;
-      const W = Math.round(22 * k), H = Math.round(22 * k * (th / tw));
-      sv.setAttribute("width", W); sv.setAttribute("height", H); sv.style.cssText = `width:${W}px;height:${H}px;display:block;fill:currentColor`; sv.querySelectorAll("path").forEach((q) => { if (!q.getAttribute("fill")) q.setAttribute("fill", "currentColor"); }); }
+      const pic = !!sv.querySelector("image"); // a logo picture keeps its own size
+      const W = pic ? Math.round(tw) : Math.round(22 * k), H = pic ? Math.round(th) : Math.round(22 * k * (th / tw));
+      sv.setAttribute("width", W); sv.setAttribute("height", H); sv.style.cssText = `width:${W}px;height:${H}px;display:block;flex:none;fill:currentColor`; sv.querySelectorAll("path").forEach((q) => { if (!q.getAttribute("fill")) q.setAttribute("fill", "currentColor"); }); }
   }
 
   _tabIconSvg() {

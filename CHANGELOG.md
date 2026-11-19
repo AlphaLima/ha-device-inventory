@@ -2,6 +2,11 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.0 – 2026-11-19
+- Everything from the 1.19.0 betas: AI search for manuals and product photos (optional, off unless an AI task entity is chosen), documents of any file type per device, many new tabs with descriptions, Router Mesh node details, IP column with last known address, router suggestions and manual entry, duplicate rows merged
+- Edit pencils only appear on row hover; long press or right-click opens the editors; document count hidden
+- Print view: quotes are escaped in title attributes
+
 ## 1.19.0b6 – 2026-11-19
 - IP field accepts host names and web addresses (e.g. dynamic DNS names)
 - Mirror rows with the same MAC address (MAC name, maker name, router or Bluetooth copy) are shown once and keep the tabs of all copies

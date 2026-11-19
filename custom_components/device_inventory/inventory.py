@@ -692,13 +692,13 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
             continue
         weak = bool(d.get("_weak"))  # mirrors of network clients (FRITZ!Box, Bluetooth ...): only the words in their name count, not "FRITZ!Box" as maker
         integrations = set() if weak else set(d.get("integrations") or [])
-        maker_model = "" if weak else f"{d.get('manufacturer') or ''} {d.get('model') or ''}"
+        maker_only = "" if weak else str(d.get("manufacturer") or "")  # the brand words are matched against the manufacturer only, never against the model ("Shelly 1PM Mini" is no MINI)
         name = str(d.get("name") or "")
         extra = set()
         name_ok = set(d["classes"]) <= {OTHER, "bluetooth", "apple", "fritz", "mesh"}  # words in the name only count for devices that are no typed hardware (a Shelly called "TV light" is a light)
         for key, spec in FUNCTION_TABS.items():
             maker_re, text_re = FUNCTION_RE[key]
-            if integrations & spec["integrations"] or maker_re.search(maker_model) or (text_re and ((not weak and text_re.search(str(d.get("model") or ""))) or (name_ok and text_re.search(name)))):
+            if integrations & spec["integrations"] or maker_re.search(maker_only) or (text_re and ((not weak and text_re.search(str(d.get("model") or ""))) or (name_ok and text_re.search(name)))):
                 extra.add(key)
         if "fritz" in d["classes"]:
             extra.discard("network")  # the AVM hardware has its own tab

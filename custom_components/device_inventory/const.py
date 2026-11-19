@@ -148,7 +148,7 @@ FUNCTION_TABS = {
             "mercedesme", "hyundai_kia_connect", "kia_uvo", "renault", "volvo", "polestar", "myskoda", "toyota", "nissan_leaf", "ford_pass", "carconnectivity",
             "cupra", "seat", "porsche_connect", "opel", "psa_car_controller", "tronity",
         },
-        "maker": r"\b(bmw|mini|audi|volkswagen|vw|mercedes|tesla|skoda|\u0161koda|seat|cupra|volvo|polestar|porsche|hyundai|kia|renault|dacia|toyota|ford|opel|nissan|peugeot|citroen|fiat|mazda)\b",
+        "maker": r"\b(bmw|audi|volkswagen|vw|mercedes|tesla|skoda|\u0161koda|seat|cupra|volvo|polestar|porsche|hyundai|kia|renault|dacia|toyota|ford|opel|nissan|peugeot|citroen|fiat|mazda)\b",
         "text": r"\b(xdrive|sdrive|elektroauto|e-?auto|pkw|fahrzeug|vehicle)\b",
     },
     "media": {

@@ -2,6 +2,14 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.0b4 – 2026-11-19
+- New tabs: Philips Hue, KNX, Energy, Vehicles, Media, Home appliances, Cameras, Network & office, plus company tabs (Sonos, IKEA, Home Connect, tado, Somfy, Loxone, Aqara, Xiaomi, TP-Link, Kasa, Netatmo, Nest, SmartThings) and automatic tabs for integrations with three or more devices
+- Tabs grouped (general first, then companies), wrapped tab bar, show/hide dialog and a short description for every tab
+- Router Mesh: node rows show IP, MAC, firmware and temperature of the box or repeater
+- IP column: last known address shown dimmed, router suggestions and manual entry for devices without an address
+- Fewer duplicates: rows named by a MAC address (also AA_BB_CC form) are merged into the real device; temperatures in the unit system of Home Assistant (°F)
+- Fixes: Shelly Mini no longer lands in the Vehicles tab, FRITZ trackers no longer flood the Network tab
+
 ## 1.19.0b3 – 2026-11-18
 - Documents of any file type per device (Excel, Word, CSV, images ...), stored with their names in config/device_inventory/<tab>/<device>/, photos in the same place; warning: no credentials
 - New column Files (names of all documents and links) for printout and CSV

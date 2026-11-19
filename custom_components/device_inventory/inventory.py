@@ -24,6 +24,7 @@ from .const import (
     APPLE_RE,
     AUTO_TAB_EXCLUDED,
     AUTO_TAB_MIN_DEVICES,
+    BRAND_HINTS,
     CLASS_MAP,
     ENERGY_HINT,
     ENERGY_INTEGRATIONS,
@@ -182,6 +183,10 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         # Philips Hue lamps, remotes and bridges, whatever integration they use (Hue bridge, Zigbee, Matter ...): Signify, or Philips without being a TV
         if "signify" in maker_model or ("philips" in maker_model and "philips_js" not in domains and " tv" not in maker_model) or "hue " in f"{maker_model} ":
             class_set.add("hue")
+        maker_low = (dev.manufacturer or "").lower()
+        for brand, words in BRAND_HINTS.items():
+            if any(word in maker_low for word in words):
+                class_set.add(brand)
         apple_name = APPLE_RE.search(dev.name_by_user or dev.name or "")
         if apple_name or APPLE_RE.search(f"{dev.manufacturer or ''} {dev.model or ''}"):
             class_set.add("apple")

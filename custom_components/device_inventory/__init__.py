@@ -1361,7 +1361,7 @@ def _safe_part(text: str, limit: int = 60) -> str:
 
 
 CLASS_FOLDERS = {  # tab (device class) -> folder name; the order decides where a device lies that is listed in several tabs
-    "shelly": "Shelly", "hue": "Hue", "esphome": "ESPHome", "zigbee": "ZigBee", "homematic": "Homematic", "mqtt": "MQTT", "matter": "Matter",
+    "shelly": "Shelly", "hue": "Hue", "sonos": "Sonos", "ikea": "IKEA", "homeconnect": "HomeConnect", "tado": "tado", "somfy": "Somfy", "loxone": "Loxone", "aqara": "Aqara", "xiaomi": "Xiaomi", "tplink": "TP-Link", "esphome": "ESPHome", "zigbee": "ZigBee", "homematic": "Homematic", "mqtt": "MQTT", "matter": "Matter",
     "wled": "WLED", "sonoff": "Sonoff", "zwave": "Z-Wave", "tasmota": "Tasmota", "tuya": "Tuya", "blink": "Blink",
     "alexa": "Alexa", "modbus": "Modbus", "knx": "KNX", "energy": "Energy", "fritz": "FRITZBox", "apple": "Apple", "mesh": "Router-Mesh", "bluetooth": "Bluetooth", "battery": "Battery",
 }

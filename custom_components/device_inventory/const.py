@@ -65,6 +65,38 @@ CLASS_MAP: dict[str, str] = {
 
     "knx": "knx",
 
+    "sonos": "sonos",
+
+    "tradfri": "ikea",
+
+    "ikea_dirigera": "ikea",
+
+    "home_connect": "homeconnect",
+
+    "loxone": "loxone",
+
+    "somfy": "somfy",
+
+    "somfy_mylink": "somfy",
+
+    "tahoma": "somfy",
+
+    "tplink": "tplink",
+
+    "tplink_omada": "tplink",
+
+    "tapo": "tplink",
+
+    "xiaomi_miio": "xiaomi",
+
+    "xiaomi_ble": "xiaomi",
+
+    "xiaomi_aqara": "xiaomi",
+
+    "xiaomi_home": "xiaomi",
+
+    "tado": "tado",
+
     "blink": "blink",
 
     "alexa_media": "alexa",
@@ -80,6 +112,18 @@ CLASS_MAP: dict[str, str] = {
 }
 
 OTHER = "other"
+
+# makers whose devices also appear in a brand tab, whatever integration they use (Zigbee, Matter, ...): class -> words in the manufacturer
+BRAND_HINTS = {
+    "ikea": ("ikea",),
+    "aqara": ("lumi", "aqara"),
+    "xiaomi": ("xiaomi",),
+    "somfy": ("somfy",),
+    "tplink": ("tp-link", "tplink", "tapo"),
+    "loxone": ("loxone",),
+    "tado": ("tado",),
+    "sonos": ("sonos",),
+}
 
 # every integration with at least this many devices (and no tab of its own) gets a tab "int:<integration>" automatically
 AUTO_TAB_MIN_DEVICES = 3

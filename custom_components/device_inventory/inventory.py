@@ -254,7 +254,11 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         for entry_id in entry_ids[dev.id]:
             entry = entries.get(entry_id)
             if entry and devices_per_entry.get(entry_id) == 1:
-                host = entry.data.get("host") or entry.data.get("ip_address")
+                host = entry.data.get("host") or entry.data.get("ip_address") or entry.data.get("ip") or entry.data.get("address")
+                if not host and isinstance(entry.data.get("url"), str):
+                    host = urlparse(entry.data["url"]).hostname  # DLNA / UPnP entries keep the address of the description file
+                if not host and isinstance(entry.data.get("known_hosts"), (list, tuple)) and len(entry.data["known_hosts"]) == 1:
+                    host = entry.data["known_hosts"][0]
                 if isinstance(host, str) and host:
                     ip = host
                     break

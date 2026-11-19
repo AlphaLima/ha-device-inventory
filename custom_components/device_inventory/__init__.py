@@ -74,7 +74,7 @@ class InventoryManager:
         self._signed: dict[tuple[str, str | None], tuple[float, str]] = {}
         self.hass = hass
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
-        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}, "ai_cache": {}, "manual_files": {}}
+        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}, "ai_cache": {}, "manual_files": {}, "last_ip": {}}
         self.last_refresh = 0.0
         self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
@@ -92,6 +92,21 @@ class InventoryManager:
         start = time.monotonic()
         self.last_refresh = start
         result = build_inventory(self.hass, set(self.data["notes"]) | set(self.data["photos"]))
+        # remember the last known IP address; a device that reports none right now (asleep, offline) keeps showing its last one
+        known = self.data.setdefault("last_ip", {})
+        changed = False
+        for dev in result:
+            if "~" in dev["id"]:
+                continue
+            if dev.get("ip"):
+                if known.get(dev["id"]) != dev["ip"]:
+                    known[dev["id"]] = dev["ip"]
+                    changed = True
+            elif known.get(dev["id"]):
+                dev["ip"] = known[dev["id"]]
+                dev["ip_stale"] = True
+        if changed:
+            self.save()
         took = time.monotonic() - start
         if took > 0.5:
             _LOGGER.warning("Building the inventory took %.1f s (%d devices)", took, len(result))
@@ -169,6 +184,7 @@ class InventoryManager:
             self.data["manuals"] = stored.get("manuals", {})
             self.data["ai_cache"] = stored.get("ai_cache", {})
             self.data["manual_files"] = stored.get("manual_files", {})
+            self.data["last_ip"] = stored.get("last_ip", {})
         await self.hass.async_add_executor_job(self._prepare_folders)
 
     def _prepare_folders(self) -> None:

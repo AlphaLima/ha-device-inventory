@@ -642,6 +642,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
             maker_re, text_re = FUNCTION_RE[key]
             if integrations & spec["integrations"] or maker_re.search(maker_model) or (text_re and ((not weak and text_re.search(str(d.get("model") or ""))) or (name_ok and text_re.search(name)))):
                 extra.add(key)
+        if "fritz" in d["classes"]:
+            extra.discard("network")  # the AVM hardware has its own tab
         if extra:
             d["classes"] = sorted((set(d["classes"]) - {OTHER}) | extra)
     # automatic tabs: every integration with enough devices and no tab of its own

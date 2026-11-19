@@ -213,16 +213,16 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
     entries = {eid: hass.config_entries.async_get_entry(eid) for eid in devices_per_entry}
     result: list[dict[str, Any]] = []
     tracker_ip_by_mac: dict[str, str] = {}  # MAC -> IP of the device trackers (FRITZ!Box Tools, nmap, ...): the tracker may belong to another registry device than the switch
-    tracker_by_name: dict[str, list[tuple[str, str | None]]] = {}
+    tracker_list: list[tuple[str, str, str, str | None]] = []
     for tstate in hass.states.async_all("device_tracker"):
         tmac = _norm_mac(tstate.attributes.get("mac"))
         tip = _lan_ip(tstate.attributes.get("ip") or tstate.attributes.get("ip_address"))
         if tmac and tip:
             tracker_ip_by_mac.setdefault(tmac, tip)
         if tip:  # trackers by name: devices without MAC / IP of their own (MQTT boards) are known to the router under their host name
-            tname = str(tstate.attributes.get("friendly_name") or tstate.attributes.get("host_name") or "").strip().lower()
-            if tname:
-                tracker_by_name.setdefault(tname, []).append((tip, tmac))
+            shown = str(tstate.attributes.get("friendly_name") or tstate.attributes.get("host_name") or "").strip()
+            if shown:
+                tracker_list.append((shown.lower(), shown, tip, tmac))
 
     for dev in all_devices:
         if dev.entry_type is dr.DeviceEntryType.SERVICE or dev.disabled_by:
@@ -347,12 +347,17 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         ) or _mac_from_identifiers(dev)
         if ip is None and mac:  # a device that only has a switch (FRITZ!Box internet access): the IP is on the device tracker with the same MAC
             ip = tracker_ip_by_mac.get(_norm_mac(mac) or "")
-        if ip is None and not mac and "mqtt" in domains:  # MQTT device without any address: the router knows it by name (device name or maker), if that name is unambiguous
-            for cand in (dev.name_by_user, dev.name, dev.manufacturer):
-                hits = tracker_by_name.get(str(cand or "").strip().lower()) or []
-                if len(hits) == 1:
-                    ip, mac = hits[0][0], hits[0][1]
-                    break
+        suggest: list[dict[str, str | None]] = []
+        if ip is None:  # no address known: offer the trackers of the router whose name resembles the device (the user confirms in the card)
+            names = {str(n).strip().lower() for n in (dev.name_by_user, dev.name, dev.manufacturer, dev.model) if n and len(str(n).strip()) >= 4}
+            scored = []
+            for tname, shown, tip2, tmac2 in tracker_list:
+                if tname in names:
+                    scored.append((0, shown, tip2, tmac2))
+                elif len(tname) >= 4 and any(tname in n or n in tname for n in names):
+                    scored.append((1, shown, tip2, tmac2))
+            scored.sort(key=lambda x: (x[0], x[1].lower()))
+            suggest = [{"name": sh, "ip": i2, "mac": m2.upper() if m2 else None} for _r, sh, i2, m2 in scored[:5]]
         if sonoff_hint and "sonoff" not in classes:
             classes = [c for c in classes if c != OTHER] + ["sonoff"]
         ble = None
@@ -392,6 +397,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "area": area.name if area else (ble_area if isinstance(ble_area, str) else None),
                 "mac": mac.upper() if mac else None,
                 "ip": ip,
+                "ip_suggest": suggest,
                 "classes": classes,
                 "integrations": sorted(domains),
                 "_weak": bool(domains) and domains <= WEAK_INTEGRATIONS,

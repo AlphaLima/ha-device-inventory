@@ -74,7 +74,7 @@ class InventoryManager:
         self._signed: dict[tuple[str, str | None], tuple[float, str]] = {}
         self.hass = hass
         self.store: Store = Store(hass, STORAGE_VERSION, DOMAIN)
-        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}, "ai_cache": {}, "manual_files": {}, "last_ip": {}}
+        self.data: dict[str, Any] = {"notes": {}, "photos": {}, "manuals": {}, "ai_cache": {}, "manual_files": {}, "last_ip": {}, "manual_ip": {}}
         self.last_refresh = 0.0
         self._lock = asyncio.Lock()
         self.photo_dir = Path(hass.config.path(DOMAIN, "photos"))
@@ -95,8 +95,14 @@ class InventoryManager:
         # remember the last known IP address; a device that reports none right now (asleep, offline) keeps showing its last one
         known = self.data.setdefault("last_ip", {})
         changed = False
+        manual = self.data.setdefault("manual_ip", {})
         for dev in result:
             if "~" in dev["id"]:
+                continue
+            if manual.get(dev["id"]) and not dev.get("ip"):  # an address entered by hand fills in where the device reports none
+                dev["ip"] = manual[dev["id"]]["ip"] if isinstance(manual[dev["id"]], dict) else manual[dev["id"]]
+                dev["ip_manual"] = True
+                dev["ip_suggest"] = []
                 continue
             if dev.get("ip"):
                 if known.get(dev["id"]) != dev["ip"]:
@@ -185,6 +191,7 @@ class InventoryManager:
             self.data["ai_cache"] = stored.get("ai_cache", {})
             self.data["manual_files"] = stored.get("manual_files", {})
             self.data["last_ip"] = stored.get("last_ip", {})
+            self.data["manual_ip"] = stored.get("manual_ip", {})
         await self.hass.async_add_executor_job(self._prepare_folders)
 
     def _prepare_folders(self) -> None:
@@ -310,6 +317,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.http.register_view(ManualServeView)
     websocket_api.async_register_command(hass, ws_list)
     websocket_api.async_register_command(hass, ws_set_note)
+    websocket_api.async_register_command(hass, ws_set_ip)
     websocket_api.async_register_command(hass, ws_delete_photo)
     websocket_api.async_register_command(hass, ws_set_manual)
     websocket_api.async_register_command(hass, ws_fetch_manual)
@@ -366,6 +374,35 @@ def ws_set_note(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     else:
         manager.data["notes"].pop(msg["device_id"], None)
     manager.save()
+    connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/set_ip",
+        vol.Required("device_id"): str,
+        vol.Required("ip"): str,
+        vol.Optional("mac"): vol.Any(str, None),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_set_ip(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Address entered or confirmed by the user for a device that reports none (empty = remove)."""
+    manager: InventoryManager = hass.data[DOMAIN]
+    ip = msg["ip"].strip()
+    if ip:
+        try:
+            ipaddress.ip_address(ip)
+        except ValueError:
+            connection.send_error(msg["id"], "invalid_ip", "Not a valid IP address")
+            return
+        manager.data.setdefault("manual_ip", {})[msg["device_id"]] = {"ip": ip, "mac": msg.get("mac")}
+    else:
+        manager.data.setdefault("manual_ip", {}).pop(msg["device_id"], None)
+    manager.save()
+    async with manager._lock:
+        await manager.coordinator.async_refresh()
     connection.send_result(msg["id"], manager.payload(connection.refresh_token_id))
 
 

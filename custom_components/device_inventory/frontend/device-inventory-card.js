@@ -836,7 +836,7 @@ class DeviceInventoryCard extends HTMLElement {
       const color = kind === "local" ? "var(--success-color,#43a047)" : kind === "ai" ? "#a07cf0" : kind === "none" ? "var(--secondary-text-color,#888)" : "var(--primary-color)";
       const wrap = el("span", "display:inline-flex;align-items:center;gap:4px");
       const ma = el("span", `display:inline-flex;align-items:center;gap:2px;cursor:pointer;color:${color};opacity:${mdocs.length ? 1 : .4}`);
-      ma.innerHTML = ico("manual", 22) + (mdocs.length > 1 ? `<small>${mdocs.length}</small>` : "");
+      ma.innerHTML = ico("manual", 22);
       ma.title = !mdocs.length ? this._t.manualAdd : mdocs.length === 1 ? mdocs[0].title : `${mdocs.length} ${this._t.manualDocs}`;
       ma.onclick = (ev) => { if (!mdocs.length) this._manualDialog(d); else if (mdocs.length === 1) window.open(mdocs[0].href, "_blank", "noopener"); else this._manualMenu(ma, mdocs, ev); };
       const me = el("span", "display:inline-flex;cursor:pointer;opacity:.7"); me.className = "hv"; me.innerHTML = ico("pencil", 14); me.title = this._t.manualOf;

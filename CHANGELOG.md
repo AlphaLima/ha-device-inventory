@@ -2,6 +2,10 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.0b5 – 2026-11-19
+- New tab Rain Bird
+- Rows named by the same MAC address (colon and underscore spelling) are shown once; rows called only by their MAC are merged into the real device
+
 ## 1.19.0b4 – 2026-11-19
 - New tabs: Philips Hue, KNX, Energy, Vehicles, Media, Home appliances, Cameras, Network & office, plus company tabs (Sonos, IKEA, Home Connect, tado, Somfy, Loxone, Aqara, Xiaomi, TP-Link, Kasa, Netatmo, Nest, SmartThings) and automatic tabs for integrations with three or more devices
 - Tabs grouped (general first, then companies), wrapped tab bar, show/hide dialog and a short description for every tab

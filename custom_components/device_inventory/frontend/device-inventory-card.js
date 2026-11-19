@@ -252,12 +252,15 @@ class DeviceInventoryCard extends HTMLElement {
       (nodes[n] = nodes[n] || []).push(d);
       return Object.assign({}, d, { parent: `meshnode~${n}` });
     });
+    // the box / repeater behind a node is a device of its own (FRITZ! tab): its address, firmware, temperature ... belong in the node row as well
+    const boxes = {};
+    ((this._raw && this._raw.devices) || []).forEach((d) => { if (d.mesh_node) boxes[String(d.mesh_node).replace(/^fritz\./i, "")] = d; });
     Object.keys(nodes).forEach((n) => {
-      const cl = nodes[n], lan = cl.filter((d) => d.mesh.type && /lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type)).length;
+      const cl = nodes[n], lan = cl.filter((d) => d.mesh.type && /lan/i.test(d.mesh.type) && !/wlan|wifi/i.test(d.mesh.type)).length, bx = boxes[n] || {};
       s.devices.push({
-        id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: "Mesh", mesh_stats: { total: cl.length, lan, wlan: cl.length - lan }, sw_version: null, area: null, mac: null, ip: null,
-        classes: ["mesh"], integrations: ["fritz"], online: cl.some((d) => d.online), battery: null, battery_low: null, last_seen: null, entity: null,
-        internet_switch: null, ble_switch: null, temp: null, rssi: null, ble: { home: null, distance: null, address: null, scanner: null }, mesh: null,
+        id: `meshnode~${n}`, parent: null, name: n, manufacturer: "FRITZ!", model: "Mesh", mesh_stats: { total: cl.length, lan, wlan: cl.length - lan }, sw_version: bx.sw_version || null, area: bx.area || null, mac: bx.mac || null, ip: bx.ip || null,
+        classes: ["mesh"], integrations: ["fritz"], online: cl.some((d) => d.online) || !!bx.online, battery: null, battery_low: null, last_seen: bx.last_seen || null, entity: null,
+        internet_switch: null, ble_switch: null, temp: bx.temp == null ? null : bx.temp, rssi: bx.rssi == null ? null : bx.rssi, ble: { home: null, distance: null, address: null, scanner: null }, mesh: null,
       });
     });
   }

@@ -130,6 +130,16 @@ def _entry_ids(dev: dr.DeviceEntry) -> tuple[str, ...]:
 MAC_NAME_RE = re.compile(r"^([0-9a-f]{2}[:-]?){5}[0-9a-f]{2}$", re.IGNORECASE)
 
 
+def _to_celsius(value: float, unit: Any) -> float:
+    """Temperature in °C, whatever unit the sensor reports (°F, K); the card shows it in the unit system of Home Assistant."""
+    text = str(unit or "").strip().upper().replace("°", "")
+    if text == "F":
+        value = (value - 32) * 5 / 9
+    elif text == "K":
+        value = value - 273.15
+    return round(value, 1)
+
+
 def _norm_mac(value: Any) -> str | None:
     """Normalised MAC address (AA:BB:CC:DD:EE:FF) or None."""
     text = str(value or "").strip()
@@ -280,7 +290,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                     prio = 2 if ("device_temp" in ent.entity_id or "internal_temp" in ent.entity_id) else (1 if ent.entity_category else 0)
                     if prio > temp_prio:
                         try:
-                            temp = round(float(state.state), 1)
+                            temp = _to_celsius(float(state.state), state.attributes.get("unit_of_measurement"))
                             temp_prio = prio
                         except ValueError:
                             pass

@@ -1416,7 +1416,7 @@ class DeviceInventoryCard extends HTMLElement {
   set _expAll(v) { if (this._config.class === "mesh" || this._config.class === "fritz") this._expM = v; else this._expG = v; }
 
   _print() {
-    const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const t = this._t, s = this._state, E = (x) => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     const hide = new Set(this._config.hide || []);
     OPTIONAL.forEach((c) => { if (!s.devices.some((d) => this._has(d, c))) hide.add(c); });
     hide.add("kids");

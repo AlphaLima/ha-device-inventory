@@ -127,6 +127,37 @@ def _entry_ids(dev: dr.DeviceEntry) -> tuple[str, ...]:
     return tuple(dev.config_entries)
 
 
+MAC_NAME_RE = re.compile(r"^([0-9a-f]{2}[:-]?){5}[0-9a-f]{2}$", re.IGNORECASE)
+
+
+def _norm_mac(value: Any) -> str | None:
+    """Normalised MAC address (AA:BB:CC:DD:EE:FF) or None."""
+    text = str(value or "").strip()
+    if not MAC_NAME_RE.match(text):
+        return None
+    raw = text.replace(":", "").replace("-", "").upper()
+    return ":".join(raw[i : i + 2] for i in range(0, 12, 2))
+
+
+def _mac_from_identifiers(dev: dr.DeviceEntry) -> str | None:
+    """Some integrations (TP-Link, Tuya, ...) keep the MAC address only in the identifiers of the device."""
+    for _domain, ident in dev.identifiers:
+        mac = _norm_mac(ident)
+        if mac:
+            return mac
+    return None
+
+
+def _near_mac(a: str | None, b: str | None, span: int = 2) -> bool:
+    """Same hardware, other interface: first five bytes equal and the last byte only a little apart (Wi-Fi / Bluetooth / Ethernet MAC of one board)."""
+    if not a or not b or a == b:
+        return False
+    try:
+        return a[:14] == b[:14] and abs(int(a[15:], 16) - int(b[15:], 16)) <= span
+    except ValueError:
+        return False
+
+
 def _merge_same_phone(result: list[dict[str, Any]], prefer: set[str]) -> list[dict[str, Any]]:
     """One row per Bluetooth device: Private BLE Device and Bermuda each create a device with the same name."""
     groups: dict[str, list[dict[str, Any]]] = {}
@@ -288,7 +319,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
             ip = _valid_ip(host)
         mac = next((v for k, v in dev.connections if k == "mac"), None) or next(
             (v for k, v in dev.connections if k == "bluetooth"), None
-        )
+        ) or _mac_from_identifiers(dev)
         if sonoff_hint and "sonoff" not in classes:
             classes = [c for c in classes if c != OTHER] + ["sonoff"]
         ble = None
@@ -347,14 +378,31 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         )
 
     # drop network/Bluetooth mirror devices when a real device has the same MAC
-    real_by_mac = {d["mac"]: d for d in result if d["mac"] and not d["_weak"]}
+    reals = [d for d in result if not d["_weak"]]
+    real_by_mac = {d["mac"]: d for d in reals if d["mac"]}
+    real_by_ip = {d["ip"]: d for d in reals if d["ip"]}
+
+    def real_twin(d: dict[str, Any]) -> dict[str, Any] | None:
+        """The real device that a mirror (FRITZ!Box / Bluetooth / network scanner entry) belongs to."""
+        if not d["_weak"]:
+            return None
+        if d["mac"] and d["mac"] in real_by_mac:
+            return real_by_mac[d["mac"]]
+        if d["ip"] and d["ip"] in real_by_ip:
+            return real_by_ip[d["ip"]]
+        if d["mac"] and MAC_NAME_RE.match(str(d["name"]).strip()):  # a mirror that is shown with nothing but its MAC address
+            for real in reals:
+                if _near_mac(d["mac"], real["mac"]):
+                    return real
+        return None
+
+    twins = {d["id"]: real_twin(d) for d in result}
     for d in result:
+        real = twins[d["id"]]
         # the FRITZ!Box "internet access" switch lives on the mirror device: hand it to the real device
-        if d["_weak"] and d["internet_switch"] and d["mac"] in real_by_mac:
-            real = real_by_mac[d["mac"]]
-            if not real["internet_switch"]:
-                real["internet_switch"] = d["internet_switch"]
-    result = [d for d in result if not (d["_weak"] and d["mac"] in real_by_mac)]
+        if real is not None and d["internet_switch"] and not real["internet_switch"]:
+            real["internet_switch"] = d["internet_switch"]
+    result = [d for d in result if twins[d["id"]] is None]
     # sub-channels: a device whose via_device is another listed device of the same config entry
     ids = {d["id"] for d in result}
     for d in result:

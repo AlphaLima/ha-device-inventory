@@ -445,15 +445,18 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         if real is not None and d["internet_switch"] and not real["internet_switch"]:
             real["internet_switch"] = d["internet_switch"]
     result = [d for d in result if twins[d["id"]] is None]
-    # the same MAC address under two registry devices that are both named by it (AA:BB:.. and AA_BB_..): show one
+    # the same MAC address under several registry devices that are only mirrors (named by the MAC, or by the maker of the MAC): show one
     keep: dict[str, dict[str, Any]] = {}
+
+    def rank(x: dict[str, Any]) -> tuple[Any, ...]:  # notes / photos first, then a real name, the usual MAC spelling, an address, the freshest
+        return (x["id"] in (prefer or set()), not mac_named(x), ":" in str(x["name"]), bool(x["ip"]), x["last_seen"] or "")
+
     for d in result:
-        if mac_named(d):
+        if d["mac"] and (d["_weak"] or mac_named(d)):
             cur = keep.get(d["mac"])
-            rank = lambda x: (x["id"] in (prefer or set()), ":" in str(x["name"]), x["last_seen"] or "")  # notes / photos first, then the usual spelling, then the freshest
             if cur is None or rank(d) > rank(cur):
                 keep[d["mac"]] = d
-    result = [d for d in result if not mac_named(d) or keep[d["mac"]] is d]
+    result = [d for d in result if not (d["mac"] and (d["_weak"] or mac_named(d))) or keep[d["mac"]] is d]
     # sub-channels: a device whose via_device is another listed device of the same config entry
     ids = {d["id"] for d in result}
     for d in result:

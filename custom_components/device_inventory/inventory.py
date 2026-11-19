@@ -456,6 +456,9 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
             cur = keep.get(d["mac"])
             if cur is None or rank(d) > rank(cur):
                 keep[d["mac"]] = d
+    for d in result:  # the single row stays in every tab the copies were in (a Bluetooth mirror and a router mirror of one device)
+        if d["mac"] and (d["_weak"] or mac_named(d)) and keep[d["mac"]] is not d:
+            keep[d["mac"]]["classes"] = sorted(set(keep[d["mac"]]["classes"]) | set(d["classes"]) - {OTHER})
     result = [d for d in result if not (d["mac"] and (d["_weak"] or mac_named(d))) or keep[d["mac"]] is d]
     # sub-channels: a device whose via_device is another listed device of the same config entry
     ids = {d["id"] for d in result}

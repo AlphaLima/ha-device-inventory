@@ -39,20 +39,20 @@ const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homemati
   wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Philips Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", knx: "KNX", energy: "Energy", vehicles: "Vehicles", media: "Media", appliances: "Home appliances", cameras: "Cameras / doorbells", network: "Network & office", sonos: "Sonos", ikea: "IKEA", homeconnect: "Home Connect", tado: "tado°", somfy: "Somfy", loxone: "Loxone", aqara: "Aqara", xiaomi: "Xiaomi", tplink: "TP-Link", netatmo: "Netatmo", kasa: "Kasa", nest: "Google Nest", smartthings: "Samsung SmartThings", mesh: "Router Mesh", fritz: "FRITZ!", apple: "Apple", bluetooth: "Bluetooth" };
 // same wording as the card headings
 const LABEL = {
-  en: { vehicles: "Vehicles", media: "Media", appliances: "Home appliances", cameras: "Cameras / doorbells", network: "Network & office", energy: "Energy", all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show missing (offline) devices and red counters", hideBadges: "Hide missing devices and red counters" },
-  de: { vehicles: "Fahrzeuge", media: "Medien", appliances: "Haushaltsgeräte", cameras: "Kameras / Türklingeln", network: "Netzwerk & Büro", energy: "Energie", all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Fehlende Geräte und rote Zähler anzeigen", hideBadges: "Fehlende Geräte und rote Zähler ausblenden" },
-  fr: { vehicles: "Véhicules", media: "Médias", appliances: "Électroménager", cameras: "Caméras / sonnettes", network: "Réseau et bureau", energy: "Énergie", all: "Tous les appareils", other: "Autres", battery: "Piles", showBadges: "Afficher les appareils manquants (hors ligne) et les compteurs rouges", hideBadges: "Masquer les appareils manquants et les compteurs rouges" },
-  es: { vehicles: "Vehículos", media: "Multimedia", appliances: "Electrodomésticos", cameras: "Cámaras / timbres", network: "Red y oficina", energy: "Energía", all: "Todos los dispositivos", other: "Otros", battery: "Baterías", showBadges: "Mostrar dispositivos ausentes (sin conexión) y contadores rojos", hideBadges: "Ocultar dispositivos ausentes y contadores rojos" },
-  nl: { vehicles: "Voertuigen", media: "Media", appliances: "Huishoudapparaten", cameras: "Camera's / deurbellen", network: "Netwerk & kantoor", energy: "Energie", all: "Alle apparaten", other: "Overig", battery: "Batterijen", showBadges: "Ontbrekende (offline) apparaten en rode tellers tonen", hideBadges: "Ontbrekende apparaten en rode tellers verbergen" },
-  it: { vehicles: "Veicoli", media: "Multimedia", appliances: "Elettrodomestici", cameras: "Telecamere / campanelli", network: "Rete e ufficio", energy: "Energia", all: "Tutti i dispositivi", other: "Altro", battery: "Batterie", showBadges: "Mostra i dispositivi mancanti (offline) e i contatori rossi", hideBadges: "Nascondi i dispositivi mancanti e i contatori rossi" },
-  pl: { vehicles: "Pojazdy", media: "Multimedia", appliances: "AGD", cameras: "Kamery / dzwonki", network: "Sieć i biuro", energy: "Energia", all: "Wszystkie urządzenia", other: "Inne", battery: "Baterie", showBadges: "Pokaż brakujące (offline) urządzenia i czerwone liczniki", hideBadges: "Ukryj brakujące urządzenia i czerwone liczniki" },
-  pt: { vehicles: "Veículos", media: "Multimédia", appliances: "Eletrodomésticos", cameras: "Câmaras / campainhas", network: "Rede e escritório", energy: "Energia", all: "Todos os dispositivos", other: "Outros", battery: "Baterias", showBadges: "Mostrar dispositivos em falta (offline) e contadores vermelhos", hideBadges: "Ocultar dispositivos em falta e contadores vermelhos" },
-  cs: { vehicles: "Vozidla", media: "Média", appliances: "Spotřebiče", cameras: "Kamery / zvonky", network: "Síť a kancelář", energy: "Energie", all: "Všechna zařízení", other: "Ostatní", battery: "Baterie", showBadges: "Zobrazit chybějící (offline) zařízení a červené počítadla", hideBadges: "Skrýt chybějící zařízení a červené počítadla" },
-  ru: { vehicles: "Транспорт", media: "Медиа", appliances: "Бытовая техника", cameras: "Камеры / дверные звонки", network: "Сеть и офис", energy: "Энергия", all: "Все устройства", other: "Прочее", battery: "Батареи", showBadges: "Показать отсутствующие (не в сети) устройства и красные счётчики", hideBadges: "Скрыть отсутствующие устройства и красные счётчики" },
-  sv: { vehicles: "Fordon", media: "Media", appliances: "Hushållsapparater", cameras: "Kameror / dörrklockor", network: "Nätverk & kontor", energy: "Energi", all: "Alla enheter", other: "Övrigt", battery: "Batterier", showBadges: "Visa saknade (offline) enheter och röda räknare", hideBadges: "Dölj saknade enheter och röda räknare" },
-  nb: { vehicles: "Kjøretøy", media: "Media", appliances: "Husholdningsapparater", cameras: "Kameraer / dørklokker", network: "Nettverk og kontor", energy: "Energi", all: "Alle enheter", other: "Annet", battery: "Batterier", showBadges: "Vis manglende (offline) enheter og røde tellere", hideBadges: "Skjul manglende enheter og røde tellere" },
-  da: { vehicles: "Køretøjer", media: "Medier", appliances: "Husholdningsapparater", cameras: "Kameraer / dørklokker", network: "Netværk og kontor", energy: "Energi", all: "Alle enheder", other: "Andet", battery: "Batterier", showBadges: "Vis manglende (offline) enheder og røde tællere", hideBadges: "Skjul manglende enheder og røde tællere" },
-  af: { vehicles: "Voertuie", media: "Media", appliances: "Huistoestelle", cameras: "Kameras / deurklokke", network: "Netwerk & kantoor", energy: "Energie", all: "Alle toestelle", other: "Ander", battery: "Batterye", showBadges: "Wys ontbrekende (aflyn) toestelle en rooi tellers", hideBadges: "Versteek ontbrekende toestelle en rooi tellers" },
+  en: { tabsBtn: "Show or hide tabs", tabsShowAll: "Show all", tabsClose: "Close", vehicles: "Vehicles", media: "Media", appliances: "Home appliances", cameras: "Cameras / doorbells", network: "Network & office", energy: "Energy", all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show missing (offline) devices and red counters", hideBadges: "Hide missing devices and red counters" },
+  de: { tabsBtn: "Tabs ein- oder ausblenden", tabsShowAll: "Alle anzeigen", tabsClose: "Schließen", vehicles: "Fahrzeuge", media: "Medien", appliances: "Haushaltsgeräte", cameras: "Kameras / Türklingeln", network: "Netzwerk & Büro", energy: "Energie", all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Fehlende Geräte und rote Zähler anzeigen", hideBadges: "Fehlende Geräte und rote Zähler ausblenden" },
+  fr: { tabsBtn: "Afficher ou masquer les onglets", tabsShowAll: "Tout afficher", tabsClose: "Fermer", vehicles: "Véhicules", media: "Médias", appliances: "Électroménager", cameras: "Caméras / sonnettes", network: "Réseau et bureau", energy: "Énergie", all: "Tous les appareils", other: "Autres", battery: "Piles", showBadges: "Afficher les appareils manquants (hors ligne) et les compteurs rouges", hideBadges: "Masquer les appareils manquants et les compteurs rouges" },
+  es: { tabsBtn: "Mostrar u ocultar pestañas", tabsShowAll: "Mostrar todas", tabsClose: "Cerrar", vehicles: "Vehículos", media: "Multimedia", appliances: "Electrodomésticos", cameras: "Cámaras / timbres", network: "Red y oficina", energy: "Energía", all: "Todos los dispositivos", other: "Otros", battery: "Baterías", showBadges: "Mostrar dispositivos ausentes (sin conexión) y contadores rojos", hideBadges: "Ocultar dispositivos ausentes y contadores rojos" },
+  nl: { tabsBtn: "Tabbladen tonen of verbergen", tabsShowAll: "Alles tonen", tabsClose: "Sluiten", vehicles: "Voertuigen", media: "Media", appliances: "Huishoudapparaten", cameras: "Camera's / deurbellen", network: "Netwerk & kantoor", energy: "Energie", all: "Alle apparaten", other: "Overig", battery: "Batterijen", showBadges: "Ontbrekende (offline) apparaten en rode tellers tonen", hideBadges: "Ontbrekende apparaten en rode tellers verbergen" },
+  it: { tabsBtn: "Mostra o nascondi le schede", tabsShowAll: "Mostra tutte", tabsClose: "Chiudi", vehicles: "Veicoli", media: "Multimedia", appliances: "Elettrodomestici", cameras: "Telecamere / campanelli", network: "Rete e ufficio", energy: "Energia", all: "Tutti i dispositivi", other: "Altro", battery: "Batterie", showBadges: "Mostra i dispositivi mancanti (offline) e i contatori rossi", hideBadges: "Nascondi i dispositivi mancanti e i contatori rossi" },
+  pl: { tabsBtn: "Pokaż lub ukryj karty", tabsShowAll: "Pokaż wszystkie", tabsClose: "Zamknij", vehicles: "Pojazdy", media: "Multimedia", appliances: "AGD", cameras: "Kamery / dzwonki", network: "Sieć i biuro", energy: "Energia", all: "Wszystkie urządzenia", other: "Inne", battery: "Baterie", showBadges: "Pokaż brakujące (offline) urządzenia i czerwone liczniki", hideBadges: "Ukryj brakujące urządzenia i czerwone liczniki" },
+  pt: { tabsBtn: "Mostrar ou ocultar separadores", tabsShowAll: "Mostrar todos", tabsClose: "Fechar", vehicles: "Veículos", media: "Multimédia", appliances: "Eletrodomésticos", cameras: "Câmaras / campainhas", network: "Rede e escritório", energy: "Energia", all: "Todos os dispositivos", other: "Outros", battery: "Baterias", showBadges: "Mostrar dispositivos em falta (offline) e contadores vermelhos", hideBadges: "Ocultar dispositivos em falta e contadores vermelhos" },
+  cs: { tabsBtn: "Zobrazit nebo skrýt záložky", tabsShowAll: "Zobrazit vše", tabsClose: "Zavřít", vehicles: "Vozidla", media: "Média", appliances: "Spotřebiče", cameras: "Kamery / zvonky", network: "Síť a kancelář", energy: "Energie", all: "Všechna zařízení", other: "Ostatní", battery: "Baterie", showBadges: "Zobrazit chybějící (offline) zařízení a červené počítadla", hideBadges: "Skrýt chybějící zařízení a červené počítadla" },
+  ru: { tabsBtn: "Показать или скрыть вкладки", tabsShowAll: "Показать все", tabsClose: "Закрыть", vehicles: "Транспорт", media: "Медиа", appliances: "Бытовая техника", cameras: "Камеры / дверные звонки", network: "Сеть и офис", energy: "Энергия", all: "Все устройства", other: "Прочее", battery: "Батареи", showBadges: "Показать отсутствующие (не в сети) устройства и красные счётчики", hideBadges: "Скрыть отсутствующие устройства и красные счётчики" },
+  sv: { tabsBtn: "Visa eller dölj flikar", tabsShowAll: "Visa alla", tabsClose: "Stäng", vehicles: "Fordon", media: "Media", appliances: "Hushållsapparater", cameras: "Kameror / dörrklockor", network: "Nätverk & kontor", energy: "Energi", all: "Alla enheter", other: "Övrigt", battery: "Batterier", showBadges: "Visa saknade (offline) enheter och röda räknare", hideBadges: "Dölj saknade enheter och röda räknare" },
+  nb: { tabsBtn: "Vis eller skjul faner", tabsShowAll: "Vis alle", tabsClose: "Lukk", vehicles: "Kjøretøy", media: "Media", appliances: "Husholdningsapparater", cameras: "Kameraer / dørklokker", network: "Nettverk og kontor", energy: "Energi", all: "Alle enheter", other: "Annet", battery: "Batterier", showBadges: "Vis manglende (offline) enheter og røde tellere", hideBadges: "Skjul manglende enheter og røde tellere" },
+  da: { tabsBtn: "Vis eller skjul faner", tabsShowAll: "Vis alle", tabsClose: "Luk", vehicles: "Køretøjer", media: "Medier", appliances: "Husholdningsapparater", cameras: "Kameraer / dørklokker", network: "Netværk og kontor", energy: "Energi", all: "Alle enheder", other: "Andet", battery: "Batterier", showBadges: "Vis manglende (offline) enheder og røde tællere", hideBadges: "Skjul manglende enheder og røde tællere" },
+  af: { tabsBtn: "Wys of versteek oortjies", tabsShowAll: "Wys almal", tabsClose: "Maak toe", vehicles: "Voertuie", media: "Media", appliances: "Huistoestelle", cameras: "Kameras / deurklokke", network: "Netwerk & kantoor", energy: "Energie", all: "Alle toestelle", other: "Ander", battery: "Batterye", showBadges: "Wys ontbrekende (aflyn) toestelle en rooi tellers", hideBadges: "Versteek ontbrekende toestelle en rooi tellers" },
 };
 LABEL.no = LABEL.nb; LABEL.nn = LABEL.nb;
 
@@ -141,6 +141,7 @@ class DeviceInventoryPanel extends HTMLElement {
     try { showBadges = localStorage.getItem("diBadges") === "1"; } catch (e) { /* ignore */ }
     this._badges = showBadges;
     this._tabs.classList.toggle("nobadge", !showBadges);
+    try { this._hidden = new Set(JSON.parse(localStorage.getItem("diTabsOff") || "[]")); } catch (e) { this._hidden = new Set(); }
     const tgl = document.createElement("button"); tgl.className = "tgl";
     const paintTgl = () => {
       tgl.title = this._badges ? this._lbl.hideBadges : this._lbl.showBadges;
@@ -157,7 +158,10 @@ class DeviceInventoryPanel extends HTMLElement {
       if (this._card) this._card.setConfig({ class: this._active, hide_offline: !this._badges });
       this._loadTabs();
     };
-    top.append(this._menu, this._tabs, tgl);
+    const tcfg = document.createElement("button"); tcfg.className = "tgl"; tcfg.title = this._lbl.tabsBtn;
+    tcfg.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".7"><path d="M3 6l1.6 1.6L7.5 4.5M3 13l1.6 1.6L7.5 11.5M3 20l1.6 1.6L7.5 18.5M11 6h10M11 13h10M11 20h10"/></svg>';
+    tcfg.onclick = () => this._tabsDialog();
+    top.append(this._menu, this._tabs, tcfg, tgl);
     this._body = document.createElement("div"); this._body.className = "body";
     root.append(st, top, this._body);
     let active = "all";
@@ -167,6 +171,16 @@ class DeviceInventoryPanel extends HTMLElement {
     this._body.appendChild(this._card);
     this._card.setConfig({ class: this._active, hide_offline: !this._badges });
     this._card.hass = this._hass;
+  }
+
+  // symbol of a tab (brand logo, picture logo or Material icon)
+  _tabIconNode(k) {
+      if (SVG[k]) {
+        const ns = "http://www.w3.org/2000/svg", s = document.createElementNS(ns, "svg"), p = document.createElementNS(ns, "path");
+        s.setAttribute("viewBox", SVG[k].vb); if (SVG[k].img) { const q0 = SVG[k].vb.split(" "), df = document.createElementNS(ns, "defs"), mk = document.createElementNS(ns, "mask"), im = document.createElementNS(ns, "image"), rc = document.createElementNS(ns, "rect"); mk.setAttribute("id", "di-mask-" + k); im.setAttribute("href", SVG[k].img); im.setAttribute("width", q0[2]); im.setAttribute("height", q0[3]); mk.appendChild(im); df.appendChild(mk); rc.setAttribute("width", q0[2]); rc.setAttribute("height", q0[3]); rc.setAttribute("fill", "currentColor"); rc.setAttribute("mask", "url(#di-mask-" + k + ")"); s.appendChild(df); s.appendChild(rc); } else p.setAttribute("d", SVG[k].d); if (SVG[k].w) { const q = SVG[k].vb.split(" "); s.style.width = SVG[k].w + "px"; s.style.height = (SVG[k].w * q[3] / q[2]) + "px"; } if (SVG[k].eo) p.setAttribute("fill-rule", "evenodd"); if (!SVG[k].img) s.appendChild(p); return s;
+      } else {
+        const i = document.createElement("ha-icon"); i.setAttribute("icon", MDI[k] || (k.startsWith("int:") ? "mdi:puzzle-outline" : "mdi:chip")); return i;
+      }
   }
 
   async _loadTabs() {
@@ -187,22 +201,56 @@ class DeviceInventoryPanel extends HTMLElement {
     // tabs without any (visible) entry are hidden; "all" always stays
     const count = (k) => (this._badges ? stats[k].n : stats[k].on);
     const keys = [...PREFERRED.filter((k) => stats[k]), ...Object.keys(stats).filter((k) => !PREFERRED.includes(k)).sort((a, b) => String(this._classLabels[a] || a).localeCompare(String(this._classLabels[b] || b)))].filter((k) => k === "all" || count(k) > 0);
-    if (!keys.includes(this._active)) this._select("all");
+    this._allKeys = keys; this._stats = stats; // every tab that has devices (the dialog lists them all)
+    const shown = keys.filter((k) => k === "all" || !(this._hidden || new Set()).has(k));
+    if (!shown.includes(this._active)) this._select("all");
     this._tabs.innerHTML = "";
-    keys.forEach((k) => {
+    shown.forEach((k) => {
       const b = document.createElement("button"); b.className = "tab" + (k === this._active ? " on" : ""); b.dataset.k = k;
       b.title = `${this._lbl[k] || NAMES[k] || (this._classLabels || {})[k] || k} (${this._badges ? stats[k].n : stats[k].on})`;
-      if (SVG[k]) {
-        const ns = "http://www.w3.org/2000/svg", s = document.createElementNS(ns, "svg"), p = document.createElementNS(ns, "path");
-        s.setAttribute("viewBox", SVG[k].vb); if (SVG[k].img) { const q0 = SVG[k].vb.split(" "), df = document.createElementNS(ns, "defs"), mk = document.createElementNS(ns, "mask"), im = document.createElementNS(ns, "image"), rc = document.createElementNS(ns, "rect"); mk.setAttribute("id", "di-mask-" + k); im.setAttribute("href", SVG[k].img); im.setAttribute("width", q0[2]); im.setAttribute("height", q0[3]); mk.appendChild(im); df.appendChild(mk); rc.setAttribute("width", q0[2]); rc.setAttribute("height", q0[3]); rc.setAttribute("fill", "currentColor"); rc.setAttribute("mask", "url(#di-mask-" + k + ")"); s.appendChild(df); s.appendChild(rc); } else p.setAttribute("d", SVG[k].d); if (SVG[k].w) { const q = SVG[k].vb.split(" "); s.style.width = SVG[k].w + "px"; s.style.height = (SVG[k].w * q[3] / q[2]) + "px"; } if (SVG[k].eo) p.setAttribute("fill-rule", "evenodd"); if (!SVG[k].img) s.appendChild(p); b.appendChild(s);
-      } else {
-        const i = document.createElement("ha-icon"); i.setAttribute("icon", MDI[k] || (k.startsWith("int:") ? "mdi:puzzle-outline" : "mdi:chip")); b.appendChild(i);
-      }
+      b.appendChild(this._tabIconNode(k));
       if (stats[k].off) { const bd = document.createElement("span"); bd.className = "badge"; bd.textContent = stats[k].off; b.appendChild(bd); }
       b.onclick = () => this._select(k);
       this._tabs.appendChild(b);
     });
     if (this._card && this._card._headIcon) this._card._headIcon();
+  }
+
+  // dialog: switch single tabs on / off (kept in this browser)
+  _tabsDialog() {
+    const L = this._lbl, ov = document.createElement("div");
+    ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center";
+    const bx = document.createElement("div");
+    bx.style.cssText = "background:var(--card-background-color,#fff);color:var(--primary-text-color,#000);border-radius:12px;padding:16px;width:min(520px,92vw);max-height:85vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);font-family:var(--ha-font-family-body,Roboto,sans-serif)";
+    const close = () => { ov.remove(); document.removeEventListener("keydown", kd, true); };
+    const kd = (e) => { if (e.key === "Escape") { e.stopPropagation(); close(); } };
+    document.addEventListener("keydown", kd, true);
+    ov.addEventListener("mousedown", (e) => { if (e.target === ov) close(); });
+    const h = document.createElement("div"); h.style.cssText = "font-weight:600;font-size:16px;margin-bottom:10px"; h.textContent = L.tabsBtn; bx.appendChild(h);
+    const save = () => { try { localStorage.setItem("diTabsOff", JSON.stringify([...this._hidden])); } catch (e) { /* ignore */ } this._loadTabs(); };
+    const list = document.createElement("div"); list.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px 8px";
+    const rows = [];
+    (this._allKeys || []).forEach((k) => {
+      const lab = document.createElement("label"); lab.style.cssText = "display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;cursor:pointer";
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = k === "all" || !this._hidden.has(k); cb.disabled = k === "all";
+      cb.onchange = () => { if (cb.checked) this._hidden.delete(k); else this._hidden.add(k); save(); };
+      const ic = document.createElement("span"); ic.style.cssText = "display:inline-flex;align-items:center;justify-content:center;width:44px;flex:none;color:var(--primary-text-color)";
+      const node = this._tabIconNode(k); ic.appendChild(node);
+      if (node.tagName && node.tagName.toLowerCase() === "svg") { if (!node.style.width) { node.style.width = "24px"; node.style.height = "24px"; } node.style.fill = "currentColor"; } // the tab styles of the bar do not apply here
+      else node.style.setProperty("--mdc-icon-size", "24px");
+      const nm = document.createElement("span"); nm.style.cssText = "flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+      nm.textContent = this._lbl[k] || NAMES[k] || (this._classLabels || {})[k] || k;
+      const n = document.createElement("span"); n.style.cssText = "opacity:.6;font-size:12px"; n.textContent = (this._stats && this._stats[k]) ? this._stats[k].n : "";
+      lab.append(cb, ic, nm, n); list.appendChild(lab); rows.push([k, cb]);
+    });
+    bx.appendChild(list);
+    const ft = document.createElement("div"); ft.style.cssText = "display:flex;gap:8px;justify-content:flex-end;margin-top:14px";
+    const btn = (txt, primary) => { const b = document.createElement("button"); b.textContent = txt; b.style.cssText = `padding:8px 16px;border-radius:8px;font-size:14px;cursor:pointer;border:1px solid var(--divider-color,#888);${primary ? "background:var(--primary-color,#03a9f4);color:#fff;border-color:transparent" : "background:transparent;color:inherit"}`; return b; };
+    const all = btn(L.tabsShowAll), ok = btn(L.tabsClose, true);
+    all.onclick = () => { this._hidden.clear(); rows.forEach(([, cb]) => { cb.checked = true; }); save(); };
+    ok.onclick = close;
+    ft.append(all, ok); bx.appendChild(ft); ov.appendChild(bx);
+    (this.shadowRoot || document.body).appendChild(ov);
   }
 
   _select(k) {

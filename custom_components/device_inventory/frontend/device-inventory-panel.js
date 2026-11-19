@@ -119,16 +119,17 @@ class DeviceInventoryPanel extends HTMLElement {
     const root = this.attachShadow({ mode: "open" });
     const st = document.createElement("style");
     st.textContent = `:host{display:block;height:100%;background:var(--primary-background-color);color:var(--primary-text-color)}
-      .top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:4px;height:56px;padding:0 8px;box-sizing:border-box;
+      .top{position:sticky;top:0;z-index:5;display:flex;align-items:flex-start;gap:4px;min-height:56px;padding:0 8px;box-sizing:border-box;
         background:var(--app-header-background-color,var(--secondary-background-color));color:var(--app-header-text-color,var(--primary-text-color));
         border-bottom:1px solid var(--divider-color)}
-      .tabs{display:flex;overflow-x:auto;scrollbar-width:none;flex:1}
+      .tabs{display:flex;flex-wrap:wrap;flex:1;min-width:0} /* more tabs than the screen is wide: they wrap into further rows */
+      .top>ha-menu-button{margin-top:4px}
       .tab{position:relative;display:flex;align-items:center;justify-content:center;min-width:56px;height:56px;padding:0 10px;box-sizing:border-box;
         cursor:pointer;border:none;background:transparent;color:inherit;opacity:.75;border-bottom:2px solid transparent;font:inherit}
       .tab:hover{opacity:1}.tab.on{opacity:1;color:var(--primary-color);border-bottom-color:var(--primary-color)}
       .tab svg{width:24px;height:24px;fill:currentColor}.tab ha-icon{--mdc-icon-size:24px}
       .tabs.nobadge .badge{display:none}
-      .tgl{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:none;background:transparent;cursor:pointer;border-radius:50%;color:inherit}
+      .tgl{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin-top:8px;border:none;background:transparent;cursor:pointer;border-radius:50%;color:inherit}
       .tgl:hover{background:rgba(127,127,127,.15)}
       .badge{position:absolute;top:8px;right:2px;min-width:16px;height:16px;border-radius:8px;background:var(--error-color,#db4437);color:#fff;font-size:10px;line-height:16px;text-align:center;padding:0 3px}
       .body{padding:12px}`;

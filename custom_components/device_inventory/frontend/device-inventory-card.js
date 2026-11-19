@@ -746,7 +746,8 @@ class DeviceInventoryCard extends HTMLElement {
     {
       const wrap = el("span", "display:inline-flex;align-items:center;gap:4px");
       if (d.ip) {
-        const a = el("a", "color:var(--primary-color)", d.ip); a.href = `http://${d.ip.includes(":") ? "[" + d.ip + "]" : d.ip}`; a.target = "_blank"; a.rel = "noopener";
+        const web = /^https?:\/\//i.test(d.ip);  // a web address entered by hand
+        const a = el("a", "color:var(--primary-color)", web ? d.ip.replace(/^https?:\/\//i, "").replace(/\/$/, "") : d.ip); a.href = web ? d.ip : `http://${d.ip.includes(":") ? "[" + d.ip + "]" : d.ip}`; a.target = "_blank"; a.rel = "noopener";
         if (d.ip_stale) { a.style.opacity = ".5"; a.style.fontStyle = "italic"; a.title = this._t.ipStale; } // the device reports no address right now: the last known one
         wrap.appendChild(a);
       } else wrap.appendChild(document.createTextNode("–"));
@@ -1215,7 +1216,7 @@ class DeviceInventoryCard extends HTMLElement {
     const t = this._t, o = this._overlay();
     o.bx.appendChild(el("div", "font-weight:600;font-size:16px;margin-bottom:10px", `${t.ipOf}: ${d.name}`));
     const inp = el("input", "width:100%;box-sizing:border-box;font-family:inherit;font-size:14px;padding:8px;border-radius:8px;border:1px solid var(--divider-color,#888);background:var(--secondary-background-color);color:inherit");
-    inp.type = "text"; inp.placeholder = "192.168.1.20"; inp.value = d.ip_manual || d.ip_stale ? d.ip : "";
+    inp.type = "text"; inp.placeholder = "192.168.1.20 / name.example.org"; inp.value = d.ip_manual || d.ip_stale ? d.ip : "";
     let mac = null;
     o.bx.appendChild(inp);
     const sg = d.ip_suggest || [];

@@ -392,11 +392,13 @@ async def ws_set_ip(hass: HomeAssistant, connection, msg: dict[str, Any]) -> Non
     manager: InventoryManager = hass.data[DOMAIN]
     ip = msg["ip"].strip()
     if ip:
+        host = urlparse(ip).hostname if re.match(r"^https?://", ip, re.IGNORECASE) else ip
         try:
-            ipaddress.ip_address(ip)
+            ipaddress.ip_address(host or "")
         except ValueError:
-            connection.send_error(msg["id"], "invalid_ip", "Not a valid IP address")
-            return
+            if not host or not re.fullmatch(r"[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*", host):  # a host name or a web address (e.g. a dynamic DNS name) is fine too
+                connection.send_error(msg["id"], "invalid_ip", "Not a valid IP address or host name")
+                return
         manager.data.setdefault("manual_ip", {})[msg["device_id"]] = {"ip": ip, "mac": msg.get("mac")}
     else:
         manager.data.setdefault("manual_ip", {}).pop(msg["device_id"], None)

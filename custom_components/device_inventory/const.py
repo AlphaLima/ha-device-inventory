@@ -178,11 +178,11 @@ FUNCTION_TABS = {
     },
     "network": {
         "integrations": {
-            "fritz", "fritzbox", "unifi", "upnp", "synology_dsm", "qnap", "brother", "ipp", "cups", "epson", "canon", "hp_ilo", "pi_hole", "adguard",
+            "unifi", "upnp", "synology_dsm", "qnap", "brother", "ipp", "cups", "epson", "canon", "hp_ilo", "pi_hole", "adguard",
             "nmap_tracker", "asuswrt", "mikrotik", "tplink_omada", "netgear", "devolo_home_network", "opnsense", "openwrt", "snmp", "wake_on_lan",
             "keenetic_ndms2", "vodafone_station", "ubus", "unifiled", "ping",
         },
-        "maker": r"\b(avm|fritz!?box|ubiquiti|unifi|synology|qnap|brother|hp|hewlett|epson|canon|lexmark|netgear|mikrotik|devolo|d-link|zyxel|aruba|cisco|raspberry)\b",
+        "maker": r"\b(ubiquiti|unifi|synology|qnap|brother|hp|hewlett|epson|canon|lexmark|netgear|mikrotik|devolo|d-link|zyxel|aruba|cisco|raspberry)\b",
         "text": r"(drucker|printer|\bnas\b|router|repeater|access ?point|\bswitch\b|laptop|notebook|desktop|macbook|\bpc\b|server|scanner)",
     },
 }

@@ -1370,8 +1370,7 @@ class DeviceInventoryCard extends HTMLElement {
     const wst = (c) => (pcfg.w[c] ? ` style="width:${pcfg.w[c]}mm;max-width:${pcfg.w[c]}mm;word-break:break-word"` : "");
     const title = this._label();
     const C = this._pcolor;
-    let tabIcon = this._tabIconSvg();
-    if (!C && tabIcon.includes("data-bw=")) tabIcon = tabIcon.replace(/href="[^"]*"/, "").replace(/data-bw="([^"]*)"/, 'href="$1"'); // black-and-white printout: the logo in black
+    const tabIcon = this._tabIconSvg();
     const PIC = HEAD_ICONS;
     const G = "#2e7d32", O = "#e65100", R = "#c62828";
     const sev = (v, good, warn, hi) => (hi ? (v >= good ? G : v >= warn ? O : R) : (v <= good ? G : v <= warn ? O : R));

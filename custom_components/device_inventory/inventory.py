@@ -20,9 +20,21 @@ CHANNEL_DOMAINS = {"switch", "light", "cover", "lock", "valve", "fan"}
 # sub-devices, WLED / FRITZ!Box entities are settings and not channels
 CHANNEL_INTEGRATIONS = {"homematicip_local", "homematic", "homematicip_cloud", "mqtt", "esphome", "tasmota", "zha", "deconz", "matter", "zwave_js", "hue", "tuya", "sonoff"}
 
-from .const import APPLE_RE, CLASS_MAP, FRITZ_HINTS, OTHER, SONOFF_HINTS, WEAK_INTEGRATIONS
+from .const import (
+    APPLE_RE,
+    AUTO_TAB_EXCLUDED,
+    AUTO_TAB_MIN_DEVICES,
+    CLASS_MAP,
+    ENERGY_HINT,
+    ENERGY_INTEGRATIONS,
+    FRITZ_HINTS,
+    OTHER,
+    SONOFF_HINTS,
+    WEAK_INTEGRATIONS,
+)
 
 UNAVAILABLE = ("unavailable", "unknown")
+ENERGY_RE = re.compile(ENERGY_HINT, re.IGNORECASE)
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
 BLE_SWITCH = re.compile(r"aioshelly_ble_integration")
 INTERNET_SWITCH = re.compile(r"internet_?access|internetzugang")
@@ -597,6 +609,28 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "mesh": None,
             }
         )
+    # Energy tab: solar, storage, wallboxes, meters, heat pumps (by integration or by maker / model / name)
+    for d in result:
+        if "~" in d["id"] or "energy" in d["classes"]:
+            continue
+        text = f"{d.get('manufacturer') or ''} {d.get('model') or ''} {d.get('name') or ''}"
+        if set(d.get("integrations") or []) & ENERGY_INTEGRATIONS or ENERGY_RE.search(text):
+            d["classes"] = sorted((set(d["classes"]) - {OTHER}) | {"energy"})
+    # automatic tabs: every integration with enough devices and no tab of its own
+    skip = set(CLASS_MAP) | WEAK_INTEGRATIONS | AUTO_TAB_EXCLUDED | ENERGY_INTEGRATIONS
+    counts: dict[str, int] = {}
+    for d in result:
+        if "~" in d["id"] or ":" in d["id"]:
+            continue
+        for domain in d.get("integrations") or []:
+            if domain not in skip:
+                counts[domain] = counts.get(domain, 0) + 1
+    for d in result:
+        if "~" in d["id"] or ":" in d["id"]:
+            continue
+        extra = {f"int:{domain}" for domain in d.get("integrations") or [] if counts.get(domain, 0) >= AUTO_TAB_MIN_DEVICES}
+        if extra:
+            d["classes"] = sorted((set(d["classes"]) - {OTHER}) | extra)
     by_name = {d["name"].lower(): d for d in result}
     for d in result:
         d.pop("_weak", None)

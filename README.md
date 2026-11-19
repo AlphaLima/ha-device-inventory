@@ -5,7 +5,7 @@
 One overview of **all devices in your smart home**, sorted by device class – with IP and MAC address, status, photos, notes and a printable documentation.
 Made for installations with many devices where nobody remembers any more *which device sits where, under which address*, e.g. when an electrician has to take over or when you search for a fault.
 
-- **One tab per device class:** All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Z-Wave, Philips Hue (also Hue lamps and remotes that run over Zigbee or Matter: every Signify / Philips Hue device), Tuya, Blink, Amazon Echo, Modbus, KNX, FRITZ!, Router Mesh, Apple, Bluetooth, Batteries, Other (only classes that exist in your system are shown, each with a red badge for offline devices).
+- **One tab per device class:** All, Shelly, ESPHome, ZigBee, Homematic, MQTT, Matter, WLED, Sonoff, Tasmota, Z-Wave, Philips Hue (also Hue lamps and remotes that run over Zigbee or Matter: every Signify / Philips Hue device), Tuya, Blink, Amazon Echo, Modbus, KNX, FRITZ!, Router Mesh, Apple, Bluetooth, Batteries, Other (only classes that exist in your system are shown, each with a red badge for offline devices). **Energy** (solar inverters, storage, wallboxes, meters, heat pumps – found by integration or by maker / model / name, e.g. Kostal, Weishaupt, Fronius, SMA, Shelly EM) and **automatic tabs**: every integration with at least three devices that has no tab of its own (Sonos, Tado, Loxone, …) gets a tab with its name.
 - **Status LED** 🟢/🔴 per device (online = at least one live entity).
 - **IP address as a link** to the web page of the device, **MAC address** (click = copy).
 - **Several photos and a note per device** – where it is installed, which fuse, what is connected.

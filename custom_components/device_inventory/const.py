@@ -81,6 +81,22 @@ CLASS_MAP: dict[str, str] = {
 
 OTHER = "other"
 
+# every integration with at least this many devices (and no tab of its own) gets a tab "int:<integration>" automatically
+AUTO_TAB_MIN_DEVICES = 3
+AUTO_TAB_EXCLUDED = {"homeassistant", "hassio", "mobile_app", "tailscale", "fritzbox", "fritz_callmonitor", "mesh", "apple"}
+
+# energy: solar, storage, wallboxes, meters, heat pumps
+ENERGY_INTEGRATIONS = {
+    "solcast_solar", "kostal_plenticore", "sma", "fronius", "solaredge", "enphase_envoy", "goodwe", "huawei_solar", "growatt_server",
+    "sunspec", "victron_remote_monitoring", "wemportal", "easee", "wallbox", "keba", "ocpp", "zaptec", "myenergi", "tesla_wall_connector",
+    "evcc", "iotawatt", "efergy", "dsmr", "homewizard", "nibe", "stiebel_eltron", "vicare", "go_e", "goecharger",
+}
+ENERGY_HINT = (
+    r"kostal|plenticore|weishaupt|weisshaupt|\bwwp\b|fronius|solaredge|\bsma\b|sunny|growatt|goodwe|sungrow|victron|enphase|\bbyd\b|wallbox|go-?e\b|easee|keba|"
+    r"zaptec|webasto|vestel|evcc|ksem|smart energy meter|inverter|wechselrichter|w\u00e4rmepumpe|heat ?pump|ev ?charger|ladestation|stromz\u00e4hler|smart ?meter|"
+    r"energy ?meter|\b3em\b|\bpro ?3em\b|\bpro ?em\b|\bshelly ?em\b|homewizard|p1 ?meter"
+)
+
 
 
 # Integrations that only mirror devices seen on the network or via Bluetooth.

@@ -1,9 +1,9 @@
 /* Device Inventory sidebar panel: one tab per device class, each showing the table card. */
 
-const PREFERRED = ["all", "shelly", "esphome", "zigbee", "homematic", "mqtt", "matter", "wled", "sonoff", "zwave", "tasmota", "hue", "tuya", "blink", "alexa", "modbus", "knx", "fritz", "mesh", "apple", "bluetooth", "battery", "other"];
+const PREFERRED = ["all", "shelly", "esphome", "zigbee", "homematic", "mqtt", "matter", "wled", "sonoff", "zwave", "tasmota", "hue", "tuya", "blink", "alexa", "modbus", "knx", "energy", "fritz", "mesh", "apple", "bluetooth", "battery", "other"];
 const MDI = {
   all: "mdi:home-assistant", zigbee: "mdi:zigbee", homematic: "mdi:home-automation", zwave: "mdi:z-wave",
-hue: "mdi:lightbulb-group-outline", tuya: "mdi:cloud-outline",
+hue: "mdi:lightbulb-group-outline", tuya: "mdi:cloud-outline", energy: "mdi:lightning-bolt",
   mesh: "mdi:router-wireless", bluetooth: "mdi:bluetooth", battery: "mdi:battery-alert", other: "mdi:devices",
 };
 const SVG = {
@@ -23,23 +23,23 @@ const SVG = {
   wled: { vb: "-3 -5 38 38", d: "M14 0h4v1h-4zM12 1h8v1h-8zM11 2h10v1h-10zM10 3h12v1h-12zM10 4h12v1h-12zM9 5h3v1h-3zM14 5h4v1h-4zM20 5h3v1h-3zM9 6h2v1h-2zM15 6h2v1h-2zM21 6h2v1h-2zM9 7h2v1h-2zM15 7h2v1h-2zM21 7h2v1h-2zM9 8h2v1h-2zM15 8h2v1h-2zM21 8h2v1h-2zM9 9h2v1h-2zM12 9h2v1h-2zM15 9h2v1h-2zM18 9h2v1h-2zM21 9h2v1h-2zM9 10h14v1h-14zM9 11h6v1h-6zM17 11h6v1h-6zM9 12h14v1h-14zM0 13h1v1h-1zM9 13h14v1h-14zM31 13h1v1h-1zM1 14h3v1h-3zM9 14h14v1h-14zM28 14h3v1h-3zM3 15h2v1h-2zM8 15h16v1h-16zM27 15h2v1h-2zM3 16h2v1h-2zM8 16h16v1h-16zM27 16h2v1h-2zM4 17h2v1h-2zM10 17h2v1h-2zM13 17h2v1h-2zM17 17h2v1h-2zM20 17h2v1h-2zM26 17h2v1h-2zM4 18h2v1h-2zM10 18h2v1h-2zM13 18h2v1h-2zM17 18h2v1h-2zM20 18h2v1h-2zM26 18h2v1h-2zM5 19h2v1h-2zM9 19h2v1h-2zM13 19h2v1h-2zM17 19h2v1h-2zM21 19h2v1h-2zM25 19h2v1h-2zM5 20h5v1h-5zM13 20h2v1h-2zM17 20h2v1h-2zM22 20h5v1h-5zM6 21h3v1h-3zM13 21h2v1h-2zM17 21h2v1h-2zM23 21h3v1h-3zM13 22h2v1h-2zM17 22h2v1h-2zM13 23h2v1h-2zM17 23h2v1h-2zM13 24h2v1h-2zM17 24h2v1h-2zM13 25h2v1h-2zM17 25h2v1h-2zM13 26h2v1h-2zM13 27h2v1h-2z" },
 };
 const NAMES = { shelly: "Shelly", esphome: "ESPHome", zigbee: "ZigBee", homematic: "Homematic", mqtt: "MQTT", matter: "Matter",
-  wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Philips Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", knx: "KNX", mesh: "Router Mesh", fritz: "FRITZ!", apple: "Apple", bluetooth: "Bluetooth" };
+  wled: "WLED", sonoff: "Sonoff", zwave: "Z-Wave", tasmota: "Tasmota", hue: "Philips Hue", tuya: "Tuya", blink: "Blink", alexa: "Amazon Echo", modbus: "Modbus", knx: "KNX", energy: "Energy", mesh: "Router Mesh", fritz: "FRITZ!", apple: "Apple", bluetooth: "Bluetooth" };
 // same wording as the card headings
 const LABEL = {
-  en: { all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show missing (offline) devices and red counters", hideBadges: "Hide missing devices and red counters" },
-  de: { all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Fehlende Geräte und rote Zähler anzeigen", hideBadges: "Fehlende Geräte und rote Zähler ausblenden" },
-  fr: { all: "Tous les appareils", other: "Autres", battery: "Piles", showBadges: "Afficher les appareils manquants (hors ligne) et les compteurs rouges", hideBadges: "Masquer les appareils manquants et les compteurs rouges" },
-  es: { all: "Todos los dispositivos", other: "Otros", battery: "Baterías", showBadges: "Mostrar dispositivos ausentes (sin conexión) y contadores rojos", hideBadges: "Ocultar dispositivos ausentes y contadores rojos" },
-  nl: { all: "Alle apparaten", other: "Overig", battery: "Batterijen", showBadges: "Ontbrekende (offline) apparaten en rode tellers tonen", hideBadges: "Ontbrekende apparaten en rode tellers verbergen" },
-  it: { all: "Tutti i dispositivi", other: "Altro", battery: "Batterie", showBadges: "Mostra i dispositivi mancanti (offline) e i contatori rossi", hideBadges: "Nascondi i dispositivi mancanti e i contatori rossi" },
-  pl: { all: "Wszystkie urządzenia", other: "Inne", battery: "Baterie", showBadges: "Pokaż brakujące (offline) urządzenia i czerwone liczniki", hideBadges: "Ukryj brakujące urządzenia i czerwone liczniki" },
-  pt: { all: "Todos os dispositivos", other: "Outros", battery: "Baterias", showBadges: "Mostrar dispositivos em falta (offline) e contadores vermelhos", hideBadges: "Ocultar dispositivos em falta e contadores vermelhos" },
-  cs: { all: "Všechna zařízení", other: "Ostatní", battery: "Baterie", showBadges: "Zobrazit chybějící (offline) zařízení a červené počítadla", hideBadges: "Skrýt chybějící zařízení a červené počítadla" },
-  ru: { all: "Все устройства", other: "Прочее", battery: "Батареи", showBadges: "Показать отсутствующие (не в сети) устройства и красные счётчики", hideBadges: "Скрыть отсутствующие устройства и красные счётчики" },
-  sv: { all: "Alla enheter", other: "Övrigt", battery: "Batterier", showBadges: "Visa saknade (offline) enheter och röda räknare", hideBadges: "Dölj saknade enheter och röda räknare" },
-  nb: { all: "Alle enheter", other: "Annet", battery: "Batterier", showBadges: "Vis manglende (offline) enheter og røde tellere", hideBadges: "Skjul manglende enheter og røde tellere" },
-  da: { all: "Alle enheder", other: "Andet", battery: "Batterier", showBadges: "Vis manglende (offline) enheder og røde tællere", hideBadges: "Skjul manglende enheder og røde tællere" },
-  af: { all: "Alle toestelle", other: "Ander", battery: "Batterye", showBadges: "Wys ontbrekende (aflyn) toestelle en rooi tellers", hideBadges: "Versteek ontbrekende toestelle en rooi tellers" },
+  en: { energy: "Energy", all: "All devices", other: "Other", battery: "Batteries", showBadges: "Show missing (offline) devices and red counters", hideBadges: "Hide missing devices and red counters" },
+  de: { energy: "Energie", all: "Alle Geräte", other: "Sonstige", battery: "Batterien", showBadges: "Fehlende Geräte und rote Zähler anzeigen", hideBadges: "Fehlende Geräte und rote Zähler ausblenden" },
+  fr: { energy: "Énergie", all: "Tous les appareils", other: "Autres", battery: "Piles", showBadges: "Afficher les appareils manquants (hors ligne) et les compteurs rouges", hideBadges: "Masquer les appareils manquants et les compteurs rouges" },
+  es: { energy: "Energía", all: "Todos los dispositivos", other: "Otros", battery: "Baterías", showBadges: "Mostrar dispositivos ausentes (sin conexión) y contadores rojos", hideBadges: "Ocultar dispositivos ausentes y contadores rojos" },
+  nl: { energy: "Energie", all: "Alle apparaten", other: "Overig", battery: "Batterijen", showBadges: "Ontbrekende (offline) apparaten en rode tellers tonen", hideBadges: "Ontbrekende apparaten en rode tellers verbergen" },
+  it: { energy: "Energia", all: "Tutti i dispositivi", other: "Altro", battery: "Batterie", showBadges: "Mostra i dispositivi mancanti (offline) e i contatori rossi", hideBadges: "Nascondi i dispositivi mancanti e i contatori rossi" },
+  pl: { energy: "Energia", all: "Wszystkie urządzenia", other: "Inne", battery: "Baterie", showBadges: "Pokaż brakujące (offline) urządzenia i czerwone liczniki", hideBadges: "Ukryj brakujące urządzenia i czerwone liczniki" },
+  pt: { energy: "Energia", all: "Todos os dispositivos", other: "Outros", battery: "Baterias", showBadges: "Mostrar dispositivos em falta (offline) e contadores vermelhos", hideBadges: "Ocultar dispositivos em falta e contadores vermelhos" },
+  cs: { energy: "Energie", all: "Všechna zařízení", other: "Ostatní", battery: "Baterie", showBadges: "Zobrazit chybějící (offline) zařízení a červené počítadla", hideBadges: "Skrýt chybějící zařízení a červené počítadla" },
+  ru: { energy: "Энергия", all: "Все устройства", other: "Прочее", battery: "Батареи", showBadges: "Показать отсутствующие (не в сети) устройства и красные счётчики", hideBadges: "Скрыть отсутствующие устройства и красные счётчики" },
+  sv: { energy: "Energi", all: "Alla enheter", other: "Övrigt", battery: "Batterier", showBadges: "Visa saknade (offline) enheter och röda räknare", hideBadges: "Dölj saknade enheter och röda räknare" },
+  nb: { energy: "Energi", all: "Alle enheter", other: "Annet", battery: "Batterier", showBadges: "Vis manglende (offline) enheter og røde tellere", hideBadges: "Skjul manglende enheter og røde tellere" },
+  da: { energy: "Energi", all: "Alle enheder", other: "Andet", battery: "Batterier", showBadges: "Vis manglende (offline) enheder og røde tællere", hideBadges: "Skjul manglende enheder og røde tællere" },
+  af: { energy: "Energie", all: "Alle toestelle", other: "Ander", battery: "Batterye", showBadges: "Wys ontbrekende (aflyn) toestelle en rooi tellers", hideBadges: "Versteek ontbrekende toestelle en rooi tellers" },
 };
 LABEL.no = LABEL.nb; LABEL.nn = LABEL.nb;
 
@@ -159,6 +159,7 @@ class DeviceInventoryPanel extends HTMLElement {
     if (!this._tabs) return;
     let r;
     try { r = await this._hass.callWS({ type: "device_inventory/list" }); } catch (e) { return; }
+    this._classLabels = r.class_labels || {};
     const stats = { all: { n: 0, on: 0, off: 0 } };
     (r.devices || []).forEach((d) => {
       stats.all.n++; if (d.online) stats.all.on++; else stats.all.off++;
@@ -171,17 +172,17 @@ class DeviceInventoryPanel extends HTMLElement {
     });
     // tabs without any (visible) entry are hidden; "all" always stays
     const count = (k) => (this._badges ? stats[k].n : stats[k].on);
-    const keys = [...PREFERRED.filter((k) => stats[k]), ...Object.keys(stats).filter((k) => !PREFERRED.includes(k)).sort()].filter((k) => k === "all" || count(k) > 0);
+    const keys = [...PREFERRED.filter((k) => stats[k]), ...Object.keys(stats).filter((k) => !PREFERRED.includes(k)).sort((a, b) => String(this._classLabels[a] || a).localeCompare(String(this._classLabels[b] || b)))].filter((k) => k === "all" || count(k) > 0);
     if (!keys.includes(this._active)) this._select("all");
     this._tabs.innerHTML = "";
     keys.forEach((k) => {
       const b = document.createElement("button"); b.className = "tab" + (k === this._active ? " on" : ""); b.dataset.k = k;
-      b.title = `${this._lbl[k] || NAMES[k] || k} (${this._badges ? stats[k].n : stats[k].on})`;
+      b.title = `${this._lbl[k] || NAMES[k] || (this._classLabels || {})[k] || k} (${this._badges ? stats[k].n : stats[k].on})`;
       if (SVG[k]) {
         const ns = "http://www.w3.org/2000/svg", s = document.createElementNS(ns, "svg"), p = document.createElementNS(ns, "path");
         s.setAttribute("viewBox", SVG[k].vb); if (SVG[k].img) { const q0 = SVG[k].vb.split(" "), df = document.createElementNS(ns, "defs"), mk = document.createElementNS(ns, "mask"), im = document.createElementNS(ns, "image"), rc = document.createElementNS(ns, "rect"); mk.setAttribute("id", "di-mask-" + k); im.setAttribute("href", SVG[k].img); im.setAttribute("width", q0[2]); im.setAttribute("height", q0[3]); mk.appendChild(im); df.appendChild(mk); rc.setAttribute("width", q0[2]); rc.setAttribute("height", q0[3]); rc.setAttribute("fill", "currentColor"); rc.setAttribute("mask", "url(#di-mask-" + k + ")"); s.appendChild(df); s.appendChild(rc); } else p.setAttribute("d", SVG[k].d); if (SVG[k].w) { const q = SVG[k].vb.split(" "); s.style.width = SVG[k].w + "px"; s.style.height = (SVG[k].w * q[3] / q[2]) + "px"; } if (SVG[k].eo) p.setAttribute("fill-rule", "evenodd"); if (!SVG[k].img) s.appendChild(p); b.appendChild(s);
       } else {
-        const i = document.createElement("ha-icon"); i.setAttribute("icon", MDI[k] || "mdi:chip"); b.appendChild(i);
+        const i = document.createElement("ha-icon"); i.setAttribute("icon", MDI[k] || (k.startsWith("int:") ? "mdi:puzzle-outline" : "mdi:chip")); b.appendChild(i);
       }
       if (stats[k].off) { const bd = document.createElement("span"); bd.className = "badge"; bd.textContent = stats[k].off; b.appendChild(bd); }
       b.onclick = () => this._select(k);
@@ -193,7 +194,7 @@ class DeviceInventoryPanel extends HTMLElement {
   _select(k) {
     this._active = k;
     try { localStorage.setItem("diTab", k); } catch (e) { /* ignore */ }
-    this._card.setConfig({ class: k, hide_offline: !this._badges });
+    this._card.setConfig({ class: k, hide_offline: !this._badges, title: (this._classLabels || {})[k] || undefined });
     this._tabs.querySelectorAll(".tab").forEach((t) => t.classList.remove("on"));
     this._loadTabs();
   }

@@ -55,6 +55,18 @@ FRONTEND_DIR = Path(__file__).parent / "frontend"
 FRONTEND_FILES = ("device-inventory-card.js", "device-inventory-panel.js")
 
 
+def _integration_title(hass: HomeAssistant, domain: str) -> str:
+    """Display name of an integration (as in Settings → Devices & services), else the prettified domain."""
+    try:
+        item = hass.data.get("integrations", {}).get(domain)
+        name = getattr(item, "name", None)
+        if name:
+            return str(name)
+    except Exception:  # noqa: BLE001 - only a label
+        pass
+    return domain.replace("_", " ").title()
+
+
 class InventoryManager:
     """Holds the coordinator and the persistent notes/photos."""
 
@@ -225,7 +237,17 @@ class InventoryManager:
             "photos": photos,
             "manuals": manuals,
             "ai": _ai_entity(self.hass) is not None,
+            "class_labels": self._class_labels(),
         }
+
+    def _class_labels(self) -> dict[str, str]:
+        """Names of the automatic tabs (class "int:<integration>") for the panel."""
+        labels: dict[str, str] = {}
+        for dev in self.coordinator.data or []:
+            for cls in dev.get("classes", []):
+                if cls.startswith("int:") and cls not in labels:
+                    labels[cls] = _integration_title(self.hass, cls[4:])
+        return labels
 
     def _signed_url(self, path: str, refresh_token_id: str | None, now: float) -> str:
         """Signed path valid for one hour; re-signed every ten minutes so the browser can cache the file in between."""
@@ -1341,7 +1363,7 @@ def _safe_part(text: str, limit: int = 60) -> str:
 CLASS_FOLDERS = {  # tab (device class) -> folder name; the order decides where a device lies that is listed in several tabs
     "shelly": "Shelly", "hue": "Hue", "esphome": "ESPHome", "zigbee": "ZigBee", "homematic": "Homematic", "mqtt": "MQTT", "matter": "Matter",
     "wled": "WLED", "sonoff": "Sonoff", "zwave": "Z-Wave", "tasmota": "Tasmota", "tuya": "Tuya", "blink": "Blink",
-    "alexa": "Alexa", "modbus": "Modbus", "knx": "KNX", "fritz": "FRITZBox", "apple": "Apple", "mesh": "Router-Mesh", "bluetooth": "Bluetooth", "battery": "Battery",
+    "alexa": "Alexa", "modbus": "Modbus", "knx": "KNX", "energy": "Energy", "fritz": "FRITZBox", "apple": "Apple", "mesh": "Router-Mesh", "bluetooth": "Bluetooth", "battery": "Battery",
 }
 OTHER_FOLDER = "Other"
 _CLASS_FOLDER_NAMES = {name.lower() for name in CLASS_FOLDERS.values()} | {OTHER_FOLDER.lower()}
@@ -1364,7 +1386,11 @@ def _class_folder(manager: InventoryManager, device_id: str) -> str:
     """Tab folder of a device: the first of its tabs in the fixed order of CLASS_FOLDERS."""
     dev = next((item for item in (manager.coordinator.data or []) if item["id"] == device_id), None)
     classes = (dev or {}).get("classes") or []
-    return next((name for cls, name in CLASS_FOLDERS.items() if cls in classes), OTHER_FOLDER)
+    known = next((name for cls, name in CLASS_FOLDERS.items() if cls in classes), None)
+    if known:
+        return known
+    auto = next((cls for cls in classes if cls.startswith("int:")), None)  # automatic tab: the folder carries the integration name
+    return (_safe_part(_integration_title(manager.hass, auto[4:]), 40) if auto else "") or OTHER_FOLDER
 
 
 def _device_folder(manager: InventoryManager, device_id: str, dev_name: str, skip_own: bool = False) -> str:

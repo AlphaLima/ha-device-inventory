@@ -2,6 +2,10 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.0b6 – 2026-11-19
+- IP field accepts host names and web addresses (e.g. dynamic DNS names)
+- Mirror rows with the same MAC address (MAC name, maker name, router or Bluetooth copy) are shown once and keep the tabs of all copies
+
 ## 1.19.0b5 – 2026-11-19
 - New tab Rain Bird
 - Rows named by the same MAC address (colon and underscore spelling) are shown once; rows called only by their MAC are merged into the real device

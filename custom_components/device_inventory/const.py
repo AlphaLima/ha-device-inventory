@@ -103,6 +103,8 @@ CLASS_MAP: dict[str, str] = {
 
     "smartthings": "smartthings",
 
+    "rainbird": "rainbird",
+
     "blink": "blink",
 
     "alexa_media": "alexa",
@@ -133,6 +135,7 @@ BRAND_HINTS = {
     "nest": ("nest",),
     "kasa": ("kasa",),
     "smartthings": ("smartthings",),
+    "rainbird": ("rain bird", "rainbird"),
 }
 
 # every integration with at least this many devices (and no tab of its own) gets a tab "int:<integration>" automatically

@@ -113,6 +113,7 @@ The tab bar lists the **general** tabs first, then the **companies**. Hover over
 | Netatmo | Netatmo weather stations, thermostats and cameras |
 | Google Nest | Google Nest thermostats, cameras and speakers |
 | Samsung SmartThings | Samsung SmartThings devices and hubs |
+| Rain Bird | Rain Bird irrigation controllers and sprinkler valves |
 | *(integration name)* | All devices of this integration (the tab appears automatically from three devices) |
 
 ## The sidebar panel

@@ -212,6 +212,12 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
             devices_per_entry[entry_id] = devices_per_entry.get(entry_id, 0) + 1
     entries = {eid: hass.config_entries.async_get_entry(eid) for eid in devices_per_entry}
     result: list[dict[str, Any]] = []
+    tracker_ip_by_mac: dict[str, str] = {}  # MAC -> IP of the device trackers (FRITZ!Box Tools, nmap, ...): the tracker may belong to another registry device than the switch
+    for tstate in hass.states.async_all("device_tracker"):
+        tmac = _norm_mac(tstate.attributes.get("mac"))
+        tip = _lan_ip(tstate.attributes.get("ip") or tstate.attributes.get("ip_address"))
+        if tmac and tip:
+            tracker_ip_by_mac.setdefault(tmac, tip)
 
     for dev in all_devices:
         if dev.entry_type is dr.DeviceEntryType.SERVICE or dev.disabled_by:
@@ -330,6 +336,8 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         mac = next((v for k, v in dev.connections if k == "mac"), None) or next(
             (v for k, v in dev.connections if k == "bluetooth"), None
         ) or _mac_from_identifiers(dev)
+        if ip is None and mac:  # a device that only has a switch (FRITZ!Box internet access): the IP is on the device tracker with the same MAC
+            ip = tracker_ip_by_mac.get(_norm_mac(mac) or "")
         if sonoff_hint and "sonoff" not in classes:
             classes = [c for c in classes if c != OTHER] + ["sonoff"]
         ble = None

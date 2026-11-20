@@ -181,7 +181,7 @@ class DeviceInventoryPanel extends HTMLElement {
     this._card.setConfig({ class: this._active, hide_offline: !this._badges });
     this._card.hass = this._hass;
     // small screens: the tab bar slides away while the table is scrolled down and comes back when scrolling up or at the top
-    const mq = window.matchMedia("(max-width: 700px)");
+    const mq = window.matchMedia("(max-width: 700px), ((max-height: 520px) and (pointer: coarse))");
     let acc = 0;
     const setHidden = (hide) => {
       if (hide === top.classList.contains("hide")) return;

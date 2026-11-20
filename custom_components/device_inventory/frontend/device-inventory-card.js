@@ -664,7 +664,7 @@ class DeviceInventoryCard extends HTMLElement {
         grip.onmousedown = (ev) => {
           ev.preventDefault(); ev.stopPropagation();
           const x0 = ev.clientX, w0 = th.getBoundingClientRect().width; let cur = w0;
-          const mv = (e) => { cur = Math.max(24, w0 + e.clientX - x0); [th, ...tbl.querySelectorAll(`td[data-col="${c}"]`)].forEach((x) => { x.style.width = x.style.maxWidth = x.style.minWidth = cur + "px"; }); };
+          const mv = (e) => { cur = Math.max(8, w0 + e.clientX - x0); [th, ...tbl.querySelectorAll(`td[data-col="${c}"]`)].forEach((x) => { x.style.width = x.style.maxWidth = x.style.minWidth = cur + "px"; }); };
           const up = () => { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); act.w[c] = tgt === "print" ? Math.round(cur / mm) : Math.round(cur); this._saveCfg(tgt, act); };
           document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
         };

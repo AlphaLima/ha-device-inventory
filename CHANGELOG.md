@@ -2,6 +2,10 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.1b1 – 2026-11-20
+- Phone: the tab bar slides away while the list is scrolled down and returns only when pulling down at the top of the list; a swipe up hides it even for short lists, also on short touch screens in landscape
+- Tab bar: the underline of the active tab has rounded ends (same look as Entity Inventory)
+
 ## 1.19.0 – 2026-11-19
 - Everything from the 1.19.0 betas: AI search for manuals and product photos (optional, off unless an AI task entity is chosen), documents of any file type per device, many new tabs with descriptions, Router Mesh node details, IP column with last known address, router suggestions and manual entry, duplicate rows merged
 - Edit pencils only appear on row hover; long press or right-click opens the editors; document count hidden

@@ -461,6 +461,7 @@ class DeviceInventoryCard extends HTMLElement {
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       .hv{visibility:hidden}tr:hover .hv{visibility:visible}@media (hover:none){.hv{display:none!important}}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
+      th:has(.cfgbox){overflow:visible}th .cfgl{display:block;overflow:hidden;white-space:nowrap;text-overflow:clip}th .cfgbox{display:none;position:absolute;left:0;top:0;z-index:30;min-width:116px;box-sizing:border-box;padding:3px;background:var(--card-background-color,#fff);border:1px solid var(--divider-color,#888);border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.35)}th:hover .cfgbox,th:focus-within .cfgbox{display:block}
       th .cfgc{display:flex;gap:2px;align-items:center;margin-bottom:2px}th .cfgc button{padding:0 4px;font-size:11px;line-height:16px;border-radius:4px}th .cfgc input{margin:0}
       .bar{display:flex;gap:6px;align-items:center;margin:0 0 4px}.dim{opacity:.65;font-size:12px}`;
     root.appendChild(st);
@@ -640,7 +641,9 @@ class DeviceInventoryCard extends HTMLElement {
         title.style.cssText = "width:100%;min-width:48px;box-sizing:border-box;font:inherit;font-weight:700;padding:1px 3px;border:1px dashed var(--divider-color,#888);border-radius:4px;background:transparent;color:inherit";
         title.onkeydown = (ev) => { ev.stopPropagation(); if (ev.key === "Enter") title.blur(); };
         title.onchange = () => { const v = title.value.trim(); if (v) { act.n = act.n || {}; act.n[c] = v; } else if (act.n) delete act.n[c]; this._saveCfg(tgt, act); this._render(); };
-        th.textContent = ""; th.append(ctl, title);
+        const lab = el("span"); lab.className = "cfgl"; lab.innerHTML = th.innerHTML; // the heading itself is narrow; the controls appear on hover
+        const box = el("div"); box.className = "cfgbox"; box.append(ctl, title);
+        th.textContent = ""; th.append(lab, box);
         const grip = el("span", "position:absolute;right:0;top:0;bottom:0;width:7px;cursor:col-resize;background:rgba(127,127,127,.25)");
         grip.title = "↔";
         grip.ondblclick = () => { delete act.w[c]; this._saveCfg(tgt, act); this._render(); };

@@ -197,6 +197,11 @@ class DeviceInventoryPanel extends HTMLElement {
       if (t > 12 && acc > 12) setHidden(true); // scrolling up does not bring it back: only pulling down at the very top of the list does
     });
     this._card.addEventListener("di-pull", () => setHidden(false));
+    // a swipe up or wheel down hides the bar even when the list is too short to scroll, so it always behaves the same
+    let y0 = null, wheel = 0;
+    this._body.addEventListener("touchstart", (e) => { y0 = e.touches[0].clientY; }, { passive: true });
+    this._body.addEventListener("touchmove", (e) => { if (y0 !== null && mq.matches && y0 - e.touches[0].clientY > 20) { y0 = null; setHidden(true); } }, { passive: true });
+    this._body.addEventListener("wheel", (e) => { if (!mq.matches) return; if (e.deltaY > 0) { wheel += e.deltaY; if (wheel > 20) { wheel = 0; setHidden(true); } } else wheel = 0; }, { passive: true });
   }
 
   _desc(k) {

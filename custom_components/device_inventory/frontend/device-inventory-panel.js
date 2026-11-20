@@ -132,7 +132,7 @@ class DeviceInventoryPanel extends HTMLElement {
       .tabs{display:flex;flex-wrap:wrap;flex:1;min-width:0} /* more tabs than the screen is wide: they wrap into further rows */
       .top>ha-menu-button{margin-top:4px}
       .tab{position:relative;display:flex;align-items:center;justify-content:center;min-width:56px;height:56px;padding:0 10px;box-sizing:border-box;
-        cursor:pointer;border:none;background:transparent;color:inherit;opacity:.75;border-bottom:2px solid transparent;font:inherit}
+        cursor:pointer;border:none;border-radius:8px;background:transparent;color:inherit;opacity:.75;border-bottom:2px solid transparent;font:inherit} /* rounded ends of the underline of the active tab (same in Device Inventory and Entity Inventory) */
       .sep{flex:none;width:1px;height:30px;margin:13px 6px;background:var(--divider-color,#888);opacity:.8}
       .tab:hover{opacity:1}.tab.on{opacity:1;color:var(--primary-color);border-bottom-color:var(--primary-color)}
       .tab svg{width:24px;height:24px;fill:currentColor}.tab ha-icon{--mdc-icon-size:24px}

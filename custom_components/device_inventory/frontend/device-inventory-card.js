@@ -452,7 +452,7 @@ class DeviceInventoryCard extends HTMLElement {
     root.innerHTML = "";
     const st = document.createElement("style");
     st.textContent = `ha-card{padding:4px 8px 6px}
-      .wrap{overflow:auto;max-height:${cfg.max_height || "calc(100vh - 170px)"}}
+      .wrap{overflow:auto;max-height:${cfg.max_height || "var(--di-wrap-max,calc(100vh - 170px))"}}
       table{width:auto;border-collapse:collapse;font-size:12px}
       th{position:sticky;top:0;z-index:1;background:var(--card-background-color,#fff);text-align:left;padding:3px 4px;border-bottom:2px solid var(--divider-color,#888);cursor:pointer;user-select:none;white-space:nowrap}
       th:hover{color:var(--primary-color)}
@@ -664,6 +664,10 @@ class DeviceInventoryCard extends HTMLElement {
     this._sorted().forEach((d, i) => tb.appendChild(this._row(d, i + 1, hide)));
     tbl.appendChild(tb);
     const wrap = el("div"); wrap.className = "wrap"; wrap.appendChild(tbl);
+    { // tell the panel which way the table is scrolled (it hides its tab bar on small screens while you scroll down)
+      let last = wrap.scrollTop; const born = Date.now();
+      wrap.addEventListener("scroll", () => { const top = wrap.scrollTop, dy = top - last; last = top; if (Date.now() - born < 500) return; this.dispatchEvent(new CustomEvent("di-scroll", { detail: { top, dy }, bubbles: true, composed: true })); }, { passive: true });
+    }
     if (edit) {
       // make the edited side unmistakable: watermark + coloured frame (blue = display, orange = printout)
       const rgb = tgt === "print" ? "251,140,0" : "30,136,229";

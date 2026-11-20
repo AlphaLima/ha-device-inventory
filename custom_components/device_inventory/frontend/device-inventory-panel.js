@@ -140,6 +140,7 @@ class DeviceInventoryPanel extends HTMLElement {
       .tgl{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin-top:8px;border:none;background:transparent;cursor:pointer;border-radius:50%;color:inherit}
       .tgl:hover{background:rgba(127,127,127,.15)}
       .badge{position:absolute;top:8px;right:2px;min-width:16px;height:16px;border-radius:8px;background:var(--error-color,#db4437);color:#fff;font-size:10px;line-height:16px;text-align:center;padding:0 3px}
+      .top.hide{display:none}
       .body{padding:12px}`;
     const top = document.createElement("div"); top.className = "top";
     this._menu = document.createElement("ha-menu-button");
@@ -179,6 +180,22 @@ class DeviceInventoryPanel extends HTMLElement {
     this._body.appendChild(this._card);
     this._card.setConfig({ class: this._active, hide_offline: !this._badges });
     this._card.hass = this._hass;
+    // small screens: the tab bar slides away while the table is scrolled down and comes back when scrolling up or at the top
+    const mq = window.matchMedia("(max-width: 700px)");
+    let acc = 0;
+    const setHidden = (hide) => {
+      if (hide === top.classList.contains("hide")) return;
+      const h = top.offsetHeight;
+      top.classList.toggle("hide", hide);
+      if (hide) this._card.style.setProperty("--di-wrap-max", `calc(100vh - ${Math.max(60, 170 - Math.max(h, 56))}px)`);
+      else this._card.style.removeProperty("--di-wrap-max");
+    };
+    this._card.addEventListener("di-scroll", (e) => {
+      if (!mq.matches) { setHidden(false); return; }
+      const { top: t, dy } = e.detail;
+      acc = Math.sign(dy) === Math.sign(acc) ? acc + dy : dy;
+      if (t < 30 || acc < -15) setHidden(false); else if (t > 80 && acc > 20) setHidden(true);
+    });
   }
 
   _desc(k) {

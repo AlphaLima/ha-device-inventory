@@ -461,7 +461,7 @@ class DeviceInventoryCard extends HTMLElement {
       tr:hover td{background:rgba(127,127,127,.08)}.ic{cursor:pointer;margin-right:3px;font-size:14px}
       .hv{visibility:hidden}tr:hover .hv{visibility:visible}@media (hover:none){.hv{display:none!important}}
       button,select{cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--divider-color,#888);background:transparent;color:var(--primary-text-color);font-size:13px}
-      th:has(.cfgbox){overflow:visible}th .cfgl{display:block;overflow:hidden;white-space:nowrap;text-overflow:clip}th .cfgbox{display:none;position:absolute;left:0;top:0;z-index:30;min-width:116px;box-sizing:border-box;padding:3px;background:var(--card-background-color,#fff);border:1px solid var(--divider-color,#888);border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.35)}th:hover .cfgbox,th:focus-within .cfgbox{display:block}
+      th:has(.cfgbox){overflow:visible}th .cfgl{display:block;overflow:hidden;white-space:nowrap;text-overflow:clip}th .cfgbox{display:none;position:absolute;left:0;top:100%;z-index:30;min-width:116px;box-sizing:border-box;padding:3px;background:var(--card-background-color,#fff);border:1px solid var(--divider-color,#888);border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.35)}th:hover .cfgbox,th:focus-within .cfgbox{display:block}th .cfgl{cursor:grab}th.dropt{box-shadow:inset 3px 0 0 var(--primary-color,#03a9f4)}
       th .cfgc{display:flex;gap:2px;align-items:center;margin-bottom:2px}th .cfgc button{padding:0 4px;font-size:11px;line-height:16px;border-radius:4px}th .cfgc input{margin:0}
       .bar{display:flex;gap:6px;align-items:center;margin:0 0 4px}.dim{opacity:.65;font-size:12px}`;
     root.appendChild(st);
@@ -644,7 +644,21 @@ class DeviceInventoryCard extends HTMLElement {
         const lab = el("span"); lab.className = "cfgl"; lab.innerHTML = th.innerHTML; // the heading itself is narrow; the controls appear on hover
         const box = el("div"); box.className = "cfgbox"; box.append(ctl, title);
         th.textContent = ""; th.append(lab, box);
-        const grip = el("span", "position:absolute;right:0;top:0;bottom:0;width:7px;cursor:col-resize;background:rgba(127,127,127,.25)");
+        // the order is changed by dragging a heading onto another one (the width is set with the grip at the right edge)
+        th.draggable = true;
+        th.ondragstart = (ev) => { if (ev.target.closest && ev.target.closest("input")) { ev.preventDefault(); return; } window.__diDragCol = c; ev.dataTransfer.effectAllowed = "move"; try { ev.dataTransfer.setData("text/plain", c); } catch (e) { /* ignore */ } };
+        th.ondragover = (ev) => { if (!window.__diDragCol) return; ev.preventDefault(); th.classList.add("dropt"); };
+        th.ondragleave = () => th.classList.remove("dropt");
+        th.ondrop = (ev) => {
+          const from = window.__diDragCol; window.__diDragCol = null; th.classList.remove("dropt");
+          if (!from) return;
+          ev.preventDefault();
+          const i = act.order.indexOf(from), j = act.order.indexOf(c);
+          if (from === c || i < 0 || j < 0) return;
+          act.order.splice(i, 1); act.order.splice(act.order.indexOf(c) + (i < j ? 1 : 0), 0, from);
+          this._saveCfg(tgt, act); this._render();
+        };
+        const grip = el("span", "z-index:40;position:absolute;right:0;top:0;bottom:0;width:7px;cursor:col-resize;background:rgba(127,127,127,.25)");
         grip.title = "↔";
         grip.ondblclick = () => { delete act.w[c]; this._saveCfg(tgt, act); this._render(); };
         grip.onmousedown = (ev) => {

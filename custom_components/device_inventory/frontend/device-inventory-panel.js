@@ -194,8 +194,9 @@ class DeviceInventoryPanel extends HTMLElement {
       if (!mq.matches) { setHidden(false); return; }
       const { top: t, dy } = e.detail;
       acc = Math.sign(dy) === Math.sign(acc) ? acc + dy : dy;
-      if (t < 30 || acc < -15) setHidden(false); else if (t > 80 && acc > 20) setHidden(true);
+      if (t > 80 && acc > 20) setHidden(true); // scrolling up does not bring it back: only pulling down at the very top of the list does
     });
+    this._card.addEventListener("di-pull", () => setHidden(false));
   }
 
   _desc(k) {

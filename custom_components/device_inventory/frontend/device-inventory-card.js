@@ -667,6 +667,12 @@ class DeviceInventoryCard extends HTMLElement {
     { // tell the panel which way the table is scrolled (it hides its tab bar on small screens while you scroll down)
       let last = wrap.scrollTop; const born = Date.now();
       wrap.addEventListener("scroll", () => { const top = wrap.scrollTop, dy = top - last; last = top; if (Date.now() - born < 500) return; this.dispatchEvent(new CustomEvent("di-scroll", { detail: { top, dy }, bubbles: true, composed: true })); }, { passive: true });
+      // pulling further down at the very top of the list (finger or mouse wheel) asks the panel to show its tab bar again
+      const pull = () => this.dispatchEvent(new CustomEvent("di-pull", { bubbles: true, composed: true }));
+      let y0 = null, wheel = 0;
+      wrap.addEventListener("touchstart", (e) => { y0 = wrap.scrollTop <= 0 ? e.touches[0].clientY : null; }, { passive: true });
+      wrap.addEventListener("touchmove", (e) => { if (y0 !== null && wrap.scrollTop <= 0 && e.touches[0].clientY - y0 > 40) { y0 = null; pull(); } }, { passive: true });
+      wrap.addEventListener("wheel", (e) => { if (wrap.scrollTop <= 0 && e.deltaY < 0) { wheel += -e.deltaY; if (wheel > 60) { wheel = 0; pull(); } } else wheel = 0; }, { passive: true });
     }
     if (edit) {
       // make the edited side unmistakable: watermark + coloured frame (blue = display, orange = printout)

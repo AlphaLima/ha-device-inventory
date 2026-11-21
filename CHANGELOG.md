@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.1b5 – 2026-11-21
+- Long press or right click on a column heading renames the column (display names)
+
 ## 1.19.1b4 – 2026-11-21
 - Clicking the room of a device opens the area page in Home Assistant; its back arrow returns to the inventory (this fix was missing in 1.19.1b3)
 

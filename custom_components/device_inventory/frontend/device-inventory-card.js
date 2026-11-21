@@ -766,7 +766,13 @@ class DeviceInventoryCard extends HTMLElement {
     const cnt = (n, icon, col) => { const x = el("span", `display:inline-flex;align-items:center;gap:3px;color:${col}`); x.innerHTML = ico(icon, 16) + `<b style="color:var(--primary-text-color)">${n}</b>`; return x; };
     add("lanc", d.mesh_stats ? cnt(d.mesh_stats.lan, "lan", "#4a8cf0") : "–");
     add("wific", d.mesh_stats ? cnt(d.mesh_stats.wlan, "wifi", "#a07cf0") : "–");
-    add("area", d.area || "–");
+    let areaEl = d.area || "–";
+    const areaId = d.area && Object.keys((this._hass && this._hass.areas) || {}).find((k) => this._hass.areas[k].name === d.area);
+    if (areaId) { // opens the area page of Home Assistant; "from" lets its back arrow return here
+      areaEl = el("span", "cursor:pointer", d.area);
+      areaEl.addEventListener("click", (ev) => { ev.stopPropagation(); history.pushState({ from: location.pathname + location.search }, "", `/config/areas/area/${areaId}`); window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } })); });
+    }
+    add("area", areaEl);
     const b = d.ble || {};
     add("distance", b.distance == null ? "–" : b.distance.toFixed(1) + " m");
     let homeEl = "–"; if (b.home != null) { homeEl = el("span", `display:inline-flex;color:${b.home ? "var(--success-color,#43a047)" : "var(--error-color,#e53935)"}`); homeEl.innerHTML = ico(b.home ? "checkc" : "block", 17); }

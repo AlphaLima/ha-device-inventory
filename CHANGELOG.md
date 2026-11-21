@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.1b3 – 2026-11-21
+- Clicking the room of a device opens the area page in Home Assistant; its back arrow returns to the inventory
+
 ## 1.19.1b2 – 2026-11-21
 - Column editor like in Entity Inventory: controls appear on hover below the heading, columns can be reordered by drag and drop and made very narrow
 - Phone: the tab bar hides while scrolling and returns when pulling down at the top (portrait and landscape)

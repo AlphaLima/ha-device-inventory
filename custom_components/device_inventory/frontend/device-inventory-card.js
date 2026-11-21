@@ -420,6 +420,7 @@ class DeviceInventoryCard extends HTMLElement {
 
   _render() {
     if (!this._root || !this._state) return;
+    if (this._hnEdit) return; // a column heading is being renamed: do not redraw it
     const activeEl = this._root.activeElement;
     const keep = activeEl && activeEl.classList && activeEl.classList.contains("q") ? [activeEl.selectionStart, activeEl.selectionEnd] : null;
     const t = this._t, s = this._state, cfg = this._config;
@@ -673,6 +674,7 @@ class DeviceInventoryCard extends HTMLElement {
         hr.appendChild(th); return;
       }
       if (c !== "#") th.onclick = () => { if (s.sortCol === c) s.sortDir = -s.sortDir; else { s.sortCol = c; s.sortDir = 1; } this._freeze = false; this._render(); };
+      if (c !== "#") this._hold(th, () => this._renameHead(th, c, vcfg)); // long press / right click: type the column name right in the heading
       hr.appendChild(th);
     });
     const thead = document.createElement("thead"); thead.appendChild(hr); tbl.appendChild(thead);
@@ -912,6 +914,23 @@ class DeviceInventoryCard extends HTMLElement {
       });
     }
     return tr;
+  }
+
+  // long press on a column heading: type a new name for the column (display names; empty = default). Enter / click elsewhere saves, Esc cancels
+  _renameHead(th, c, cfg) {
+    const t = this._lbl, inp = document.createElement("input");
+    inp.type = "text"; inp.value = (cfg.n || {})[c] || ""; inp.placeholder = c === "#" ? "#" : (t[c] || c); inp.title = t.rename;
+    inp.style.cssText = "width:100%;min-width:60px;box-sizing:border-box;font:inherit;font-weight:700;padding:1px 3px;border:1px solid var(--primary-color);border-radius:4px;background:var(--card-background-color,transparent);color:var(--primary-text-color)";
+    th.textContent = ""; th.appendChild(inp); this._hnEdit = true; inp.focus(); inp.select();
+    let done = false;
+    const fin = (save) => {
+      if (done) return; done = true; this._hnEdit = false;
+      if (save) { const v = inp.value.trim(); cfg.n = cfg.n || {}; if (v) cfg.n[c] = v; else delete cfg.n[c]; this._saveCfg("view", cfg); }
+      this._render();
+    };
+    inp.onkeydown = (ev) => { ev.stopPropagation(); if (ev.key === "Enter") fin(true); else if (ev.key === "Escape") fin(false); };
+    inp.onblur = () => fin(true);
+    inp.onclick = (ev) => ev.stopPropagation();
   }
 
   // ---------- popup / overlay helpers

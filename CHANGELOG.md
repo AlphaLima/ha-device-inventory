@@ -2,6 +2,11 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.1b2 – 2026-11-21
+- Column editor like in Entity Inventory: controls appear on hover below the heading, columns can be reordered by drag and drop and made very narrow
+- Phone: the tab bar hides while scrolling and returns when pulling down at the top (portrait and landscape)
+- Edit pencils appear on hover only; long press or right click opens the edit dialogs
+
 ## 1.19.1b1 – 2026-11-20
 - Phone: the tab bar slides away while the list is scrolled down and returns only when pulling down at the top of the list; a swipe up hides it even for short lists, also on short touch screens in landscape
 - Tab bar: the underline of the active tab has rounded ends (same look as Entity Inventory)

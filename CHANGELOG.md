@@ -2,6 +2,9 @@
 
 Versions follow [Semantic Versioning](https://semver.org/). Each version is a git tag `vX.Y.Z` and a GitHub release; HACS shows that number.
 
+## 1.19.1b6 – 2026-11-27
+- ESPHome: a device whose Status sensor reports Disconnected is shown offline, even if other entities are still available (#2)
+
 ## 1.19.1b5 – 2026-11-21
 - Long press or right click on a column heading renames the column (display names)
 

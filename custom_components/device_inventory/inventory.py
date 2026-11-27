@@ -44,6 +44,7 @@ FUNCTION_RE = {
 IP_ENTITY = re.compile(r"(^|_)ip(_address)?$")
 BLE_SWITCH = re.compile(r"aioshelly_ble_integration")
 INTERNET_SWITCH = re.compile(r"internet_?access|internetzugang")
+STATUS_ENTITY = re.compile(r"(^|_)status$")  # binary_sensor.<device>_status: the connection status of the device itself
 
 
 def _valid_ip(value: Any) -> str | None:
@@ -271,6 +272,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
         if not entities:
             continue  # registry shell without any entity (e.g. Bluetooth scanner placeholder)
         alive = 0
+        status_off = False  # a status sensor of the device itself says "disconnected" (e.g. the ESPHome status binary sensor)
         last_seen = None
         battery = None
         battery_low = None
@@ -324,6 +326,15 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                     ip = _lan_ip(state.state)
                 if ip is None:
                     ip = _lan_ip(state.attributes.get("ip_address") or state.attributes.get("ip"))
+            if ent.domain == "binary_sensor" and (ent.device_class or ent.original_device_class) == "connectivity" and (
+                ent.platform == "esphome" or STATUS_ENTITY.search(ent.entity_id.split(".", 1)[1])
+            ):
+                # the device's own connection status: it stays available while the device is gone and only reports "off" (Disconnected)
+                if state.state == "off":
+                    status_off = True
+                elif state.state not in UNAVAILABLE:
+                    alive += 1
+                continue
             if state.state not in UNAVAILABLE:
                 alive += 1
             if last_seen is None or state.last_updated > last_seen:
@@ -401,7 +412,7 @@ def build_inventory(hass: HomeAssistant, prefer: set[str] | None = None) -> list
                 "classes": classes,
                 "integrations": sorted(domains),
                 "_weak": bool(domains) and domains <= WEAK_INTEGRATIONS,
-                "online": alive > 0,
+                "online": alive > 0 and not status_off,
                 "battery": battery,
                 "battery_low": battery_low,
                 "last_seen": last_seen.isoformat() if last_seen else None,
